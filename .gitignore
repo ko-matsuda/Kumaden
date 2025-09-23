@@ -1,1 +1,10 @@
-Library/
+# Unity（いれない約束）
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
+Library/PackageCache/
