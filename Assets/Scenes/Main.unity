@@ -645,55 +645,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &330763608
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 330763610}
-  - component: {fileID: 330763609}
-  m_Layer: 0
-  m_Name: LaneController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &330763609
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330763608}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a48fbe81f98303489e3523fd5c00637, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  laneRenderers:
-  - {fileID: 833623585}
-  - {fileID: 1901739848}
-  - {fileID: 460385139}
-  laneHighlightMat: {fileID: 1597066852802225790, guid: dee7618ae80e2aa4aa4d3e662f6f3300, type: 3}
---- !u!4 &330763610
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330763608}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 9
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &350379088 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5237897444947184907, guid: a199d962ca53e4a10ba285d5d34bf335, type: 3}
@@ -917,7 +868,7 @@ MonoBehaviour:
   - 1.6
   laneY: 0.7
   spawnZ: 30
-  judgeZ: 1
+  judgeZ: 1.5
   scrollSpeed: 12
   lingerDistance: 3
   subdivision: 2
@@ -1036,7 +987,6 @@ GameObject:
   - component: {fileID: 460385137}
   - component: {fileID: 460385140}
   - component: {fileID: 460385139}
-  - component: {fileID: 460385138}
   m_Layer: 0
   m_Name: LaneR
   m_TagString: Untagged
@@ -1059,19 +1009,6 @@ Transform:
   m_Father: {fileID: 528059056}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &460385138
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 460385136}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &460385139
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1079,7 +1016,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 460385136}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1092,7 +1029,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 1597066852802225790, guid: dee7618ae80e2aa4aa4d3e662f6f3300, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1384,7 +1321,6 @@ GameObject:
   - component: {fileID: 528059056}
   - component: {fileID: 528059055}
   - component: {fileID: 528059054}
-  - component: {fileID: 528059053}
   m_Layer: 0
   m_Name: Road
   m_TagString: Untagged
@@ -1392,19 +1328,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!65 &528059053
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 528059052}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &528059054
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1413,7 +1336,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 528059052}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -1425,7 +1348,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 669e9e152047bbe4c9453124eeceae88, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1964,7 +1887,7 @@ GameObject:
   - component: {fileID: 736672963}
   - component: {fileID: 736672964}
   m_Layer: 0
-  m_Name: StreetA
+  m_Name: Street
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2117,7 +2040,6 @@ GameObject:
   - component: {fileID: 833623583}
   - component: {fileID: 833623586}
   - component: {fileID: 833623585}
-  - component: {fileID: 833623584}
   m_Layer: 0
   m_Name: LaneL
   m_TagString: Untagged
@@ -2140,19 +2062,6 @@ Transform:
   m_Father: {fileID: 528059056}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &833623584
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 833623582}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &833623585
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2160,7 +2069,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 833623582}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -2173,7 +2082,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 1597066852802225790, guid: dee7618ae80e2aa4aa4d3e662f6f3300, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2265,6 +2174,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4443891978023751981, guid: 0285aac3b3b9511489120760fe07f74b, type: 3}
   m_PrefabInstance: {fileID: 835666078}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &891588767
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 891588769}
+  - component: {fileID: 891588770}
+  m_Layer: 0
+  m_Name: LaneManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &891588769
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 891588767}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &891588770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 891588767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55244622cdeb2384e8c531eb76154057, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  laneRenderers:
+  - {fileID: 833623585}
+  - {fileID: 1901739848}
+  - {fileID: 460385139}
 --- !u!1 &939655170
 GameObject:
   m_ObjectHideFlags: 0
@@ -3417,7 +3374,7 @@ Light:
     m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
-    m_Strength: 0.3
+    m_Strength: 0.4
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.1
@@ -4379,8 +4336,10 @@ MonoBehaviour:
   seSource: {fileID: 1899053744}
   sePerfect: {fileID: 8300000, guid: 419ac77019cc0744f8ed8293200952b2, type: 3}
   seGood: {fileID: 8300000, guid: 66d69b48a7b040c42823e04c749bdbd1, type: 3}
-  perfectRangeZ: 0.3
-  goodRangeZ: 0.8
+  perfectRangeZ: 0.35
+  goodRangeZ: 0.7
+  judgeOffsetFromFront: 0.4
+  printDebug: 1
 --- !u!82 &1899053744
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4485,7 +4444,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1899053732}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1.6, y: 2, z: 2}
@@ -4501,7 +4460,6 @@ GameObject:
   - component: {fileID: 1901739846}
   - component: {fileID: 1901739849}
   - component: {fileID: 1901739848}
-  - component: {fileID: 1901739847}
   m_Layer: 0
   m_Name: LaneM
   m_TagString: Untagged
@@ -4524,19 +4482,6 @@ Transform:
   m_Father: {fileID: 528059056}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1901739847
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1901739845}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1901739848
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4544,7 +4489,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1901739845}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -4557,7 +4502,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 1597066852802225790, guid: dee7618ae80e2aa4aa4d3e662f6f3300, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
