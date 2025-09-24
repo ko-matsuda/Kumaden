@@ -116,4 +116,4 @@ MonoBehaviour:
   laneIndex: 0
   ingredient: 0
   noteRenderer: {fileID: 8384012808243909169}
-  highlightMat: {fileID: 1597066852802225790, guid: dee7618ae80e2aa4aa4d3e662f6f3300, type: 3}
+  highlightMat: {fileID: 2100000, guid: ceab0489b6db4be49a3cfeae560bb291, type: 2}
