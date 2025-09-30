@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 9031011697783333449}
   - component: {fileID: 6481297063636189310}
   - component: {fileID: 5806853815896273206}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Prism
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -306,7 +306,7 @@ GameObject:
   - component: {fileID: 5752488880284727234}
   - component: {fileID: 4112475485228769014}
   - component: {fileID: 6070270648609074396}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Prism
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -660,7 +660,7 @@ GameObject:
   - component: {fileID: 5338813824663112010}
   - component: {fileID: 5338813824663112009}
   - component: {fileID: 5338813824663112008}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -755,7 +755,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5338813825018829004}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Chunk_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -827,7 +827,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5338813825443767897}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
 --- !u!1 &5338813825466557046
 GameObject:
   m_ObjectHideFlags: 0
@@ -871,7 +871,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5338813825466557046}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
 --- !u!1001 &1256696119368899019
 PrefabInstance:
   m_ObjectHideFlags: 0

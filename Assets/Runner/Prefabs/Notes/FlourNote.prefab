@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8384012808243909169}
   - component: {fileID: 8384012808243909171}
   - component: {fileID: 2260780714683258190}
-  m_Layer: 9
+  m_Layer: 3
   m_Name: FlourNote
   m_TagString: Untagged
   m_Icon: {fileID: 0}

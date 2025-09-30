@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2894567776146430546}
   - component: {fileID: 2894567776146430544}
   - component: {fileID: -5061303110908459532}
-  m_Layer: 9
+  m_Layer: 3
   m_Name: MilkNote
   m_TagString: Untagged
   m_Icon: {fileID: 0}
