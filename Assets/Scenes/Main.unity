@@ -1089,7 +1089,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!224 &147680038
 RectTransform:
@@ -3056,6 +3056,7 @@ GameObject:
   m_Component:
   - component: {fileID: 420155183}
   - component: {fileID: 420155180}
+  - component: {fileID: 420155184}
   m_Layer: 3
   m_Name: AutoChartSpawner
   m_TagString: Untagged
@@ -3113,6 +3114,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &420155184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 420155179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 515f1ec19b076694482da3a9e0403353, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::PrologueSpawnerResumeHelper
+  spawner: {fileID: 420155180}
+  extraDelayBeats: 0.75
 --- !u!43 &438708959
 Mesh:
   m_ObjectHideFlags: 0
@@ -15094,8 +15109,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::PrologueOverlay
   overlay: {fileID: 1956575465}
-  autoCloseAfter: 23
+  totalDuration: 23.16
+  bgmLeadTime: 1.9
   fadeTime: 0.25
+  bgmSources:
+  - {fileID: 538003175}
+  componentsToDisable:
+  - {fileID: 1999945296}
+  - {fileID: 1899053744}
+  - {fileID: 420155180}
+  restartBgmFromBeginning: 1
+  hardStopAtStart: 1
 --- !u!4 &2144784087
 Transform:
   m_ObjectHideFlags: 0

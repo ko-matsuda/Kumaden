@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// とても簡単な自動譜面生成（カジュアル向けプリセット）
+/// プロローグ明けの「まとめ湧き」対策を内蔵
 /// </summary>
 public class AutoChartSpawner : MonoBehaviour
 {
@@ -36,6 +38,19 @@ public class AutoChartSpawner : MonoBehaviour
     [Header("ランダム")]
     public int fixedRandomSeed = 12345;
 
+    // ───────── まとめ湧き対策オプション ─────────
+    [Header("まとめ湧き対策")]
+    [Tooltip("ON：1フレームに出す最大数を制限（既定ON） / OFF：従来の“追いつき while”")]
+    public bool limitSpawnsPerFrame = true;
+
+    [Tooltip("1フレームで出す最大スポーン数（通常は1でOK）")]
+    public int maxSpawnsPerFrame = 1;
+
+    [Tooltip("停止中に拍が大きく進んでいたら、ここでスケジュールを現在拍へ早送り（安全装置）")]
+    public float catchupClampBeats = 2f;
+
+    // ────────────────────────────────────────
+
     private System.Random rng;
     private float nextSpawnBeat;
     private float[] nextLaneBeat; // 各レーンの次に使える拍
@@ -64,10 +79,37 @@ public class AutoChartSpawner : MonoBehaviour
         float songBeat = conductor.songPositionBeats;
         float step = 1f / Mathf.Max(1, subdivision);
 
-        while (songBeat >= nextSpawnBeat)
+        // 停止中に大きく進んでいたら“現在拍”まで早送り（ドバっと追いつかない）
+        if (songBeat - nextSpawnBeat > catchupClampBeats)
         {
-            TrySpawnAtBeat(nextSpawnBeat);
-            nextSpawnBeat += step;
+            nextSpawnBeat = songBeat;
+            // レーンも押し出す
+            for (int i = 0; i < nextLaneBeat.Length; i++)
+                nextLaneBeat[i] = songBeat;
+        }
+
+        if (limitSpawnsPerFrame)
+        {
+            // ★ 1フレームで最大 maxSpawnsPerFrame 回まで
+            int spawned = 0;
+            while (songBeat >= nextSpawnBeat && spawned < Mathf.Max(1, maxSpawnsPerFrame))
+            {
+                TrySpawnAtBeat(nextSpawnBeat);
+                nextSpawnBeat += step;
+                spawned++;
+            }
+
+            // まだ songBeat >= nextSpawnBeat でも、このフレームはここまで。
+            // 次フレーム以降に少しずつ追いつく。
+        }
+        else
+        {
+            // 旧挙動（連続 while で一気に追いつく）
+            while (songBeat >= nextSpawnBeat)
+            {
+                TrySpawnAtBeat(nextSpawnBeat);
+                nextSpawnBeat += step;
+            }
         }
     }
 
@@ -77,7 +119,7 @@ public class AutoChartSpawner : MonoBehaviour
         if (rng.NextDouble() > density) return;
 
         // 使えるレーンを集める（最小間隔を満たす）
-        var candidates = new System.Collections.Generic.List<int>();
+        var candidates = new List<int>();
         for (int lane = 0; lane < laneX.Length; lane++)
         {
             if (beat >= nextLaneBeat[lane]) candidates.Add(lane);
@@ -128,5 +170,21 @@ public class AutoChartSpawner : MonoBehaviour
         float playerZ = player.transform.TransformPoint(box.center).z;
         judgeZ = playerZ;
         // Debug.Log($"[Spawner] Auto match judgeZ = {judgeZ:F2}");
+    }
+
+    // ──────── プロローグ明けなどで“今＋少し”へ押し出すための公開API ────────
+    /// <summary>
+    /// 再開時用：次回スポーン拍を「現在拍＋extraDelayBeats」へリセット
+    /// （PrologueOverlay から呼んでください）
+    /// </summary>
+    public void ResetScheduleBeats(float extraDelayBeats = 0.75f)
+    {
+        float nowBeat = (conductor != null) ? conductor.songPositionBeats : 0f;
+        nextSpawnBeat = nowBeat + Mathf.Max(0f, extraDelayBeats) + Mathf.Max(0f, minGlobalGapBeats);
+
+        if (nextLaneBeat == null || nextLaneBeat.Length == 0)
+            nextLaneBeat = new float[laneX.Length];
+        for (int i = 0; i < nextLaneBeat.Length; i++)
+            nextLaneBeat[i] = nextSpawnBeat;
     }
 }

@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\tyuun\\KumaDen\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\PrologueVideo.cs||{3B902123-F8A7-4915-9F01-361F908088D0}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scenes\\Scripts\\PrologueVideo.cs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\AutoChartSpawner.cs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scenes\\Scripts\\AutoChartSpawner.cs||{3B902123-F8A7-4915-9F01-361F908088D0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,14 +19,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "PrologueVideo.cs",
-              "DocumentMoniker": "C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\PrologueVideo.cs",
-              "RelativeDocumentMoniker": "Assets\\Scenes\\Scripts\\PrologueVideo.cs",
-              "ToolTip": "C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\PrologueVideo.cs",
-              "RelativeToolTip": "Assets\\Scenes\\Scripts\\PrologueVideo.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAAC4AAAAAAAAAAAAAAA==",
+              "Title": "AutoChartSpawner.cs",
+              "DocumentMoniker": "C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\AutoChartSpawner.cs",
+              "RelativeDocumentMoniker": "Assets\\Scenes\\Scripts\\AutoChartSpawner.cs",
+              "ToolTip": "C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\AutoChartSpawner.cs",
+              "RelativeToolTip": "Assets\\Scenes\\Scripts\\AutoChartSpawner.cs",
+              "ViewState": "AgIAAJMAAAAAAAAAAAAYwL4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-18T20:45:52.111Z",
+              "WhenOpened": "2025-10-18T22:18:07.825Z",
               "EditorCaption": ""
             }
           ]

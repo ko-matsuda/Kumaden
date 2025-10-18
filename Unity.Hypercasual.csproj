@@ -61,10 +61,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Core\Scripts\EventSystem\TriggerEvent.cs" />
+    <Compile Include="Assets\Scenes\Scripts\PrologueVideo.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\StateMachine.cs" />
     <Compile Include="Assets\Scenes\Scripts\Pickup.cs" />
     <Compile Include="Assets\Core\Scripts\UI\View.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\DelayState.cs" />
+    <Compile Include="Assets\Scenes\Scripts\PrologueOverlay.cs" />
     <Compile Include="Assets\Core\Scripts\Utils\SceneController.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\Link.cs" />
     <Compile Include="Assets\Scenes\Scripts\NoteBehaviour.cs" />
@@ -101,6 +103,7 @@
     <Compile Include="Assets\Core\Scripts\EventSystem\IGameEventListener.cs" />
     <Compile Include="Assets\Scenes\Scripts\ScoreManagerLite.cs" />
     <Compile Include="Assets\Core\Scripts\Data\AudioSettings.cs" />
+    <Compile Include="Assets\Scenes\Scripts\PrologueSpawnerResumeHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
