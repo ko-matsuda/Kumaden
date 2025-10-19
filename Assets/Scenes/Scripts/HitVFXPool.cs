@@ -1,75 +1,74 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class HitVFXPool : MonoBehaviour
 {
-    public static HitVFXPool I;
+    public static HitVFXPool Instance { get; private set; }
+
+    [Header("VFX の Prefab (GameObject でOK: 中に ParticleSystem があれば可)")]
     public GameObject vfxPrefab;
+
+    [Header("事前に何個用意するか")]
     public int prewarm = 8;
 
     readonly Queue<GameObject> pool = new Queue<GameObject>();
 
     void Awake()
     {
-        I = this;
-        if (vfxPrefab == null) return;
+        Instance = this;
+
+        if (vfxPrefab == null)
+        {
+            Debug.LogError("[HitVFXPool] vfxPrefab が未設定です。");
+            return;
+        }
+
         for (int i = 0; i < prewarm; i++)
-            pool.Enqueue(CreateOne());
+        {
+            var go = Instantiate(vfxPrefab, transform);
+            go.SetActive(false);
+            pool.Enqueue(go);
+        }
     }
 
-    GameObject CreateOne()
+    public void PlayAt(Vector3 position, Quaternion rotation, Vector3? scale = null)
     {
-        var go = Instantiate(vfxPrefab, transform);
-        go.SetActive(false);
-        return go;
-    }
+        if (vfxPrefab == null) { Debug.LogError("[HitVFXPool] vfxPrefab 未設定"); return; }
 
-    public GameObject Spawn(Vector3 pos, Color color, AudioClip se = null, float pitch = 1f)
-    {
-        var go = pool.Count > 0 ? pool.Dequeue() : CreateOne();
-        go.transform.position = pos;
-        go.transform.rotation = Quaternion.identity;
+        var go = pool.Count > 0 ? pool.Dequeue() : Instantiate(vfxPrefab, transform);
+        go.transform.SetPositionAndRotation(position, rotation);
+        if (scale.HasValue) go.transform.localScale = scale.Value;
         go.SetActive(true);
 
-        var ps = go.GetComponent<ParticleSystem>();
-        if (ps != null)
+        // 中の全 ParticleSystem を必ず再生
+        foreach (var ps in go.GetComponentsInChildren<ParticleSystem>(true))
         {
-            var main = ps.main;
-            main.startColor = color;
             ps.Clear(true);
             ps.Play(true);
         }
 
-        var audio = go.GetComponent<AudioSource>();
-        if (audio != null)
-        {
-            if (se != null) audio.clip = se;
-            audio.pitch = pitch;
-            audio.Play();
-        }
-
-        // 自動で戻す
-        HitVFXReturn r = go.GetComponent<HitVFXReturn>();
-        if (r == null) r = go.AddComponent<HitVFXReturn>();
-        r.pool = this;
-        return go;
+        StartCoroutine(ReturnWhenDone(go));
     }
 
-    public void Despawn(GameObject go)
+    IEnumerator ReturnWhenDone(GameObject go)
     {
+        // 1フレ待ってパーティクルが再生し始めるのを待つ
+        yield return null;
+
+        var list = go.GetComponentsInChildren<ParticleSystem>(true);
+        bool alive;
+        do
+        {
+            alive = false;
+            foreach (var ps in list)
+            {
+                if (ps != null && ps.IsAlive(true)) { alive = true; break; }
+            }
+            yield return null;
+        } while (alive);
+
         go.SetActive(false);
         pool.Enqueue(go);
-    }
-}
-
-public class HitVFXReturn : MonoBehaviour
-{
-    public HitVFXPool pool;
-    ParticleSystem ps;
-    void Awake(){ ps = GetComponent<ParticleSystem>(); }
-    void Update()
-    {
-        if (ps != null && !ps.IsAlive(true))
-            pool.Despawn(gameObject);
     }
 }
