@@ -169,6 +169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e586d1e0cfdaab348ba55a02f6f68375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::KickOnNoteHit
-  power: 0.06
-  duration: 0.1
-  tagName: Player
+  power: 0.04
+  duration: 0.06
+  playerTag: Player
+  vfxOffset: {x: 0, y: 0.5, z: 0}
