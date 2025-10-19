@@ -21,25 +21,32 @@ public class ResultUI : MonoBehaviour
     public TMP_Text titleText;
     public TMP_Text subText;
 
-    [Header("Left")]
-    public Image    rankBadge;
-    public TMP_Text comboValueText;
+    [Header("Rank (Text Color)")]
+    public TMP_Text rankText;     // ← テキストでランク表示
+    public Color rankColorS = new Color32(0xFF,0xD1,0x00,255);
+    public Color rankColorA = new Color32(0x2E,0x6F,0xBF,255);
+    public Color rankColorB = new Color32(0x4C,0xAF,0x50,255);
+    public Color rankColorC = new Color32(0xB0,0x86,0x5A,255);
 
-    [Header("Judge")]
+    [Header("Others")]
+    public TMP_Text comboValueText;
     public TMP_Text perfectValueText;
     public TMP_Text goodValueText;
     public TMP_Text missValueText;
-
-    [Header("Items")]
     public TMP_Text milkCountText;
     public TMP_Text flourCountText;
     public TMP_Text eggCountText;
 
-    // ランク→バッジ差し替え（必要ならSpriteを割当）
-    public Sprite rankS, rankA, rankB, rankC;
-
     public void Bind(ResultData d)
     {
+        // Rank（文字と色）
+        string r = (d.rank ?? "A").ToUpper();
+        if (rankText)
+        {
+            rankText.text  = r;
+            rankText.color = RankToColor(r);
+        }
+
         if (comboValueText)   comboValueText.text   = d.maxCombo.ToString();
         if (perfectValueText) perfectValueText.text = d.perfect.ToString();
         if (goodValueText)    goodValueText.text    = d.good.ToString();
@@ -50,23 +57,17 @@ public class ResultUI : MonoBehaviour
         if (eggCountText)   eggCountText.text   = $"×{d.items.egg}";
 
         if (subText) subText.text = $"♪ 1st Verse Clear – {FormatTime(d.timeSec)}";
-
-        if (rankBadge)
-        {
-            rankBadge.sprite = RankToSprite(d.rank);
-            // rankBadge.SetNativeSize(); // 必要なら
-        }
     }
 
-    Sprite RankToSprite(string r)
+    Color RankToColor(string r)
     {
-        switch ((r ?? "A").ToUpper())
+        switch (r)
         {
-            case "S": return rankS ?? rankA;
-            case "A": return rankA;
-            case "B": return rankB ?? rankA;
-            case "C": return rankC ?? rankA;
-            default:  return rankA;
+            case "S": return rankColorS;
+            case "A": return rankColorA;
+            case "B": return rankColorB;
+            case "C": return rankColorC;
+            default:  return rankColorA;
         }
     }
 

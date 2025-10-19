@@ -1,5 +1,6 @@
-// Unity 2021+ / Unity 6 で動作
+// Unity 2021+ / Unity 6
 // メニュー: Tools > Create Result Canvas (KumaDen)
+// ランクは画像ではなくテキスト＋色で表示
 
 using UnityEditor;
 using UnityEngine;
@@ -8,7 +9,6 @@ using TMPro;
 
 public static class ResultCanvasAutoBuilder
 {
-    // ==================== ENTRY ====================
     [MenuItem("Tools/Create Result Canvas (KumaDen)")]
     public static void CreateResultCanvas()
     {
@@ -56,8 +56,11 @@ public static class ResultCanvasAutoBuilder
         var left = CreateCard("RankAndCombo", safe, new Vector2(480,640));
         AnchorTopLeft(left, pos:new Vector2(0,-200));
 
-        var rankBadge = CreateImage("RankBadge", left, null, Color.white);
-        AnchorTopCenter(rankBadge, size:new Vector2(280,280), posY:-160);
+        // ← 画像ではなくテキストでランクを表示
+        var rankText = CreateTMP("RankText", left, "A", 200, new Color32(0xFF,0xD1,0x00,255)); // デフォは金っぽい
+        AnchorTopCenter(rankText, size:new Vector2(440,250), posY:-40);
+        rankText.alignment = TextAlignmentOptions.Center;
+        rankText.fontStyle = FontStyles.Bold;
 
         var comboGroup = CreateUI("MaxCombo", left);
         AnchorBottomCenter(comboGroup, height:180, posY:-20);
@@ -109,7 +112,7 @@ public static class ResultCanvasAutoBuilder
         var ui = goCanvas.AddComponent<ResultUI>();
         ui.titleText        = title;
         ui.subText          = sub;
-        ui.rankBadge        = rankBadge;
+        ui.rankText         = rankText;      // ← テキスト参照
         ui.comboValueText   = comboValue;
         ui.perfectValueText = right.Find("Row-Perfect/Value").GetComponent<TMP_Text>();
         ui.goodValueText    = right.Find("Row-Good/Value").GetComponent<TMP_Text>();
@@ -118,10 +121,16 @@ public static class ResultCanvasAutoBuilder
         ui.flourCountText   = items.Find("Flour/Count").GetComponent<TMP_Text>();
         ui.eggCountText     = items.Find("Egg/Count").GetComponent<TMP_Text>();
 
+        // デフォルトのランク色（お好みで変更可）
+        ui.rankColorS = new Color32(0xFF,0xD1,0x00,255); // 金
+        ui.rankColorA = new Color32(0x2E,0x6F,0xBF,255); // 青
+        ui.rankColorB = new Color32(0x4C,0xAF,0x50,255); // 緑
+        ui.rankColorC = new Color32(0xB0,0x86,0x5A,255); // ブラウン
+
         Selection.activeObject = goCanvas;
     }
 
-    // ==================== FACTORIES ====================
+    // ---------- helpers ----------
     static RectTransform CreateUI(string name, Transform parent)
     {
         var go = new GameObject(name, typeof(RectTransform));
@@ -233,7 +242,7 @@ public static class ResultCanvasAutoBuilder
         return btn;
     }
 
-    // ==================== ANCHOR HELPERS (Component対応) ====================
+    // ----- Anchor helpers (Component対応) -----
     static RectTransform RT(Component c) => (c as RectTransform) ?? c.GetComponent<RectTransform>();
 
     static void StretchFull(Component c)
