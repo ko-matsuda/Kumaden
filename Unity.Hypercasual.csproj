@@ -94,8 +94,11 @@
     <Compile Include="Assets\Scenes\Scripts\Audio\NoteSEManager.cs" />
     <Compile Include="Assets\Core\Scripts\UI\UIManager.cs" />
     <Compile Include="Assets\Scenes\Scripts\Audio\HitSEPreset.cs" />
+    <Compile Include="Assets\Scenes\Scripts\HitVFXPool.cs" />
     <Compile Include="Assets\Scenes\Scripts\AutoChartSpawner.cs" />
     <Compile Include="Assets\Core\Scripts\Utils\PlayerPrefUtils.cs" />
+    <Compile Include="Assets\Scenes\Scripts\TinyCameraShake.cs" />
+    <Compile Include="Assets\Scenes\Scripts\ShakeTester.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\State.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\EventLink.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\LoadSceneState.cs" />
