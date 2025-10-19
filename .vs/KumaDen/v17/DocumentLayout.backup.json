@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\tyuun\\KumaDen\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\KickOnNoteHit.cs||{3B902123-F8A7-4915-9F01-361F908088D0}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scenes\\Scripts\\KickOnNoteHit.cs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\HitVFXPool.cs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scenes\\Scripts\\HitVFXPool.cs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\AutoDisableParticle.cs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scenes\\Scripts\\AutoDisableParticle.cs||{3B902123-F8A7-4915-9F01-361F908088D0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\GlobalCameraShake.cs||{3B902123-F8A7-4915-9F01-361F908088D0}",
@@ -23,19 +27,31 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "KickOnNoteHit.cs",
-              "DocumentMoniker": "C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\KickOnNoteHit.cs",
-              "RelativeDocumentMoniker": "Assets\\Scenes\\Scripts\\KickOnNoteHit.cs",
-              "ToolTip": "C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\KickOnNoteHit.cs",
-              "RelativeToolTip": "Assets\\Scenes\\Scripts\\KickOnNoteHit.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
+              "Title": "HitVFXPool.cs",
+              "DocumentMoniker": "C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\HitVFXPool.cs",
+              "RelativeDocumentMoniker": "Assets\\Scenes\\Scripts\\HitVFXPool.cs",
+              "ToolTip": "C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\HitVFXPool.cs",
+              "RelativeToolTip": "Assets\\Scenes\\Scripts\\HitVFXPool.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-19T07:34:52.527Z",
+              "WhenOpened": "2025-10-19T08:13:31.942Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "AutoDisableParticle.cs",
+              "DocumentMoniker": "C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\AutoDisableParticle.cs",
+              "RelativeDocumentMoniker": "Assets\\Scenes\\Scripts\\AutoDisableParticle.cs",
+              "ToolTip": "C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\AutoDisableParticle.cs",
+              "RelativeToolTip": "Assets\\Scenes\\Scripts\\AutoDisableParticle.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAUwBUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T08:02:26.938Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "GlobalCameraShake.cs",
               "DocumentMoniker": "C:\\Users\\tyuun\\KumaDen\\Assets\\Scenes\\Scripts\\GlobalCameraShake.cs",
               "RelativeDocumentMoniker": "Assets\\Scenes\\Scripts\\GlobalCameraShake.cs",
@@ -43,8 +59,7 @@
               "RelativeToolTip": "Assets\\Scenes\\Scripts\\GlobalCameraShake.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-19T06:41:28.534Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-19T06:41:28.534Z"
             }
           ]
         }

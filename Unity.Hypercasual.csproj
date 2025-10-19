@@ -60,7 +60,10 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.2.8f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scenes\Scripts\UI\ResultUI.cs" />
+    <Compile Include="Assets\Scenes\Scripts\AutoDisableParticle.cs" />
     <Compile Include="Assets\Core\Scripts\EventSystem\TriggerEvent.cs" />
+    <Compile Include="Assets\Editor\ResultCanvasAutoBuilder.cs" />
     <Compile Include="Assets\Scenes\Scripts\PrologueVideo.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\StateMachine.cs" />
     <Compile Include="Assets\Scenes\Scripts\Pickup.cs" />
@@ -90,6 +93,8 @@
     <Compile Include="Assets\Scenes\Scripts\WorldScroller.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\AbstractState.cs" />
     <Compile Include="Assets\AssemblyInfo.cs" />
+    <Compile Include="Assets\Scenes\Scripts\KickOnNoteHit.cs" />
+    <Compile Include="Assets\Scenes\Scripts\GlobalCameraShake.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\ILink.cs" />
     <Compile Include="Assets\Scenes\Scripts\Audio\NoteSEManager.cs" />
     <Compile Include="Assets\Core\Scripts\UI\UIManager.cs" />
@@ -97,8 +102,6 @@
     <Compile Include="Assets\Scenes\Scripts\HitVFXPool.cs" />
     <Compile Include="Assets\Scenes\Scripts\AutoChartSpawner.cs" />
     <Compile Include="Assets\Core\Scripts\Utils\PlayerPrefUtils.cs" />
-    <Compile Include="Assets\Scenes\Scripts\TinyCameraShake.cs" />
-    <Compile Include="Assets\Scenes\Scripts\ShakeTester.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\State.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\EventLink.cs" />
     <Compile Include="Assets\Core\Scripts\StateMachine\LoadSceneState.cs" />
