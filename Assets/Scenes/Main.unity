@@ -1296,11 +1296,13 @@ MonoBehaviour:
   gameplayCanvas: {fileID: 1231884391}
   bgm: {fileID: 538003175}
   extraAudios: []
-  bgmFadeSeconds: 2
-  extraFadeSeconds: 1.5
-  playJingleAfterFade: 1
+  duckVolume: 0.25
+  duckSeconds: 0.15
+  fadeOutSeconds: 1.5
+  playJingle: 1
   resultJingle: {fileID: 8300000, guid: dcf3b3332b3f84e4d92aa856e37fd7e5, type: 3}
   jingleVolume: 1
+  jingleDelaySeconds: 0.12
   jingleIgnoresListenerPause: 1
   useTimeScalePause: 1
   pauseAllAudioByListener: 1
@@ -12269,6 +12271,61 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1486304975
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1486304977}
+  - component: {fileID: 1486304976}
+  m_Layer: 0
+  m_Name: VideoSmoothPlayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1486304976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486304975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bc16d15e08cf8b4d9615a51750ea4f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::VideoSmoothPlayer
+  video: {fileID: 1859113767}
+  target: {fileID: 711717765}
+  fileNameInStreamingAssets: Prologue/intro.mp4
+  playOnStart: 1
+  useVideoAudio: 0
+  audioOut: {fileID: 538003175}
+  waitForPrepare: 1
+  waitForFirstFrame: 1
+  skipOnDrop: 1
+  matchAppFrameRate: 1
+  fallbackTargetFPS: 60
+--- !u!4 &1486304977
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486304975}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1504612076
 GameObject:
   m_ObjectHideFlags: 0
@@ -14903,6 +14960,61 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1687618607
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1687618608}
+  - component: {fileID: 1687618609}
+  m_Layer: 0
+  m_Name: SpawnGuard
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1687618608
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687618607}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 399.1269, y: 792.88354, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1687618609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687618607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f05a36e5da2e2fb40b1972a7885bd288, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::NoteSpawnLimiter
+  bgm: {fileID: 538003175}
+  mode: 0
+  verse1EndSec: 85
+  leadSeconds: 6
+  bpm: 120
+  beatsPerBar: 4
+  verse1Bars: 16
+  songStartOffsetSec: 0
+  stopBarsBeforeEnd: 6
+  targetsToDisable: []
+  debugLog: 0
 --- !u!1001 &1722287842
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20070,3 +20182,5 @@ SceneRoots:
   - {fileID: 942037564}
   - {fileID: 186652058}
   - {fileID: 782789424}
+  - {fileID: 1687618608}
+  - {fileID: 1486304977}
