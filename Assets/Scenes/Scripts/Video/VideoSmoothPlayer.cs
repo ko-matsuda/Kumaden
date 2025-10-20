@@ -1,150 +1,117 @@
 using System.Collections;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
 public class VideoSmoothPlayer : MonoBehaviour
 {
-    [Header("参照")]
-    public VideoPlayer video;   // VideoPlayer をドラッグ
-    public RawImage   target;   // 画面に出す RawImage（UI）
+    [Header("必須")]
+    public VideoPlayer videoPlayer;         // 同じGameObjectに付けてもOK
+    public RawImage targetImage;            // 画面に表示するRawImage（UI）
+    public Vector2Int targetResolution = new Vector2Int(1920, 1080);
 
-    [Header("再生設定")]
-    public string fileNameInStreamingAssets = "Prologue/intro.mp4"; // ← サブフォルダ込みに
-    public bool   playOnStart = true;
-    public bool   useVideoAudio = false;    // 動画の音を使う？（OFF推奨）
-    public AudioSource audioOut;            // useVideoAudio=true のとき必須
+    [Header("任意: 再生中だけOFFにする重いオブジェクト")]
+    public GameObject[] heavyObjects;       // PostProcessのVolume等を入れる
 
-    [Header("安定化オプション")]
-    public bool   waitForPrepare = true;    // 再生前にデコード準備を待つ
-    public bool   waitForFirstFrame = true; // 最初のフレーム到着を待つ
-    public bool   skipOnDrop = true;        // 重い時はフレームを捨てて追従
-    public bool   matchAppFrameRate = true; // アプリFPSを動画FPSに合わせる
-    public int    fallbackTargetFPS = 60;   // 取得できない時のターゲットFPS
+    [Header("任意: ファイル名（StreamingAssets直下）")]
+    public string fileName = "Prologue.mp4";
 
-    [Header("縦動画サポート")]
-    public bool autoRotatePortraitIfNeeded = true; // 横向き報告でも縦に見せたい時に自動回転
+    private RenderTexture rt;
+    private bool originalVsyncSaved;
+    private int originalVsyncCount;
 
-    RenderTexture rt;
-
-    void Reset()
+    private void Reset()
     {
-        video  = GetComponent<VideoPlayer>();
-        target = FindObjectOfType<RawImage>();
+        videoPlayer = GetComponent<VideoPlayer>();
+        targetImage = FindObjectOfType<RawImage>();
     }
 
-    IEnumerator Start()
+    private void Awake()
     {
-        if (!playOnStart) yield break;
-        yield return Play();
-    }
+        if (!videoPlayer) videoPlayer = GetComponent<VideoPlayer>();
+        if (!videoPlayer) { Debug.LogError("[VideoSmoothPlayer] VideoPlayer が見つかりません"); enabled = false; return; }
 
-    public IEnumerator Play()
-    {
-        if (!video || !target)
+        // VideoPlayer の推奨設定を強制
+        videoPlayer.playOnAwake = false;
+        videoPlayer.waitForFirstFrame = true;
+        videoPlayer.skipOnDrop = true;
+        videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+        videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource; // 音不要なら None に変更可
+
+        // URL を StreamingAssets から自動設定（必ず file:// を付与）
+        string path = Path.Combine(Application.streamingAssetsPath, fileName);
+        if (!File.Exists(path)) Debug.LogWarning($"[VideoSmoothPlayer] ファイルが見つかりません: {path}");
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+        videoPlayer.url = "file:///" + path.Replace("\\", "/");
+#else
+        videoPlayer.url = "file://" + path;
+#endif
+
+        // RenderTexture を実解像度で用意
+        if (rt == null || rt.width != targetResolution.x || rt.height != targetResolution.y)
         {
-            Debug.LogError("[VideoSmoothPlayer] VideoPlayer/RawImage が未設定です。");
-            yield break;
-        }
-
-        // 1) 動画ソース（StreamingAssetsのURLを使う）
-        video.source = VideoSource.Url;
-        video.url    = System.IO.Path.Combine(Application.streamingAssetsPath, fileNameInStreamingAssets);
-
-        // 2) 音声
-        if (useVideoAudio)
-        {
-            video.audioOutputMode = VideoAudioOutputMode.AudioSource;
-            if (!audioOut) audioOut = gameObject.GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
-            video.EnableAudioTrack(0, true);
-            video.SetTargetAudioSource(0, audioOut);
-            audioOut.loop = false;
-        }
-        else
-        {
-            video.audioOutputMode = VideoAudioOutputMode.None;
-        }
-
-        // 3) 安定化設定
-        video.waitForFirstFrame = waitForFirstFrame;
-        video.skipOnDrop        = skipOnDrop;
-        video.isLooping         = false;
-
-        // 4) まず Prepare（ここで正しい width/height を得る）
-        if (waitForPrepare)
-        {
-            video.Prepare();
-            while (!video.isPrepared)
-                yield return null;
-        }
-
-        // 5) 正しいサイズで RenderTexture 作成（←ここが重要）
-        int w = (int)video.width;
-        int h = (int)video.height;
-        if (rt == null || rt.width != w || rt.height != h)
-        {
-            if (rt) { rt.Release(); Destroy(rt); }
-            rt = new RenderTexture(w, h, 0, RenderTextureFormat.ARGB32);
+            rt = new RenderTexture(targetResolution.x, targetResolution.y, 0, RenderTextureFormat.ARGB32);
+            rt.useMipMap = false;
+            rt.autoGenerateMips = false;
             rt.Create();
         }
-        video.renderMode    = VideoRenderMode.RenderTexture;
-        video.targetTexture = rt;
-        target.texture      = rt;
-
-        // 6) 縦横の自動補正（回転タグの不一致を吸収）
-        target.rectTransform.localEulerAngles = Vector3.zero;
-        if (autoRotatePortraitIfNeeded)
-        {
-            // 例：ファイルは横(1920x1080)だが実際は縦で見せたいパターン
-            if (h < w) // 横長報告
-            {
-                target.rectTransform.localEulerAngles = new Vector3(0, 0, 90);
-                // 見た目の比率を維持する
-                AddOrUpdateAspectFitter(target, (float)h / (float)w);
-            }
-            else
-            {
-                AddOrUpdateAspectFitter(target, (float)w / (float)h);
-            }
-        }
-
-        // 7) アプリFPSを動画FPSに合わせる（可能なら）
-        if (matchAppFrameRate)
-        {
-            int targetFps = fallbackTargetFPS;
-            if (video.frameRate > 1.0f && video.frameRate < 145.0f)
-                targetFps = Mathf.Clamp(Mathf.RoundToInt((float)video.frameRate), 24, 144);
-
-            Application.targetFrameRate = targetFps;
-            QualitySettings.vSyncCount  = 1;
-        }
-
-        // 8) 再生
-        video.Play();
-        if (useVideoAudio && audioOut && !audioOut.isPlaying) audioOut.Play();
-
-        // 9) 最初のフレーム待ち（チラ見え防止）
-        if (waitForFirstFrame)
-        {
-            while (video.isPlaying && video.frame <= 0)
-                yield return null;
-        }
+        videoPlayer.targetTexture = rt;
+        if (targetImage) targetImage.texture = rt;
     }
 
-    void AddOrUpdateAspectFitter(RawImage img, float aspect)
+    private void OnEnable()
     {
-        var fitter = img.GetComponent<AspectRatioFitter>();
-        if (!fitter) fitter = img.gameObject.AddComponent<AspectRatioFitter>();
-        fitter.aspectMode  = AspectRatioFitter.AspectMode.FitInParent;
-        fitter.aspectRatio = Mathf.Max(0.01f, aspect);
+        StartCoroutine(PlayRoutine());
     }
 
-    void OnDestroy()
+    private IEnumerator PlayRoutine()
     {
-        if (rt)
+        // 再生中はVSyncを安定側に（必要に応じてコメントアウト可）
+        originalVsyncCount = QualitySettings.vSyncCount;
+        QualitySettings.vSyncCount = 1;
+
+        // 重い物をOFF
+        SetHeavyObjectsActive(false);
+
+        videoPlayer.Prepare();
+        // 完全ロード待ち
+        while (!videoPlayer.isPrepared) yield return null;
+
+        // 最初のフレームが描画可能になるまで少し待つ
+        yield return null;
+
+        videoPlayer.Play();
+
+        // 再生完了待ち
+        while (videoPlayer.isPlaying) yield return null;
+
+        // 後片付け
+        SetHeavyObjectsActive(true);
+        QualitySettings.vSyncCount = originalVsyncCount;
+    }
+
+    private void OnDisable()
+    {
+        if (videoPlayer) videoPlayer.Stop();
+        SetHeavyObjectsActive(true);
+        QualitySettings.vSyncCount = originalVsyncCount;
+    }
+
+    private void OnDestroy()
+    {
+        if (rt != null)
         {
+            if (videoPlayer) videoPlayer.targetTexture = null;
             rt.Release();
             Destroy(rt);
         }
+    }
+
+    private void SetHeavyObjectsActive(bool active)
+    {
+        if (heavyObjects == null) return;
+        foreach (var go in heavyObjects)
+            if (go) go.SetActive(active);
     }
 }

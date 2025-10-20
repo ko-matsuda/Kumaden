@@ -3621,6 +3621,8 @@ MonoBehaviour:
   limitSpawnsPerFrame: 1
   maxSpawnsPerFrame: 1
   catchupClampBeats: 2
+  endGuardSeconds: 1.2
+  extraEarlyMarginSec: 1.8
 --- !u!4 &420155183
 Transform:
   m_ObjectHideFlags: 0
@@ -11545,7 +11547,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.972549}
+  m_Color: {r: 0.0906443, g: 0.093599804, b: 0.10943389, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -12300,17 +12302,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bc16d15e08cf8b4d9615a51750ea4f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::VideoSmoothPlayer
-  video: {fileID: 1859113767}
-  target: {fileID: 711717765}
-  fileNameInStreamingAssets: Prologue/intro.mp4
-  playOnStart: 1
-  useVideoAudio: 0
-  audioOut: {fileID: 538003175}
-  waitForPrepare: 1
-  waitForFirstFrame: 1
-  skipOnDrop: 1
-  matchAppFrameRate: 1
-  fallbackTargetFPS: 60
+  videoPlayer: {fileID: 1859113767}
+  targetImage: {fileID: 711717765}
+  targetResolution: {x: 1080, y: 1920}
+  heavyObjects: []
+  fileName: Prologue/intro.mp4
 --- !u!4 &1486304977
 Transform:
   m_ObjectHideFlags: 0
@@ -16463,7 +16459,7 @@ VideoPlayer:
   m_EnabledAudioTracks: 01
   m_DirectAudioMutes: 00
   m_ControlledAudioTrackCount: 1
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_SkipOnDrop: 1
   m_Looping: 0
   m_WaitForFirstFrame: 1
