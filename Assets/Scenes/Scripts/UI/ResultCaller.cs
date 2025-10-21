@@ -51,7 +51,6 @@ public class ResultCaller : MonoBehaviour
     [Header("TITLEシーン名")]
     public string titleSceneName = "Title";
 
-    // 追加：Inspectorで明示マッピング
     [Serializable]
     public class CustomBinding
     {
@@ -60,16 +59,23 @@ public class ResultCaller : MonoBehaviour
         public Component source;
         public string memberName;
     }
+
     [Header("Custom Bindings（見つからない値だけ手でマップ）")]
     public CustomBinding[] customBindings;
+
+    // 画面フェード
+    [Header("画面フェード")]
+    public bool fadeBeforeResult = true;               // リザルト前に暗転する
+    public float fadeOutSecondsToResult = 0.8f;        // 暗転時間
+    public bool fadeInAfterResult = true;              // リザルトを出した直後に黒板を開く
+    public float fadeInSecondsAfterResult = 0.5f;      // 開く時間
 
     bool shown;
     AudioSource jingleSource;
 
-    // 実データで呼ぶ
-    public void ShowResult(ResultData data) => InternalShowResult(data);
+    // ————————— 公開API —————————
+    public void ShowResult(ResultData data) => StartCoroutine(ShowResultSequence(data));
 
-    // 引数なし → CustomBindings → 自動収集 → ダミー/ゼロ
     public void ShowResult()
     {
         ResultData d = new ResultData();
@@ -89,23 +95,46 @@ public class ResultCaller : MonoBehaviour
                 timeSec = timeSec
             };
         }
-
-        InternalShowResult(d);
+        StartCoroutine(ShowResultSequence(d));
     }
 
-    private void InternalShowResult(ResultData d)
+    // ————————— 本体シーケンス —————————
+    System.Collections.IEnumerator ShowResultSequence(ResultData d)
     {
-        if (shown) return;
+        if (shown) yield break;
         shown = true;
 
+        // 先にBGMを下げ→フェード
         if (bgm) StartCoroutine(DuckThenFade(bgm, duckVolume, duckSeconds, fadeOutSeconds));
         if (extraAudios != null)
             foreach (var a in extraAudios.Where(x => x)) StartCoroutine(FadeOutAudio(a, Mathf.Max(duckSeconds,0.3f)));
 
-        if (playJingle && resultJingle) StartCoroutine(PlayJingleAfter(jingleDelaySeconds));
+        // ① リザルト直前の暗転（黒くする）
+        if (fadeBeforeResult && ScreenFader.Instance)
+            yield return ScreenFader.Instance.FadeOut(fadeOutSecondsToResult);
 
+        // ② リザルトUIへ切替
+        InternalShowResult(d);
+
+        // ③ 黒板を開いて（透明にして）リザルトを見せる ← これが重要！
+        if (fadeInAfterResult && ScreenFader.Instance)
+            yield return ScreenFader.Instance.FadeIn(fadeInSecondsAfterResult);
+        else
+            // 保険：フェーダーが残らないように完全透明＆非アクティブにする
+            if (ScreenFader.Instance)
+            {
+                ScreenFader.Instance.Alpha = 0f;
+                if (ScreenFader.Instance.autoDeactivateWhenClear)
+                    ScreenFader.Instance.gameObject.SetActive(false);
+            }
+    }
+
+    void InternalShowResult(ResultData d)
+    {
         if (useTimeScalePause) Time.timeScale = 0f;
         if (pauseAllAudioByListener) AudioListener.pause = true;
+
+        if (playJingle && resultJingle) StartCoroutine(PlayJingleAfter(jingleDelaySeconds));
 
         if (systemsToDisable != null) foreach (var m in systemsToDisable.Where(x => x)) m.enabled = false;
         if (objectsToDisable  != null) foreach (var o in objectsToDisable .Where(x => x)) o.SetActive(false);
@@ -120,6 +149,7 @@ public class ResultCaller : MonoBehaviour
         if (resultUI) resultUI.Bind(d);
     }
 
+    // ————————— ボタン —————————
     public void OnRetry()
     {
         if (useTimeScalePause) Time.timeScale = 1f;
@@ -140,6 +170,7 @@ public class ResultCaller : MonoBehaviour
         SceneManager.LoadScene(titleSceneName);
     }
 
+    // ————————— Custom Bindings / 自動収集 —————————
     private bool ApplyCustomBindings(ref ResultData d)
     {
         bool any = false;
@@ -250,8 +281,10 @@ public class ResultCaller : MonoBehaviour
         if (p != null && p.CanRead) return p.GetValue(src, null);
         return null;
     }
+
     private static int SafeInt(object v, int def){ try{ return Convert.ToInt32(v);}catch{ return def; } }
     private static float SafeFloat(object v, float def){ try{ return Convert.ToSingle(v);}catch{ return def; } }
+
     private static bool HasValueFor(ref ResultData d, string key)
     {
         return key switch {
@@ -267,6 +300,7 @@ public class ResultCaller : MonoBehaviour
             _ => false
         };
     }
+
     private static string EstimateRank(ResultData d)
     {
         var total = Mathf.Max(1, d.perfect + d.good + d.miss);
@@ -277,6 +311,7 @@ public class ResultCaller : MonoBehaviour
         return "C";
     }
 
+    // ————————— サウンド/演出ユーティリティ —————————
     private System.Collections.IEnumerator DuckThenFade(AudioSource src, float toVol, float duckDur, float fadeDur)
     {
         if (!src) yield break;
@@ -288,6 +323,7 @@ public class ResultCaller : MonoBehaviour
         while (t < fadeDur) { t += Time.unscaledDeltaTime; src.volume = Mathf.Lerp(from, 0f, t/Mathf.Max(0.0001f,fadeDur)); yield return null; }
         src.volume = 0f; src.Pause();
     }
+
     private System.Collections.IEnumerator FadeOutAudio(AudioSource src, float duration)
     {
         if (!src) yield break;
@@ -295,6 +331,7 @@ public class ResultCaller : MonoBehaviour
         while (t < duration) { t += Time.unscaledDeltaTime; src.volume = Mathf.Lerp(start, 0f, t/Mathf.Max(0.0001f,duration)); yield return null; }
         src.volume = 0f; src.Pause();
     }
+
     private System.Collections.IEnumerator PlayJingleAfter(float delay)
     {
         float t=0f; while (t < delay) { t += Time.unscaledDeltaTime; yield return null; }
@@ -303,6 +340,7 @@ public class ResultCaller : MonoBehaviour
         jingleSource.ignoreListenerPause = jingleIgnoresListenerPause;
         jingleSource.clip = resultJingle; jingleSource.volume = jingleVolume; jingleSource.time = 0f; jingleSource.Play();
     }
+
     private System.Collections.IEnumerator FadeInResultCanvas(GameObject go, float duration)
     {
         if (!go) yield break;
