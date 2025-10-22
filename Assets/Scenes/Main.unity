@@ -1027,7 +1027,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &147680035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1258,6 +1258,7 @@ GameObject:
   - component: {fileID: 186652058}
   - component: {fileID: 186652059}
   - component: {fileID: 186652060}
+  - component: {fileID: 186652061}
   m_Layer: 0
   m_Name: GameFlow
   m_TagString: Untagged
@@ -1372,6 +1373,24 @@ MonoBehaviour:
   goodCount: 0
   missCount: 0
   maxChain: 0
+--- !u!114 &186652061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186652057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 519f09dcfef813642b24b77b124607cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::CookingResultSequence
+  interstitialCanvasName: InterstitialCanvas
+  resultCanvasName: ResultCanvas
+  prologueCanvasName: PrologueCanvas
+  cookingClip: {fileID: 32900000, guid: 3f4d6ac8875975940913b97859fe2c25, type: 3}
+  targetRT: {fileID: 8400000, guid: f4d6653cd26fda844875318dfede6d19, type: 2}
+  testHotkey: 287
 --- !u!43 &187665240
 Mesh:
   m_ObjectHideFlags: 0
@@ -15565,6 +15584,7 @@ GameObject:
   - component: {fileID: 1763401057}
   - component: {fileID: 1763401056}
   - component: {fileID: 1763401055}
+  - component: {fileID: 1763401058}
   m_Layer: 0
   m_Name: InterstitialCanvas
   m_TagString: Untagged
@@ -15593,7 +15613,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 999
   m_TargetDisplay: 0
 --- !u!224 &1763401054
 RectTransform:
@@ -15756,10 +15776,28 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1763401052}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1763401058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1763401052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d97f4000cc275854e9fbbf99b4493ae1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::VPForcePlay
+  cg: {fileID: 0}
+  screen: {fileID: 0}
+  vp: {fileID: 0}
+  videoAudio: {fileID: 0}
+  rt: {fileID: 0}
+  hotkey: 286
 --- !u!43 &1764202289
 Mesh:
   m_ObjectHideFlags: 0
@@ -19344,7 +19382,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RawImage
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
