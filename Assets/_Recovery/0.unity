@@ -1257,6 +1257,8 @@ GameObject:
   m_Component:
   - component: {fileID: 186652058}
   - component: {fileID: 186652060}
+  - component: {fileID: 186652061}
+  - component: {fileID: 186652062}
   m_Layer: 0
   m_Name: GameFlow
   m_TagString: Untagged
@@ -1304,6 +1306,30 @@ MonoBehaviour:
   goodCount: 0
   missCount: 0
   maxChain: 0
+--- !u!114 &186652061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186652057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0f1b5c31ac8594898173731075cfc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::AutoPlayCookingSequence
+--- !u!114 &186652062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186652057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdc2083981b3e9346afd58ca40968546, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::AutoTriggerResultAtSongEnd
 --- !u!43 &187665240
 Mesh:
   m_ObjectHideFlags: 0
@@ -7460,6 +7486,7 @@ GameObject:
   - component: {fileID: 942037560}
   - component: {fileID: 942037565}
   - component: {fileID: 942037566}
+  - component: {fileID: 942037568}
   - component: {fileID: 942037567}
   m_Layer: 5
   m_Name: ResultCanvas
@@ -7555,7 +7582,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 10001
+  m_SortingOrder: 2000
   m_TargetDisplay: 0
 --- !u!224 &942037564
 RectTransform:
@@ -7695,13 +7722,46 @@ MonoBehaviour:
   m_GameObject: {fileID: 942037559}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6eb42d445665b5f46a284ce9cdb1e253, type: 3}
+  m_Script: {fileID: 11500000, guid: 91dbb472900c18b4fa399186a0e30b00, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::ResultRetry
-  fadeGroup: {fileID: 1655579937}
-  fadeSeconds: 0.25
-  clickSE: {fileID: 0}
-  extraAudiosToStop: []
+  m_EditorClassIdentifier: Unity.Hypercasual::ForceVideoAudioSetup
+  audioSource: {fileID: 942037565}
+--- !u!328 &942037568
+VideoPlayer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 942037559}
+  m_Enabled: 1
+  m_VideoClip: {fileID: 32900000, guid: 3f4d6ac8875975940913b97859fe2c25, type: 3}
+  m_TargetCameraAlpha: 1
+  m_TargetCamera3DLayout: 0
+  m_TargetCamera: {fileID: 0}
+  m_TargetTexture: {fileID: 8400000, guid: f4d6653cd26fda844875318dfede6d19, type: 2}
+  m_TimeReference: 0
+  m_TargetMaterialRenderer: {fileID: 0}
+  m_TargetMaterialProperty: <noninit>
+  m_RenderMode: 2
+  m_AspectRatio: 2
+  m_DataSource: 0
+  m_TimeUpdateMode: 2
+  m_PlaybackSpeed: 1
+  m_AudioOutputMode: 1
+  m_TargetAudioSources:
+  - {fileID: 942037565}
+  m_DirectAudioVolumes:
+  - 1
+  m_Url: 
+  m_EnabledAudioTracks: 01
+  m_DirectAudioMutes: 00
+  m_ControlledAudioTrackCount: 1
+  m_PlayOnAwake: 1
+  m_SkipOnDrop: 1
+  m_Looping: 0
+  m_WaitForFirstFrame: 1
+  m_FrameReadyEventEnabled: 0
+  m_VideoShaders: []
 --- !u!1 &958515708
 GameObject:
   m_ObjectHideFlags: 0
@@ -12393,6 +12453,55 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1486304975
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1486304977}
+  - component: {fileID: 1486304976}
+  m_Layer: 0
+  m_Name: VideoSmoothPlayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1486304976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486304975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bc16d15e08cf8b4d9615a51750ea4f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::VideoSmoothPlayer
+  videoPlayer: {fileID: 1859113767}
+  targetImage: {fileID: 711717765}
+  targetResolution: {x: 1080, y: 1920}
+  heavyObjects: []
+  fileName: Prologue/intro.mp4
+--- !u!4 &1486304977
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486304975}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1504612076
 GameObject:
   m_ObjectHideFlags: 0
@@ -12476,9 +12585,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 942037567}
-        m_TargetAssemblyTypeName: ResultRetry, Unity.Hypercasual
-        m_MethodName: OnRetryButton
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: ResultCaller, Unity.Hypercasual
+        m_MethodName: OnRetry
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -14134,11 +14243,12 @@ GameObject:
   m_Component:
   - component: {fileID: 1655579934}
   - component: {fileID: 1655579933}
+  - component: {fileID: 1655579935}
   - component: {fileID: 1655579932}
   - component: {fileID: 1655579937}
   - component: {fileID: 1655579936}
   - component: {fileID: 1655579938}
-  m_Layer: 5
+  m_Layer: 3
   m_Name: FadeCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14202,6 +14312,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1655579935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1655579930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab5e1b968422b7e49889cd626ce8e270, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::ScreenFader
 --- !u!223 &1655579936
 Canvas:
   m_ObjectHideFlags: 0
@@ -15621,7 +15743,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 10000
+  m_SortingOrder: 999
   m_TargetDisplay: 0
 --- !u!224 &1763401054
 RectTransform:
@@ -15655,7 +15777,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 0
+  m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -15801,16 +15923,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::CookingResultSequence
   trigger: 0
-  totalSongSeconds: 108
-  fireOffsetSeconds: 0
-  gameMusic: {fileID: 0}
+  hotkey: 114
   fadeGroup: {fileID: 1655579937}
   interstitialGroup: {fileID: 0}
-  videoImage: {fileID: 2050364185}
-  videoPlayer: {fileID: 1763401056}
-  videoAudio: {fileID: 1763401055}
-  resultRoot: {fileID: 942037559}
-  jingleSource: {fileID: 0}
+  videoImage: {fileID: 0}
+  videoPlayer: {fileID: 0}
+  videoAudio: {fileID: 0}
+  resultRoot: {fileID: 0}
   prepareTimeout: 1
   settleWait: 0.05
 --- !u!43 &1764202289
@@ -16916,7 +17035,7 @@ VideoPlayer:
   m_DirectAudioMutes: 00
   m_ControlledAudioTrackCount: 1
   m_PlayOnAwake: 0
-  m_SkipOnDrop: 0
+  m_SkipOnDrop: 1
   m_Looping: 0
   m_WaitForFirstFrame: 1
   m_FrameReadyEventEnabled: 0
@@ -19743,6 +19862,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2144784087}
   - component: {fileID: 2144784086}
+  - component: {fileID: 2144784088}
   m_Layer: 0
   m_Name: PrologueController
   m_TagString: Untagged
@@ -19789,6 +19909,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2144784088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2144784085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4483edb5c6fc6ba438390a524434c089, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::PrologueFadeStarter
 --- !u!224 &5219838187932017223 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5219838189633332389, guid: 2b016a5cdcd2c844e88c6e2f63825fef, type: 3}
@@ -20706,6 +20838,7 @@ SceneRoots:
   - {fileID: 186652058}
   - {fileID: 782789424}
   - {fileID: 1687618608}
+  - {fileID: 1486304977}
   - {fileID: 1655579934}
   - {fileID: 1763401054}
   - {fileID: 942037564}
