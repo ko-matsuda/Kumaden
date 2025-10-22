@@ -1258,7 +1258,6 @@ GameObject:
   - component: {fileID: 186652058}
   - component: {fileID: 186652059}
   - component: {fileID: 186652060}
-  - component: {fileID: 186652061}
   m_Layer: 0
   m_Name: GameFlow
   m_TagString: Untagged
@@ -1373,24 +1372,6 @@ MonoBehaviour:
   goodCount: 0
   missCount: 0
   maxChain: 0
---- !u!114 &186652061
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 186652057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 519f09dcfef813642b24b77b124607cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::CookingResultSequence
-  interstitialCanvasName: InterstitialCanvas
-  resultCanvasName: ResultCanvas
-  prologueCanvasName: PrologueCanvas
-  cookingClip: {fileID: 32900000, guid: 3f4d6ac8875975940913b97859fe2c25, type: 3}
-  targetRT: {fileID: 8400000, guid: f4d6653cd26fda844875318dfede6d19, type: 2}
-  testHotkey: 287
 --- !u!43 &187665240
 Mesh:
   m_ObjectHideFlags: 0
@@ -7530,6 +7511,7 @@ GameObject:
   - component: {fileID: 942037562}
   - component: {fileID: 942037561}
   - component: {fileID: 942037560}
+  - component: {fileID: 942037565}
   m_Layer: 5
   m_Name: ResultCanvas
   m_TagString: Untagged
@@ -7646,6 +7628,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &942037565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 942037559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc32e2bab9ea1c647a3d49ee4e4e663e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::PlayCookingBeforeShow
+  oncePerRun: 1
+  seq: {fileID: 0}
 --- !u!1 &958515708
 GameObject:
   m_ObjectHideFlags: 0
@@ -15584,7 +15580,7 @@ GameObject:
   - component: {fileID: 1763401057}
   - component: {fileID: 1763401056}
   - component: {fileID: 1763401055}
-  - component: {fileID: 1763401058}
+  - component: {fileID: 1763401059}
   m_Layer: 0
   m_Name: InterstitialCanvas
   m_TagString: Untagged
@@ -15780,7 +15776,7 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &1763401058
+--- !u!114 &1763401059
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -15789,15 +15785,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1763401052}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d97f4000cc275854e9fbbf99b4493ae1, type: 3}
+  m_Script: {fileID: 11500000, guid: 519f09dcfef813642b24b77b124607cc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::VPForcePlay
-  cg: {fileID: 0}
-  screen: {fileID: 0}
-  vp: {fileID: 0}
-  videoAudio: {fileID: 0}
-  rt: {fileID: 0}
-  hotkey: 286
+  m_EditorClassIdentifier: Unity.Hypercasual::CookingResultSequence
+  cookingClip: {fileID: 32900000, guid: 3f4d6ac8875975940913b97859fe2c25, type: 3}
+  targetRT: {fileID: 8400000, guid: f4d6653cd26fda844875318dfede6d19, type: 2}
+  resultCanvas: {fileID: 942037559}
+  resultBGM: {fileID: 1763401055}
 --- !u!43 &1764202289
 Mesh:
   m_ObjectHideFlags: 0

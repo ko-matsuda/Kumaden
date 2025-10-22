@@ -1,7 +1,5 @@
 // Assets/Scripts/CookingResultSequence.cs
-// これを1ファイルまるごとコピペして使うだけでOK。
-// シーン内の InterstitialCanvas（動画用）→ 再生 → 終了後に ResultCanvas を表示します。
-// F6で手動テスト可能。ゲーム終了時は StartSequence() を呼ぶだけ。
+// InterstitialCanvas にアタッチ。動画 → 終了後に ResultCanvas を表示＆BGM復帰までを一括管理。
 
 using System.Collections;
 using UnityEngine;
@@ -10,20 +8,14 @@ using UnityEngine.Video;
 
 public class CookingResultSequence : MonoBehaviour
 {
-    [Header("Scene Object Names (そのままでOK)")]
-    public string interstitialCanvasName = "InterstitialCanvas";
-    public string resultCanvasName = "ResultCanvas";
-    public string prologueCanvasName = "PrologueCanvas";
+    [Header("必須アサイン")]
+    public VideoClip cookingClip;          // result.mp4 をドラッグ
+    public RenderTexture targetRT;         // VideoRT_1080x1920 をドラッグ
+    public GameObject resultCanvas;        // ResultCanvas をドラッグ
+    public AudioSource resultBGM;          // （任意）リザルトBGMのAudioSource
 
-    [Header("Clip / RenderTexture")]
-    public VideoClip cookingClip;            // result.mp4 を割り当て（必須）
-    public RenderTexture targetRT;           // VideoRT_1080x1920 を割り当て（必須）
-
-    [Header("Test")]
-    public KeyCode testHotkey = KeyCode.F6;  // 再生テスト：F6
-
-    // 内部参照
-    Canvas interstitialCanvas;
+    // 内部参照（自動取得）
+    Canvas canvasRef;
     CanvasGroup cg;
     RawImage screen;
     VideoPlayer vp;
@@ -33,63 +25,36 @@ public class CookingResultSequence : MonoBehaviour
 
     void Awake()
     {
-        // InterstitialCanvas を探す
-        var ic = GameObject.Find(interstitialCanvasName);
-        if (ic == null) { Debug.LogError("[CRS] InterstitialCanvas が見つかりません"); return; }
-
-        interstitialCanvas = ic.GetComponent<Canvas>();
-        if (interstitialCanvas == null) interstitialCanvas = ic.AddComponent<Canvas>();
-        interstitialCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        interstitialCanvas.sortingOrder = 999; // 最前面
-
-        // CanvasGroup
-        cg = ic.GetComponent<CanvasGroup>();
-        if (cg == null) cg = ic.AddComponent<CanvasGroup>();
-        cg.alpha = 0f;
-
-        // RawImage（VideoScreen）
-        screen = ic.GetComponentInChildren<RawImage>(true);
-        if (screen == null)
+        // コンポーネント確保
+        canvasRef = GetComponent<Canvas>();           if (!canvasRef)   canvasRef   = gameObject.AddComponent<Canvas>();
+        cg        = GetComponent<CanvasGroup>();      if (!cg)          cg          = gameObject.AddComponent<CanvasGroup>();
+        vp        = GetComponent<VideoPlayer>();      if (!vp)          vp          = gameObject.AddComponent<VideoPlayer>();
+        videoAudio= GetComponent<AudioSource>();      if (!videoAudio)  videoAudio  = gameObject.AddComponent<AudioSource>();
+        screen    = GetComponentInChildren<RawImage>(true);
+        if (!screen)
         {
             var go = new GameObject("VideoScreen", typeof(RectTransform), typeof(RawImage));
-            go.transform.SetParent(ic.transform, false);
+            go.transform.SetParent(transform, false);
             screen = go.GetComponent<RawImage>();
-            var rt = screen.rectTransform;
-            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
-            rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+            var rt = screen.rectTransform; rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one; rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
         }
-        screen.color = Color.white; // 黒だと映らないので必ず白
 
-        // VideoPlayer
-        vp = ic.GetComponent<VideoPlayer>();
-        if (vp == null) vp = ic.AddComponent<VideoPlayer>();
-        vp.playOnAwake = false;
-        vp.isLooping = false;
+        // 表示設定
+        canvasRef.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvasRef.sortingOrder = 999;      // 最前面
+        cg.alpha = 0f;                     // ふだんは非表示
+        screen.color = Color.white;        // 黒だと映りません
+
+        // VideoPlayer 設定
+        vp.playOnAwake = false; vp.isLooping = false;
         vp.renderMode = VideoRenderMode.RenderTexture;
-
-        // AudioSource（動画の音用）
-        videoAudio = ic.GetComponent<AudioSource>();
-        if (videoAudio == null) videoAudio = ic.AddComponent<AudioSource>();
         vp.audioOutputMode = VideoAudioOutputMode.AudioSource;
         vp.SetTargetAudioSource(0, videoAudio);
 
-        // RT配線（必須）
-        if (targetRT != null)
-        {
-            vp.targetTexture = targetRT;
-            screen.texture = targetRT;
-        }
+        // RT配線
+        if (targetRT) { vp.targetTexture = targetRT; screen.texture = targetRT; }
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(testHotkey))
-        {
-            StartSequence();
-        }
-    }
-
-    // ゲーム終了時にこれを呼ぶだけ
     public void StartSequence()
     {
         if (running) return;
@@ -100,58 +65,45 @@ public class CookingResultSequence : MonoBehaviour
     {
         running = true;
 
-        // 事前停止：他のVideoPlayer・プロローグなど
-        StopOthersAndHidePrologue();
+        // 必須チェック
+        if (!cookingClip || !targetRT || !resultCanvas)
+        {
+            Debug.LogError("[CRS] 必須参照が未設定 (cookingClip / targetRT / resultCanvas)");
+            running = false; yield break;
+        }
 
-        // クリップ必須
-        if (cookingClip == null) { Debug.LogError("[CRS] cookingClip が未設定"); running = false; yield break; }
-        if (targetRT == null)   { Debug.LogError("[CRS] targetRT が未設定");   running = false; yield break; }
+        // 他Video停止（重複再生防止）
+        foreach (var other in FindObjectsOfType<VideoPlayer>())
+            if (other != vp) other.Stop();
 
-        // リザルトは一旦消す
-        var result = GameObject.Find(resultCanvasName);
-        if (result) result.SetActive(false);
+        // Result は一旦隠す
+        resultCanvas.SetActive(false);
 
-        // 準備
-        interstitialCanvas.sortingOrder = 999;
-        cg.alpha = 1f;
-        screen.enabled = true;
+        // リザルトBGMを一時ミュート
+        float prevVol = -1f;
+        if (resultBGM) { prevVol = resultBGM.volume; resultBGM.volume = 0f; }
 
+        // 画を出す準備
+        cg.alpha = 1f; screen.enabled = true;
         vp.clip = cookingClip;
-        vp.Prepare();
-        while (!vp.isPrepared) yield return null;
+        vp.Prepare(); while (!vp.isPrepared) yield return null;
 
         // 再生
         bool ended = false;
-        vp.errorReceived += (_, e) => Debug.LogError("[CRS] Video ERROR: " + e);
         vp.loopPointReached += _ => ended = true;
+        vp.errorReceived += (_, e) => Debug.LogError("[CRS] Video ERROR: " + e);
 
-        vp.Play();
-        videoAudio.Play();
-
+        vp.Play(); videoAudio.Play();
         while (!ended && vp.isPlaying) yield return null;
 
-        // 後処理
-        vp.Stop();
-        videoAudio.Stop();
-        cg.alpha = 0f;
-        screen.enabled = false;
+        // 片付け
+        vp.Stop(); videoAudio.Stop();
+        cg.alpha = 0f; screen.enabled = false;
 
-        // リザルト表示
-        if (result) result.SetActive(true);
+        // BGM復帰 → Result表示
+        if (resultBGM && prevVol >= 0f) resultBGM.volume = prevVol;
+        resultCanvas.SetActive(true);
 
         running = false;
-    }
-
-    void StopOthersAndHidePrologue()
-    {
-        // 他の VideoPlayer を止める
-        foreach (var other in FindObjectsOfType<VideoPlayer>())
-        {
-            if (vp != null && other == vp) continue;
-            other.Stop();
-        }
-        // プロローグCanvas を隠す
-        var prologue = GameObject.Find(prologueCanvasName);
-        if (prologue) prologue.SetActive(false);
     }
 }
