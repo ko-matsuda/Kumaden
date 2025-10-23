@@ -5717,11 +5717,11 @@ Transform:
   m_GameObject: {fileID: 682595136}
   serializedVersion: 2
   m_LocalRotation: {x: -0.062137436, y: -0, z: -0, w: 0.9980676}
-  m_LocalPosition: {x: 0, y: -1567.4325, z: 1884.5779}
-  m_LocalScale: {x: 332.55377, y: 332.55377, z: 332.55377}
+  m_LocalPosition: {x: 540, y: -607.4325, z: 1884.5779}
+  m_LocalScale: {x: 332.55377, y: 332.5538, z: 332.5538}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1231884395}
+  m_Father: {fileID: 1775601840}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &702262336 stripped
 Transform:
@@ -7461,6 +7461,8 @@ GameObject:
   - component: {fileID: 942037565}
   - component: {fileID: 942037566}
   - component: {fileID: 942037567}
+  - component: {fileID: 942037568}
+  - component: {fileID: 942037569}
   m_Layer: 5
   m_Name: ResultCanvas
   m_TagString: Untagged
@@ -7683,8 +7685,8 @@ CanvasGroup:
   m_GameObject: {fileID: 942037559}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!114 &942037567
 MonoBehaviour:
@@ -7702,6 +7704,38 @@ MonoBehaviour:
   fadeSeconds: 0.25
   clickSE: {fileID: 0}
   extraAudiosToStop: []
+--- !u!114 &942037568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 942037559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed96d013cc4458e4492606d01a2b685e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::ResultCanvasUnblocker
+  retryButton: {fileID: 1504612078}
+  fadeGroup: {fileID: 1655579937}
+  retryImpl: {fileID: 0}
+  enforceEveryFrame: 0
+  retryButtonNameHint: retry
+--- !u!114 &942037569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 942037559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a009d8a0ab6479469f69e09c88eb413, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::ResultRetryForce
+  retryButton: {fileID: 1504612078}
+  fadeGroup: {fileID: 1655579937}
+  retryImpl: {fileID: 942037567}
 --- !u!1 &958515708
 GameObject:
   m_ObjectHideFlags: 0
@@ -10262,7 +10296,6 @@ RectTransform:
   m_Children:
   - {fileID: 258241466}
   - {fileID: 1808734649}
-  - {fileID: 682595139}
   - {fileID: 561526540}
   - {fileID: 1537843148}
   m_Father: {fileID: 0}
@@ -15803,14 +15836,14 @@ MonoBehaviour:
   trigger: 0
   totalSongSeconds: 108
   fireOffsetSeconds: 0
-  gameMusic: {fileID: 0}
+  gameMusic: {fileID: 538003175}
   fadeGroup: {fileID: 1655579937}
-  interstitialGroup: {fileID: 0}
+  interstitialGroup: {fileID: 1763401057}
   videoImage: {fileID: 2050364185}
   videoPlayer: {fileID: 1763401056}
   videoAudio: {fileID: 1763401055}
   resultRoot: {fileID: 942037559}
-  jingleSource: {fileID: 0}
+  jingleSource: {fileID: 942037565}
   prepareTimeout: 1
   settleWait: 0.05
 --- !u!43 &1764202289
@@ -16024,6 +16057,7 @@ Transform:
   - {fileID: 1629996155}
   - {fileID: 1415948727}
   - {fileID: 1219042622}
+  - {fileID: 682595139}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1798376826
