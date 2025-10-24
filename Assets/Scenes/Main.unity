@@ -1790,15 +1790,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffa73c88992a7c3408f45cd6ef7f5e46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::ResultButtons
-  RetryButton: {fileID: 0}
-  TitleButton: {fileID: 0}
-  RetryImage: {fileID: 0}
-  TitleImage: {fileID: 0}
-  FadeGroup: {fileID: 0}
-  FadeSeconds: 0.25
-  ClickSE: {fileID: 0}
-  MainSceneName: Main
-  TitleSceneName: TitleScene
+  retryButton: {fileID: 1429440319}
+  titleButton: {fileID: 152582323}
+  retryImage: {fileID: 1429440320}
+  titleImage: {fileID: 152582324}
+  fadeGroup: {fileID: 1655579937}
+  fadeSeconds: 0.25
+  clickSE: {fileID: 942037565}
+  mainSceneName: Main
+  titleSceneName: TitleScene
 --- !u!43 &202417243
 Mesh:
   m_ObjectHideFlags: 0

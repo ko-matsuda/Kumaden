@@ -1,72 +1,85 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using System.Collections;
 
 public class ResultButtons : MonoBehaviour
 {
     [Header("Buttons")]
-    public Button RetryButton;
-    public Button TitleButton;
+    public Button retryButton;
+    public Button titleButton;
 
     [Header("Button Images (任意)")]
-    public Image RetryImage;
-    public Image TitleImage;
+    public Image retryImage;
+    public Image titleImage;
 
     [Header("Fade")]
-    public CanvasGroup FadeGroup;
-    public float FadeSeconds = 0.25f;
+    public CanvasGroup fadeGroup;   // ← FadeCanvas の CanvasGroup をドラッグ
+    public float fadeSeconds = 0.25f;
 
     [Header("SE (任意)")]
-    public AudioSource ClickSE;
+    public AudioSource clickSE;     // ← クリック音のAudioSource(結果キャンバスの音源など)
 
     [Header("Scene Names")]
-    public string MainSceneName = "Main";
-    public string TitleSceneName = "TitleScene";  // ←ここを TitleScene に変更済み！
+    public string mainSceneName = "Main";
+    public string titleSceneName = "TitleScene";
 
-    private bool isTransitioning = false;
-
-    void Start()
+    void Awake()
     {
-        if (RetryButton != null)
-            RetryButton.onClick.AddListener(OnRetryButton);
+        // 念のため初期化（押せる状態に）
+        if (fadeGroup != null)
+        {
+            fadeGroup.alpha = 0f;
+            fadeGroup.interactable = false;
+            fadeGroup.blocksRaycasts = false;
+        }
 
-        if (TitleButton != null)
-            TitleButton.onClick.AddListener(OnTitleButton);
+        // ボタンの配線（EditorのOnClickが空でも動く）
+        if (retryButton != null)
+        {
+            retryButton.onClick.RemoveAllListeners();
+            retryButton.onClick.AddListener(OnRetryButton);
+        }
+        if (titleButton != null)
+        {
+            titleButton.onClick.RemoveAllListeners();
+            titleButton.onClick.AddListener(OnTitleButton);
+        }
     }
 
     public void OnRetryButton()
     {
-        if (isTransitioning) return;
-        StartCoroutine(LoadSceneWithFade(MainSceneName));
+        if (clickSE) clickSE.Play();
+        StartCoroutine(FadeAndLoad(mainSceneName));
     }
 
     public void OnTitleButton()
     {
-        if (isTransitioning) return;
-        StartCoroutine(LoadSceneWithFade(TitleSceneName));
+        if (clickSE) clickSE.Play();
+        StartCoroutine(FadeAndLoad(titleSceneName));
     }
 
-    private IEnumerator LoadSceneWithFade(string sceneName)
+    IEnumerator FadeAndLoad(string sceneName)
     {
-        isTransitioning = true;
-
-        if (ClickSE != null)
-            ClickSE.Play();
-
-        // フェードアウト
-        if (FadeGroup != null)
+        // ここで必ず動くように、TimeScaleに依らないフェードにする
+        if (fadeGroup != null && fadeSeconds > 0f)
         {
+            fadeGroup.blocksRaycasts = true; // 多重クリック防止
+            fadeGroup.interactable = false;
+
             float t = 0f;
-            while (t < FadeSeconds)
+            while (t < fadeSeconds)
             {
-                t += Time.deltaTime;
-                FadeGroup.alpha = Mathf.Lerp(0, 1, t / FadeSeconds);
+                t += Time.unscaledDeltaTime; // ← 重要: unscaled
+                fadeGroup.alpha = Mathf.Clamp01(t / fadeSeconds);
                 yield return null;
             }
         }
 
-        // シーン遷移
-        SceneManager.LoadScene(sceneName);
+        // 万一どこかで0にされていても遷移できるように戻す
+        if (Time.timeScale == 0f) Time.timeScale = 1f;
+
+        // Build Profilesに入っていないとロードに失敗するので注意（下で手順再掲）
+        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 }
