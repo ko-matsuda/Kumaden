@@ -1125,6 +1125,7 @@ GameObject:
   - component: {fileID: 152582323}
   - component: {fileID: 152582322}
   - component: {fileID: 152582321}
+  - component: {fileID: 152582326}
   m_Layer: 5
   m_Name: Btn-Title
   m_TagString: Untagged
@@ -1147,10 +1148,10 @@ RectTransform:
   - {fileID: 818862619}
   m_Father: {fileID: 200240450}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 720, y: -1360}
-  m_SizeDelta: {x: 260, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &152582321
 MonoBehaviour:
@@ -1310,9 +1311,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 942037559}
         m_TargetAssemblyTypeName: ResultButtons, Unity.Hypercasual
-        m_MethodName: OnTitleButton
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1360,6 +1361,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 152582319}
   m_CullTransparentMesh: 1
+--- !u!114 &152582326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 152582319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: 260
+  m_PreferredHeight: 100
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &186652057
 GameObject:
   m_ObjectHideFlags: 0
@@ -1371,6 +1392,7 @@ GameObject:
   - component: {fileID: 186652058}
   - component: {fileID: 186652060}
   - component: {fileID: 186652061}
+  - component: {fileID: 186652062}
   m_Layer: 0
   m_Name: GameFlow
   m_TagString: Untagged
@@ -1433,6 +1455,22 @@ MonoBehaviour:
   startTargetName: GameFlow
   startMethodName: StartGame
   uiToDisableOnSkip: []
+--- !u!114 &186652062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186652057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3723eb88a4de59f4fa6e14e46f9a8dca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::ResultCaller
+  videoPlayer: {fileID: 1763401056}
+  resultHUD: {fileID: 942037572}
+  delayAfterVideo: 0.35
+  fallbackSeconds: 8
 --- !u!43 &187665240
 Mesh:
   m_ObjectHideFlags: 0
@@ -1683,80 +1721,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 200240450}
-  - component: {fileID: 200240449}
-  - component: {fileID: 200240448}
-  - component: {fileID: 200240447}
   - component: {fileID: 200240451}
   m_Layer: 5
-  m_Name: ResultButtonsCanvas
+  m_Name: FooterButtons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &200240447
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 200240446}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
---- !u!114 &200240448
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 200240446}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 1
-  m_ReferencePixelsPerUnit: 100
-  m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 1080, y: 1920}
-  m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
-  m_PhysicalUnit: 3
-  m_FallbackScreenDPI: 96
-  m_DefaultSpriteDPI: 96
-  m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
---- !u!223 &200240449
-Canvas:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 200240446}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 1
-  m_OverrideSorting: 0
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 25
-  m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 32767
-  m_TargetDisplay: 0
 --- !u!224 &200240450
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1764,20 +1736,20 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 200240446}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1429440316}
   - {fileID: 152582320}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1997657196}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: 0, y: 600}
+  m_SizeDelta: {x: 0, y: 200}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &200240451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1787,18 +1759,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 200240446}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffa73c88992a7c3408f45cd6ef7f5e46, type: 3}
+  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::ResultButtons
-  retryButton: {fileID: 1429440319}
-  titleButton: {fileID: 152582323}
-  retryImage: {fileID: 1429440320}
-  titleImage: {fileID: 152582324}
-  fadeGroup: {fileID: 1655579937}
-  fadeSeconds: 0.25
-  clickSE: {fileID: 942037565}
-  mainSceneName: Main
-  titleSceneName: TitleScene
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 4
+  m_Spacing: 80
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!43 &202417243
 Mesh:
   m_ObjectHideFlags: 0
@@ -3422,7 +3399,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -116}
+  m_AnchoredPosition: {x: 0, y: -159}
   m_SizeDelta: {x: 0, y: 200}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!4 &350379088 stripped
@@ -6476,7 +6453,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 60, y: -410}
+  m_AnchoredPosition: {x: 60, y: -453}
   m_SizeDelta: {x: 390, y: 360}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &728618928
@@ -7795,11 +7772,11 @@ GameObject:
   - component: {fileID: 942037563}
   - component: {fileID: 942037562}
   - component: {fileID: 942037561}
-  - component: {fileID: 942037570}
   - component: {fileID: 942037560}
   - component: {fileID: 942037565}
   - component: {fileID: 942037566}
   - component: {fileID: 942037571}
+  - component: {fileID: 942037572}
   m_Layer: 5
   m_Name: ResultCanvas
   m_TagString: Untagged
@@ -8070,24 +8047,10 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 942037559}
   m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
---- !u!114 &942037570
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 942037559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 12e0a5213a756734e860f6de3db24339, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::ResultRankTester
-  rankText: {fileID: 2021122111}
-  colorA: {r: 1, g: 0.95, b: 0.2, a: 1}
 --- !u!114 &942037571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8101,6 +8064,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::OverlayKiller
   log: 0
+--- !u!114 &942037572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 942037559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda413f3126b2b544a85ec4d8cd6bb38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::ResultHUD
+  resultGroup: {fileID: 942037566}
+  buttonsGroup: {fileID: 0}
+  retryButton: {fileID: 1429440319}
+  titleButton: {fileID: 152582323}
+  clickSE: {fileID: 942037565}
+  fadeSeconds: 0.25
+  mainSceneName: Main
+  titleSceneName: TitleScene
 --- !u!1 &958515708
 GameObject:
   m_ObjectHideFlags: 0
@@ -9943,7 +9926,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -43}
   m_SizeDelta: {x: 0, y: 360}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1184449133
@@ -12331,6 +12314,7 @@ GameObject:
   - component: {fileID: 1429440319}
   - component: {fileID: 1429440318}
   - component: {fileID: 1429440317}
+  - component: {fileID: 1429440322}
   m_Layer: 5
   m_Name: Btn-Retry
   m_TagString: Untagged
@@ -12353,10 +12337,10 @@ RectTransform:
   - {fileID: 242640543}
   m_Father: {fileID: 200240450}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 360, y: -1360}
-  m_SizeDelta: {x: 260, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!82 &1429440317
 AudioSource:
@@ -12516,18 +12500,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: ResultButtons, Unity.Hypercasual
-        m_MethodName: OnRetryButton
+      - m_Target: {fileID: 942037559}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 1
+        m_CallState: 2
 --- !u!114 &1429440320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12566,6 +12550,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1429440315}
   m_CullTransparentMesh: 1
+--- !u!114 &1429440322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1429440315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: 260
+  m_PreferredHeight: 100
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &1453863299
 GameObject:
   m_ObjectHideFlags: 0
@@ -14680,7 +14684,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -170, y: -420}
+  m_AnchoredPosition: {x: -170, y: -463}
   m_SizeDelta: {x: 430, y: 360}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1666054908
@@ -18795,6 +18799,7 @@ RectTransform:
   - {fileID: 728618927}
   - {fileID: 1666054907}
   - {fileID: 1184449132}
+  - {fileID: 200240450}
   m_Father: {fileID: 942037564}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -18894,6 +18899,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2021122109}
   - component: {fileID: 2021122110}
+  - component: {fileID: 2021122112}
   - component: {fileID: 2021122111}
   m_Layer: 5
   m_Name: RankText
@@ -19020,6 +19026,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &2021122112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2021122108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df6147dbbd8364393ac8979251454b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::RankFixer
+  rankText: {fileID: 2021122111}
 --- !u!1001 &2026104686
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20949,5 +20968,4 @@ SceneRoots:
   - {fileID: 1655579934}
   - {fileID: 1763401054}
   - {fileID: 942037564}
-  - {fileID: 200240450}
   - {fileID: 217732778}
