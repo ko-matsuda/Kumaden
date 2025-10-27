@@ -15,6 +15,9 @@ GameObject:
   - component: {fileID: 2260780714683258190}
   - component: {fileID: 6312870209137180789}
   - component: {fileID: 2018967562949615935}
+  - component: {fileID: -5998751616280768869}
+  - component: {fileID: -7764572744659970712}
+  - component: {fileID: 8986971269233670040}
   m_Layer: 3
   m_Name: FlourNote
   m_TagString: Untagged
@@ -128,13 +131,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9497220f9ec4d049b1292e9b9769e8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Type: 0
+  LegacyType: 1
+  laneIndex: 1
   scrollSpeed: 12
-  judgeZ: 1
-  lingerDistance: 3
-  laneIndex: 0
-  ingredient: 0
-  noteRenderer: {fileID: 8384012808243909169}
-  highlightMat: {fileID: 2100000, guid: ceab0489b6db4be49a3cfeae560bb291, type: 2}
+  judgeZ: 0
+  lingerDistance: 1.5
+  onSpawn:
+    m_PersistentCalls:
+      m_Calls: []
+  onPickup:
+    m_PersistentCalls:
+      m_Calls: []
+  onHoldTick:
+    m_PersistentCalls:
+      m_Calls: []
+  onRelease:
+    m_PersistentCalls:
+      m_Calls: []
+  onMiss:
+    m_PersistentCalls:
+      m_Calls: []
+  visual: {fileID: 0}
+  holdScorePerSecond: 0
+  autoDisableDelay: 0.1
+  hitRadius: 0.45
 --- !u!95 &6312870209137180789
 Animator:
   serializedVersion: 7
@@ -173,3 +194,91 @@ MonoBehaviour:
   duration: 0.06
   playerTag: Player
   vfxOffset: {x: 0, y: 0.5, z: 0}
+--- !u!114 &-5998751616280768869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8384012808243909172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e6cd1db57d98e347ace52e07eeb0f41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::HoldTickToPickup
+  playerTag: Player
+  tickInterval: 0.08
+  hitOnEnter: 1
+  onPickup:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8986971269233670040}
+        m_TargetAssemblyTypeName: HoldEventRouter, Unity.Hypercasual
+        m_MethodName: 
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: NoteBehaviour, Unity.Hypercasual
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onHoldTick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8986971269233670040}
+        m_TargetAssemblyTypeName: HoldEventRouter, Unity.Hypercasual
+        m_MethodName: HoldTick
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: NoteBehaviour, Unity.Hypercasual
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onRelease:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8986971269233670040}
+        m_TargetAssemblyTypeName: HoldEventRouter, Unity.Hypercasual
+        m_MethodName: EndHold
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: NoteBehaviour, Unity.Hypercasual
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &-7764572744659970712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8384012808243909172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c76044e9b449aae498e5f97f75c7164e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::NoteDespawnRelay2
+  lane: 1
+  autoDespawnPastJudgeZ: 3
+  judgeZ: 0
+  movesToMinusZ: 1
+--- !u!114 &8986971269233670040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8384012808243909172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1ffbb80258c22e4fbad49e3bbd18fc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::Kuma.HoldEventRouter
