@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 6694813725552871518}
   - component: {fileID: -9046518638822966828}
   - component: {fileID: 3204920632979385283}
-  - component: {fileID: 5325079890572521510}
   - component: {fileID: -646528086676978060}
+  - component: {fileID: 6725068333640731073}
   - component: {fileID: 3173483728755388164}
   - component: {fileID: 143370675283836435}
   m_Layer: 3
@@ -176,18 +176,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5325079890572521510
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6694813725552871513}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1ffbb80258c22e4fbad49e3bbd18fc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::Kuma.HoldEventRouter
 --- !u!114 &-646528086676978060
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204,6 +192,18 @@ MonoBehaviour:
   duration: 0.06
   playerTag: Player
   vfxOffset: {x: 0, y: 0.5, z: 0}
+--- !u!114 &6725068333640731073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6694813725552871513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 545602b74496b1b489819e304c511e9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::AutoWireHoldEvents
 --- !u!114 &3173483728755388164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,46 +219,46 @@ MonoBehaviour:
   playerTag: Player
   tickInterval: 0.08
   hitOnEnter: 1
-  onPickup:
+  OnPickup:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5325079890572521510}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: HoldEventRouter, Unity.Hypercasual
         m_MethodName: BeginHold
-        m_Mode: 2
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: NoteBehaviour, Unity.Hypercasual
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  onHoldTick:
+  OnHoldTick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5325079890572521510}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: HoldEventRouter, Unity.Hypercasual
         m_MethodName: HoldTick
-        m_Mode: 2
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: NoteBehaviour, Unity.Hypercasual
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  onRelease:
+  OnRelease:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5325079890572521510}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: HoldEventRouter, Unity.Hypercasual
         m_MethodName: EndHold
-        m_Mode: 2
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: NoteBehaviour, Unity.Hypercasual
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

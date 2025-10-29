@@ -1557,65 +1557,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!1 &153675831
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 153675835}
-  - component: {fileID: 153675834}
-  - component: {fileID: 153675833}
-  m_Layer: 0
-  m_Name: RibbonSystem
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!222 &153675833
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 153675831}
-  m_CullTransparentMesh: 1
---- !u!114 &153675834
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 153675831}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1ffbb80258c22e4fbad49e3bbd18fc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::Kuma.HoldEventRouter
-  player: {fileID: 1079014033}
-  ribbonL: {fileID: 8535461101959679096}
-  ribbonM: {fileID: 4338999686810904253}
-  ribbonR: {fileID: 4338999686865235059}
-  startZOffset: -0.1
-  minLength: 0.2
---- !u!4 &153675835
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 153675831}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.57, y: 0.68, z: 0.84}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &186652057
 GameObject:
   m_ObjectHideFlags: 0
@@ -3169,6 +3110,56 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 180, y: 70}
   m_Pivot: {x: 0.5, y: 0}
+--- !u!1 &284626781
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 284626783}
+  - component: {fileID: 284626782}
+  m_Layer: 0
+  m_Name: HoldEventRouter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &284626782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 284626781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1ffbb80258c22e4fbad49e3bbd18fc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::Kuma.HoldEventRouter
+  player: {fileID: 1079014033}
+  ribbonL: {fileID: 8535461101959679096}
+  ribbonM: {fileID: 4338999686810904253}
+  ribbonR: {fileID: 4338999686865235059}
+  startZOffset: -0.1
+  minLength: 0.2
+--- !u!4 &284626783
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 284626781}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.51844, y: -0, z: 4.55252}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &309113804
 GameObject:
   m_ObjectHideFlags: 0
@@ -4433,7 +4424,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.WorldRibbon
-  line: {fileID: 8535461101507019239}
   expose01: 0
 --- !u!120 &376802102
 LineRenderer:
@@ -4560,8 +4550,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.NoteToRibbonRelay
   ribbon: {fileID: 4338999686810904253}
   player: {fileID: 1079014033}
-  y: 0.05
-  halfLength: 0.6
+  note: {fileID: 2260780714683258190, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
 --- !u!1 &400911326
 GameObject:
   m_ObjectHideFlags: 0
@@ -5202,7 +5191,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.WorldRibbon
-  line: {fileID: 8535461101578128169}
   expose01: 0
 --- !u!120 &474159795
 LineRenderer:
@@ -5328,8 +5316,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.NoteToRibbonRelay
   ribbon: {fileID: 4338999686865235059}
   player: {fileID: 1079014033}
-  y: 0.05
-  halfLength: 0.6
+  note: {fileID: -9046518638822966828, guid: 160489cbe1e2f034d831926dd7216961, type: 3}
 --- !u!1 &481928989
 GameObject:
   m_ObjectHideFlags: 0
@@ -8843,7 +8830,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.WorldRibbon
-  line: {fileID: 8535461101959679095}
   expose01: 0
 --- !u!120 &929582225
 LineRenderer:
@@ -8969,8 +8955,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.NoteToRibbonRelay
   ribbon: {fileID: 8535461101959679096}
   player: {fileID: 1079014033}
-  y: 0.05
-  halfLength: 0.6
+  note: {fileID: -5061303110908459532, guid: 118e31a6b1531a44da5a00462d606b32, type: 3}
 --- !u!1 &939373168
 GameObject:
   m_ObjectHideFlags: 0
@@ -21922,7 +21907,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::WorldRibbon
-  line: {fileID: 8535461101507019239}
   expose01: 0
 --- !u!114 &4338999686865235059
 MonoBehaviour:
@@ -21936,7 +21920,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::WorldRibbon
-  line: {fileID: 8535461101578128169}
   expose01: 0
 --- !u!224 &5219838187932017223 stripped
 RectTransform:
@@ -22529,7 +22512,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22bff145cca2ef94487da8903257afce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.RibbonSimpleRelay
-  ribbon: {fileID: 4338999686810904253}
 --- !u!120 &8535461101578128169
 LineRenderer:
   serializedVersion: 2
@@ -22652,7 +22634,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22bff145cca2ef94487da8903257afce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.RibbonSimpleRelay
-  ribbon: {fileID: 4338999686865235059}
 --- !u!120 &8535461101959679095
 LineRenderer:
   serializedVersion: 2
@@ -22775,7 +22756,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.WorldRibbon
-  line: {fileID: 8535461101959679095}
   expose01: 0
 --- !u!114 &8535461101959679097
 MonoBehaviour:
@@ -22806,7 +22786,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22bff145cca2ef94487da8903257afce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.RibbonSimpleRelay
-  ribbon: {fileID: 8535461101959679096}
 --- !u!1001 &8795669190786713817
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23308,4 +23287,4 @@ SceneRoots:
   - {fileID: 6824176801513100547}
   - {fileID: 6824176803207403667}
   - {fileID: 6824176803001946717}
-  - {fileID: 153675835}
+  - {fileID: 284626783}

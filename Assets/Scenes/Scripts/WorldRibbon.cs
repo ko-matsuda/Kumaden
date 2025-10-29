@@ -3,47 +3,70 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class WorldRibbon : MonoBehaviour
 {
-    public LineRenderer line;
+    LineRenderer line;
+    MaterialPropertyBlock mpb;
+
+    [Range(0f, 1f)]
     public float expose01 = 0f;
-    private static readonly int ExposeID = Shader.PropertyToID("_Expose01");
-    private MaterialPropertyBlock mpb;
+    static readonly int ExposeID = Shader.PropertyToID("_Expose01");
 
     void Awake()
     {
-        if (line == null) line = GetComponent<LineRenderer>();
-        mpb = new MaterialPropertyBlock();
+        if (!line) line = GetComponent<LineRenderer>();
+        if (mpb == null) mpb = new MaterialPropertyBlock();
         line.useWorldSpace = true;
+        ApplyExpose();
     }
 
-    // 旧API互換
-    public void SetExpose01(float value) => SetExpose(value);
-    public void SetEndpoints(Vector3 a, Vector3 b) { line.SetPosition(0, a); line.SetPosition(1, b); }
-    public void Clear() { line.positionCount = 2; line.SetPosition(0, Vector3.zero); line.SetPosition(1, Vector3.zero); }
+    void OnValidate()
+    {
+        if (!line) line = GetComponent<LineRenderer>();
+        if (mpb == null) mpb = new MaterialPropertyBlock();
+        ApplyExpose();
+    }
 
-    // 現行制御
-    public void SetExpose(float value)
+    // === 正式API ===
+    public void SetExpose01(float value)
     {
         expose01 = Mathf.Clamp01(value);
         ApplyExpose();
     }
 
-    public void TurnOn()
+    public void SetEndpoints(Vector3 a, Vector3 b)
     {
-        gameObject.SetActive(true);
-        SetExpose(1f);
+        if (!line) line = GetComponent<LineRenderer>();
+        line.positionCount = 2;
+        line.SetPosition(0, a);
+        line.SetPosition(1, b);
     }
 
-    public void TurnOff()
+    public void Clear()
     {
-        SetExpose(0f);
-        gameObject.SetActive(false);
+        if (!line) line = GetComponent<LineRenderer>();
+        line.positionCount = 0;
     }
 
-    private void ApplyExpose()
+    void ApplyExpose()
     {
-        if (line == null) return;
+        if (!line) return;
         line.GetPropertyBlock(mpb);
         mpb.SetFloat(ExposeID, expose01);
         line.SetPropertyBlock(mpb);
+    }
+
+    // === 互換API（既存コード対策） ===
+    // 旧名: SetExpose(float)
+    public void SetExpose(float value) => SetExpose01(value);
+    // 旧名: TurnOn/TurnOff を呼ぶコードがある場合に備えて
+    public void TurnOn()  => SetExpose01(1f);
+    public void TurnOff() => SetExpose01(0f);
+
+    [ContextMenu("TestDraw (force)")]
+    void TestDraw()
+    {
+        var a = transform.position + new Vector3(-0.5f, 0f, 0f);
+        var b = transform.position + new Vector3( 0.5f, 0f, 0f);
+        SetEndpoints(a, b);
+        SetExpose01(1f);
     }
 }

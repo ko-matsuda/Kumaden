@@ -1,65 +1,51 @@
 using UnityEngine;
-using System.Reflection;
 
-namespace Kuma
+public class NoteToRibbonRelay : MonoBehaviour
 {
-    public class NoteToRibbonRelay : MonoBehaviour
+    public WorldRibbon ribbon;        // 紐付け対象（WorldRibbon）
+    public Transform player;          // プレイヤーTransform（PlayerRootなど）
+    public NoteBehaviour note;        // このNote自身
+
+    private bool active = false;
+
+    void Update()
     {
-        [Header("Refs")]
-        public Transform player;         // PlayerRoot
-        public WorldRibbon ribbon;       // WorldRibbon_*（対応レーン）
-        
-        [Header("Tune")]
-        public float y = 0.05f;          // 帯の高さ
-        public float halfLength = 0.6f;  // プレイヤー前後に伸ばす半分の長さ
+        if (!active || ribbon == null || player == null || note == null)
+            return;
 
-        [Header("Fallback")]
-        [Tooltip("Note からレーンが取れないときに使う。-1=自動取得")]
-        public int forcedLane = -1;      // 0=L,1=M,2=R
+        // 帯の両端を更新（ノートとプレイヤーの間）
+        ribbon.SetEndpoints(note.transform.position, player.position);
+    }
 
-        // ==== UnityEvent 受け口（必ず NoteBehaviour 引数）====
-        public void BeginHold(object note) { if (!ribbon || !player) return; ribbon.SetExpose01(1f); UpdateLine(note); }
-        public void HoldTick (object note) { if (!ribbon || !player) return; UpdateLine(note); }
-        public void EndHold  (object note) { if (!ribbon) return; ribbon.SetExpose01(0f); ribbon.Clear(); }
-
-        void UpdateLine(object noteObj)
+    // ノート拾い開始
+    public void BeginHold(NoteBehaviour nb)
+    {
+        note = nb;
+        active = true;
+        if (ribbon != null)
         {
-            int lane = GetLaneIndexFrom(noteObj);
-            float x = LaneToX(lane);
-            float z0 = player.position.z - halfLength;
-            float z1 = player.position.z + halfLength;
-            ribbon.SetEndpoints(new Vector3(x, y, z0), new Vector3(x, y, z1));
+            ribbon.gameObject.SetActive(true);
+            ribbon.SetExpose(1f);
         }
+    }
 
-        int GetLaneIndexFrom(object noteObj)
+    // ノート保持中
+    public void HoldTick(NoteBehaviour nb)
+    {
+        if (active && ribbon != null)
         {
-            if (forcedLane >= 0) return forcedLane;
-
-            if (noteObj == null) return 1; // M
-
-            var t = noteObj.GetType();
-
-            // Property/Field いろいろ試す（LaneIndex / laneIndex / lane / Lane など）
-            string[] names = { "LaneIndex", "laneIndex", "lane", "Lane" };
-            foreach (var n in names)
-            {
-                var p = t.GetProperty(n, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (p != null && p.PropertyType == typeof(int)) return Mathf.Clamp((int)p.GetValue(noteObj), 0, 2);
-
-                var f = t.GetField(n, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (f != null && f.FieldType == typeof(int)) return Mathf.Clamp((int)f.GetValue(noteObj), 0, 2);
-            }
-            return 1; // 取れなければ真ん中
+            ribbon.SetExpose(1f);
         }
+    }
 
-        float LaneToX(int lane)
+    // ノート離し
+    public void EndHold(NoteBehaviour nb)
+    {
+        active = false;
+        if (ribbon != null)
         {
-            switch (lane)
-            {
-                case 0: return -1.6f; // L
-                case 2: return  1.6f; // R
-                default: return 0f;   // M
-            }
+            ribbon.SetExpose(0f);
+            ribbon.gameObject.SetActive(false);
         }
     }
 }
