@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: -5998751616280768869}
   - component: {fileID: -7764572744659970712}
   - component: {fileID: -7776425325054046783}
+  - component: {fileID: 3500031379709468965}
   m_Layer: 3
   m_Name: FlourNote
   m_TagString: Untagged
@@ -209,51 +210,15 @@ MonoBehaviour:
   playerTag: Player
   tickInterval: 0.08
   hitOnEnter: 1
-  OnPickup:
+  onPickup:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: HoldEventRouter, Unity.Hypercasual
-        m_MethodName: BeginHold
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnHoldTick:
+      m_Calls: []
+  onHoldTick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: HoldEventRouter, Unity.Hypercasual
-        m_MethodName: HoldTick
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnRelease:
+      m_Calls: []
+  onRelease:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: HoldEventRouter, Unity.Hypercasual
-        m_MethodName: EndHold
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &-7764572744659970712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,3 +247,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 545602b74496b1b489819e304c511e9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::AutoWireHoldEvents
+--- !u!114 &3500031379709468965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8384012808243909172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b54a18fc842f1ee45b4d97dc70a3782d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::HoldChainLink

@@ -3143,8 +3143,6 @@ MonoBehaviour:
   ribbonL: {fileID: 8535461101959679096}
   ribbonM: {fileID: 4338999686810904253}
   ribbonR: {fileID: 4338999686865235059}
-  startZOffset: -0.1
-  minLength: 0.2
 --- !u!4 &284626783
 Transform:
   m_ObjectHideFlags: 0
@@ -4424,6 +4422,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.WorldRibbon
+  line: {fileID: 0}
   expose01: 0
 --- !u!120 &376802102
 LineRenderer:
@@ -5191,6 +5190,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.WorldRibbon
+  line: {fileID: 0}
   expose01: 0
 --- !u!120 &474159795
 LineRenderer:
@@ -8830,6 +8830,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.WorldRibbon
+  line: {fileID: 0}
   expose01: 0
 --- !u!120 &929582225
 LineRenderer:
@@ -12062,6 +12063,63 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1001 &1254712115
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3668814847879113081, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668814847879113081, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668814847879113081, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668814847879113081, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668814847879113081, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668814847879113081, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668814847879113081, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668814847879113081, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668814847879113081, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668814847879113081, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694813725552871513, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: m_Name
+      value: LinkedHoldNote
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
 --- !u!1 &1268904765
 GameObject:
   m_ObjectHideFlags: 0
@@ -21847,7 +21905,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6824176803207403667}
   - component: {fileID: 8535461101507019239}
-  - component: {fileID: 8535461101507019240}
   - component: {fileID: 4338999686810904253}
   m_Layer: 3
   m_Name: WorldRibbon_M
@@ -21866,7 +21923,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6824176803001946717}
   - component: {fileID: 8535461101578128169}
-  - component: {fileID: 8535461101578128170}
   - component: {fileID: 4338999686865235059}
   m_Layer: 3
   m_Name: WorldRibbon_R
@@ -21886,8 +21942,6 @@ GameObject:
   - component: {fileID: 6824176801513100547}
   - component: {fileID: 8535461101959679095}
   - component: {fileID: 8535461101959679096}
-  - component: {fileID: 8535461101959679097}
-  - component: {fileID: 8535461101959679098}
   m_Layer: 3
   m_Name: WorldRibbon_L
   m_TagString: Untagged
@@ -21907,6 +21961,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::WorldRibbon
+  line: {fileID: 0}
   expose01: 0
 --- !u!114 &4338999686865235059
 MonoBehaviour:
@@ -21920,6 +21975,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::WorldRibbon
+  line: {fileID: 0}
   expose01: 0
 --- !u!224 &5219838187932017223 stripped
 RectTransform:
@@ -22500,18 +22556,6 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
---- !u!114 &8535461101507019240
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1436615843980616661}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22bff145cca2ef94487da8903257afce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::Kuma.RibbonSimpleRelay
 --- !u!120 &8535461101578128169
 LineRenderer:
   serializedVersion: 2
@@ -22622,18 +22666,6 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
---- !u!114 &8535461101578128170
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1436615844194855195}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22bff145cca2ef94487da8903257afce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::Kuma.RibbonSimpleRelay
 --- !u!120 &8535461101959679095
 LineRenderer:
   serializedVersion: 2
@@ -22756,36 +22788,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a26f57564c77e340b20d029d3ffa4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::Kuma.WorldRibbon
+  line: {fileID: 0}
   expose01: 0
---- !u!114 &8535461101959679097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1436615844568018501}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa1615d6ba091394c8d4f7c7c30d9675, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::RibbonLineTester
-  lr: {fileID: 8535461101959679095}
-  x: -1.6
-  z0: -1
-  z1: 1
-  y: 0.05
---- !u!114 &8535461101959679098
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1436615844568018501}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22bff145cca2ef94487da8903257afce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::Kuma.RibbonSimpleRelay
 --- !u!1001 &8795669190786713817
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23269,6 +23273,7 @@ SceneRoots:
   - {fileID: 1231884395}
   - {fileID: 538003174}
   - {fileID: 528059056}
+  - {fileID: 1254712115}
   - {fileID: 420155183}
   - {fileID: 891588769}
   - {fileID: 1003283523}
