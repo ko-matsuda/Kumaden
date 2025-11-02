@@ -11636,6 +11636,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 609883991858276282, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: lane
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 864598385152843901, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 864598385152843901, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: laneIndex
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 864598385152843901, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: LegacyType
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1575758477007645241, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: endNote
       value: 
@@ -11647,7 +11663,7 @@ PrefabInstance:
     - target: {fileID: 1575758477007645241, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: ribbonPrefab
       value: 
-      objectReference: {fileID: 4338999686810904253}
+      objectReference: {fileID: 4338999685137209249, guid: 86fdec771a247fe4fb56115dba542d48, type: 3}
     - target: {fileID: 3668814847879113081, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -11691,6 +11707,22 @@ PrefabInstance:
     - target: {fileID: 6694813725552871513, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: m_Name
       value: LinkedHoldNote
+      objectReference: {fileID: 0}
+    - target: {fileID: 7541341436068515580, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: lane
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7719503946113206587, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7719503946113206587, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: laneIndex
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7719503946113206587, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      propertyPath: LegacyType
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
