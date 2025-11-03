@@ -1,18 +1,14 @@
-// Assets/Scenes/Scripts/LinkedHoldNote.cs
-// KumaDen ホールド帯：Startノーツ→EndノーツをLineRendererで結ぶ。
-// Start接触で帯の始端がプレイヤーZに追従して短縮、End通過で消灯。
-// 参照がランタイムで破棄されても最後にキャッシュした座標で継続。
-
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class LinkedHoldNote : MonoBehaviour
 {
     [Header("参照（必ず実ノーツを割当）")]
-    [SerializeField] private Transform startNote;      // 直前のノーツ
-    [SerializeField] private Transform endNote;        // 次ノーツ（※LaneLなど親を入れない）
-    [SerializeField] private Transform player;         // kuma_model など
-    [SerializeField] private LineRenderer ribbonLine;  // WorldRibbon_Runtime の LineRenderer
+    [SerializeField] private Transform startNote;
+    [SerializeField] private Transform endNote;
+    [SerializeField] private Transform player;
+    [SerializeField] private LineRenderer ribbonLine;
 
     [Header("自動検出（必要な時だけ）")]
     [SerializeField] private bool autoFindNotes = false;
@@ -21,25 +17,27 @@ public class LinkedHoldNote : MonoBehaviour
     [Range(0.02f, 1.0f)] public float lineWidth = 0.30f;
 
     [Header("判定バッファ")]
-    public float enterAhead = 2.0f;    // Start の少し手前から判定開始
-    public float exitBehind = 0.5f;    // End を少し過ぎて終了
+    public float enterAhead = 2.0f;
+    public float exitBehind = 0.5f;
 
     [Header("プレイヤー前端オフセットZ")]
     public float playerFrontOffsetZ = 0.15f;
 
     [Header("連続カウント（Tick）")]
     public float tickInterval = 0.08f;
-    public bool  debugLog = true;
+    public bool debugLog = true;
 
-    // 内部
-    private bool  isInside = false;
+    [Header("イベント（必要ならインスペクタで接続）")]
+    public UnityEvent onHoldEnter;
+    public UnityEvent onHoldTick;
+    public UnityEvent onHoldExit;
+
+    private bool isInside = false;
     private float lastTickTime = -999f;
 
-    // 参照が死んでも動かすためのキャッシュ
     private Vector3 startPos;
     private Vector3 endPos;
 
-    // レーン判定閾値（Xの許容差）
     private const float LaneEps = 1.20f;
 
     void Awake()
@@ -51,9 +49,8 @@ public class LinkedHoldNote : MonoBehaviour
             ribbonLine.useWorldSpace = true;
             ribbonLine.positionCount = 2;
             ribbonLine.startWidth = lineWidth;
-            ribbonLine.endWidth   = lineWidth;
+            ribbonLine.endWidth = lineWidth;
 
-            // 他の制御を無効化（保険）
             var wr = ribbonLine.GetComponent("WorldRibbon") as MonoBehaviour;
             if (wr != null && wr.enabled) wr.enabled = false;
         }
@@ -69,10 +66,8 @@ public class LinkedHoldNote : MonoBehaviour
     {
         if (!Ready()) return;
 
-        // ノーツ参照が破棄されても座標で継続
         RefreshCachedEnds();
 
-        // レーンが大きくズレていたら縮まずフル表示（誤反応防止）
         if (Mathf.Abs(PlayerPos().x - startPos.x) > LaneEps)
         {
             isInside = false;
@@ -86,19 +81,20 @@ public class LinkedHoldNote : MonoBehaviour
         if (!isInside && shouldEnter)
         {
             isInside = true;
+            onHoldEnter?.Invoke();
             if (debugLog) Debug.Log("[Hold] ENTER");
         }
         else if (isInside && !shouldEnter)
         {
             isInside = false;
             Hide();
+            onHoldExit?.Invoke();
             if (debugLog) Debug.Log("[Hold] EXIT");
             return;
         }
 
         if (isInside)
         {
-            // 始端をプレイヤー手前にクランプ
             float headZ = Mathf.Clamp(pz, startPos.z, endPos.z);
             Vector3 head = startPos; head.z = headZ;
             ribbonLine.SetPosition(0, head);
@@ -108,6 +104,7 @@ public class LinkedHoldNote : MonoBehaviour
             if (tickInterval <= 0f || Time.unscaledTime - lastTickTime >= tickInterval)
             {
                 lastTickTime = Time.unscaledTime;
+                onHoldTick?.Invoke();
                 if (debugLog) Debug.Log("[Hold] TICK");
             }
         }
@@ -117,7 +114,6 @@ public class LinkedHoldNote : MonoBehaviour
         }
     }
 
-    // --------- 内部ユーティリティ ---------
     private bool Ready()
     {
         return (player != null && ribbonLine != null);
@@ -133,9 +129,7 @@ public class LinkedHoldNote : MonoBehaviour
     private void CacheEndsFromRefs()
     {
         startPos = (startNote != null) ? startNote.position : startPos;
-        endPos   = (endNote   != null) ? endNote.position   : endPos;
-
-        // Start/End が逆なら入替
+        endPos = (endNote != null) ? endNote.position : endPos;
         if (endPos.z < startPos.z)
         {
             Vector3 t = startPos; startPos = endPos; endPos = t;
@@ -144,14 +138,14 @@ public class LinkedHoldNote : MonoBehaviour
 
     private void RefreshCachedEnds()
     {
-        if (startNote != null) startPos = startNote.position; // まだ生きていれば更新
-        if (endNote   != null) endPos   = endNote.position;
+        if (startNote != null) startPos = startNote.position;
+        if (endNote != null) endPos = endNote.position;
     }
 
     private void ShowFull()
     {
         ribbonLine.startWidth = lineWidth;
-        ribbonLine.endWidth   = lineWidth;
+        ribbonLine.endWidth = lineWidth;
         ribbonLine.SetPosition(0, startPos);
         ribbonLine.SetPosition(1, endPos);
         ribbonLine.enabled = true;
@@ -184,7 +178,6 @@ public class LinkedHoldNote : MonoBehaviour
 
         if (!autoFindNotes) return;
 
-        // NoteRoot 直下から NoteBehaviour を持つ“実ノーツ”のみを抜く
         var rootGO = GameObject.Find("NoteRoot");
         if (rootGO == null || player == null) return;
 
@@ -215,7 +208,7 @@ public class LinkedHoldNote : MonoBehaviour
         if (idx >= 0 && idx + 1 < sameLane.Count)
         {
             startNote = sameLane[idx];
-            endNote   = sameLane[idx + 1];
+            endNote = sameLane[idx + 1];
             if (debugLog) Debug.Log("[Hold] Auto: " + startNote.name + " -> " + endNote.name);
         }
     }
