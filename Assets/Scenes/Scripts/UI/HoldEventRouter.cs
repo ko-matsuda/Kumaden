@@ -1,102 +1,62 @@
 using UnityEngine;
 
-// 既存のイベント(BeginHold/HoldTick/EndHold)はそのまま。
-// BridgeTo の受け口を拡張して、NoteBehaviour や GameObject/Component からでも WorldRibbon を解決できるようにする。
 public class HoldEventRouter : MonoBehaviour
 {
-    [Header("Refs")]
-    public Transform player;
-    public WorldRibbon ribbonL;
-    public WorldRibbon ribbonM;
-    public WorldRibbon ribbonR;
+    [Header("参照")]
+    public Transform StartNote;     // 始点ノーツ
+    public Transform EndNote;       // 終点ノーツ
+    public Transform Player;        // クマ（進行基準）
+    public LineRenderer Ribbon;     // シーン上の LineRenderer（WorldRibbon(Clone) など）
 
-    // === UnityEvent などから呼ばれる想定のイベント ===
-    public void BeginHold(UnityEngine.Object noteObj) { InternalBeginHold(ResolveGO(noteObj)); }
-    public void HoldTick(UnityEngine.Object noteObj)  { InternalHoldTick(ResolveGO(noteObj)); }
-    public void EndHold(UnityEngine.Object noteObj)   { InternalEndHold(ResolveGO(noteObj)); }
+    [Header("動作")]
+    [Tooltip("プレイヤーが終点を通過してどれだけ後ろに抜けたら非表示にするか（Z距離を正規化後の余剰）")]
+    public float ExitBehind = 0.3f;
 
-    public void BeginHold(GameObject go) { InternalBeginHold(go); }
-    public void HoldTick(GameObject go)  { InternalHoldTick(go); }
-    public void EndHold(GameObject go)   { InternalEndHold(go); }
+    [Tooltip("起動時に常時表示へ（イベントに依存せず表示を維持）")]
+    public bool AlwaysOn = true;
 
-    // ※ NoteBehaviour 型で直接飛んで来ても受けられるようオブジェクト版を用意（上の Object 版が拾います）
-    // public void BeginHold(NoteBehaviour nb) { InternalBeginHold(ResolveGO(nb as UnityEngine.Object)); } // 必要なら有効化
-
-    void InternalBeginHold(GameObject note)
+    void Awake()
     {
-        if (ribbonM) ribbonM.SetExpose01(1f);
-        // ここにノーツ開始処理を追加
-    }
-
-    void InternalHoldTick(GameObject note)
-    {
-        if (ribbonM) ribbonM.SetExpose01(1f);
-        // 継続カウント処理など
-    }
-
-    void InternalEndHold(GameObject note)
-    {
-        if (ribbonM) ribbonM.SetExpose01(0f);
-        // 終了処理
-    }
-
-    // === BridgeTo: さまざまな型から WorldRibbon へ橋渡しできる受け口を追加 ===
-
-    // 既存：from(note), target(WorldRibbon)
-    public void BridgeTo(UnityEngine.Object fromNote, WorldRibbon target)
-    {
-        BridgeTo(ResolveGO(fromNote), target);
-    }
-
-    // 新規：from(note), target(なんでも) -> 内部で WorldRibbon を解決
-    public void BridgeTo(UnityEngine.Object fromNote, UnityEngine.Object ribbonTarget)
-    {
-        BridgeTo(ResolveGO(fromNote), ResolveRibbon(ribbonTarget));
-    }
-
-    // 実体
-    public void BridgeTo(GameObject noteObj, WorldRibbon target)
-    {
-        if (!noteObj || !target) return;
-        var a = noteObj.transform.position;
-        var b = (player ? player.position : a + Vector3.forward);
-        target.SetEndpoints(a, b);
-        target.SetExpose01(1f);
-    }
-
-    // 直接座標版
-    public void BridgeTo(Vector3 from, Vector3 to, WorldRibbon target)
-    {
-        if (!target) return;
-        target.SetEndpoints(from, to);
-        target.SetExpose01(1f);
-    }
-
-    // === 解決ユーティリティ ===
-    GameObject ResolveGO(UnityEngine.Object obj)
-    {
-        if (!obj) return null;
-        if (obj is GameObject go) return go;
-        if (obj is Component c) return c.gameObject;
-        return null;
-    }
-
-    WorldRibbon ResolveRibbon(UnityEngine.Object obj)
-    {
-        if (!obj) return null;
-        if (obj is WorldRibbon wr) return wr;
-
-        if (obj is Component c)
+        if (!Ribbon) Ribbon = GetComponent<LineRenderer>();
+        if (Ribbon)
         {
-            return c.GetComponent<WorldRibbon>() ?? c.GetComponentInChildren<WorldRibbon>(true);
+            Ribbon.useWorldSpace = true;   // ローカル空間だと伸縮が見えないことがある
+            Ribbon.positionCount = 2;
+            Ribbon.enabled = true;         // 最初から見える
         }
-
-        if (obj is GameObject g)
-        {
-            return g.GetComponent<WorldRibbon>() ?? g.GetComponentInChildren<WorldRibbon>(true);
-        }
-
-        // NoteBehaviour など未知の型でも、同じ GameObject から探せるように
-        return null;
     }
+
+    void Update()
+    {
+        if (!Ribbon || !StartNote || !EndNote || !Player) return;
+
+        // 毎フレーム、現在のノーツ位置を読む（ノーツが動くケースに対応）
+        Vector3 a = StartNote.position;
+        Vector3 b = EndNote.position;
+
+        // Zが小さい方を「後ろ(a)」、大きい方を「前(b)」に統一（進行方向Z想定）
+        if (a.z > b.z) { var tmp = a; a = b; b = tmp; }
+
+        // プレイヤーZが a→b のどの位置かを 0..1 で算出
+        float t = Mathf.InverseLerp(a.z, b.z, Player.position.z);
+        t = Mathf.Clamp01(t);
+
+        // プレイヤーが通過したぶんだけ「終点側」を手前に寄せる
+        Vector3 newEnd = Vector3.Lerp(b, a, t);
+
+        Ribbon.SetPosition(0, a);
+        Ribbon.SetPosition(1, newEnd);
+        Ribbon.enabled = true;
+
+        // 完全通過後に少し後ろへ抜けたら消す（任意）
+        if (!AlwaysOn && (Player.position.z > b.z + (b.z - a.z) * ExitBehind))
+        {
+            Ribbon.enabled = false;
+        }
+    }
+
+    // —— 既存のイベントフックが残っていても動くようにダミーを置く（呼ばれても Update がやる）——
+    public void BeginHold(Object _) { if (Ribbon) Ribbon.enabled = true; }
+    public void HoldTick(Object _)  { /* Updateで処理する */ }
+    public void EndHold(Object _)   { if (!AlwaysOn && Ribbon) Ribbon.enabled = false; }
 }

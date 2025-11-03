@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3668814847879113081}
-  - component: {fileID: 1575758477007645241}
+  - component: {fileID: -2405214630835439499}
   m_Layer: 3
   m_Name: LinkedHoldNote
   m_TagString: Untagged
@@ -28,13 +28,13 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.34, y: 0.34, z: 0.34}
-  m_ConstrainProportionsScale: 1
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6611107645867628950}
   - {fileID: 4278942148133105872}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1575758477007645241
+--- !u!114 &-2405214630835439499
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -45,11 +45,20 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4deae8d791962e245bef4be5bd43a7c8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::Kuma.LinkedHoldNote
-  ribbonPrefab: {fileID: 4338999685137209249, guid: 86fdec771a247fe4fb56115dba542d48, type: 3}
-  autoFindNotes: 1
+  m_EditorClassIdentifier: Unity.Hypercasual::LinkedHoldNote
   startNote: {fileID: 0}
   endNote: {fileID: 0}
+  player: {fileID: 0}
+  runtimeRibbon: {fileID: 0}
+  ribbonPrefab: {fileID: 0}
+  autoFindNotes: 1
+  lineWidth: 0.3
+  lengthAxis: 2
+  enterAhead: 0.2
+  exitBehind: 0.3
+  shrinkWhileInside: 1
+  playerFrontOffset: 0
+  debugLog: 0
 --- !u!1001 &687894730988116393
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,47 +1,85 @@
 using UnityEngine;
 
-// シンプル & 互換重視。既存呼び出し(SetExpose/SetExpose01/SetEndpoints/Clear)を吸収。
 [RequireComponent(typeof(LineRenderer))]
+[DisallowMultipleComponent]
 public class WorldRibbon : MonoBehaviour
 {
+    [Header("必須")]
     public LineRenderer line;
-    public float expose01 = 0f; // 0=非表示, 1=表示（必要ならマテリアル側へ反映）
+
+    [Header("デバッグ")]
+    public bool debugLog = true;
+
+    void Reset()
+    {
+        line = GetComponent<LineRenderer>();
+        if (line == null) line = gameObject.AddComponent<LineRenderer>();
+        line.positionCount = 2;
+    }
 
     void Awake()
     {
-        if (line == null) line = GetComponent<LineRenderer>();
+        if (!line) line = GetComponent<LineRenderer>();
+        if (debugLog) Debug.Log("[WorldRibbon] Awake");
     }
 
-    // === 表示ON/OFF系 ===
-    public void SetExpose(float value) => SetExpose01(value);
-    public void SetExpose01(float value)
+    public void Show()
     {
-        expose01 = value;
-        // 見た目反映を入れたい場合はここで mpb などに書き込み。
-        // 今回はビルド互換優先で値保持のみにしています。
+        if (!line) return;
+        if (!gameObject.activeSelf) gameObject.SetActive(true);
+        if (debugLog) Debug.Log("[WorldRibbon] Show");
     }
 
-    // ※ 以前の SetExpose(UnityEngine.Object) は削除
-    //   （UnityEngine.Object を float として扱うパターンマッチが C# 設定によっては通らないため）
+    public void Hide()
+    {
+        if (!line) return;
+        if (gameObject.activeSelf) gameObject.SetActive(false);
+        if (debugLog) Debug.Log("[WorldRibbon] Hide");
+    }
 
-    // === 端点設定系 ===
-    public void SetEndpoints(Vector3 a, Vector3 b)
+    /// <summary>
+    /// 2点 A→B の区間のうち、[a01,b01] (0..1) だけを描く
+    /// a01>=b01 のときは非表示
+    /// </summary>
+    public void ShowSpan(Vector3 aWorld, Vector3 bWorld, float a01, float b01)
+    {
+        if (!line) return;
+
+        // clamp
+        if (a01 < 0f) a01 = 0f;
+        if (b01 > 1f) b01 = 1f;
+
+        if (a01 >= b01)
+        {
+            Hide();
+            return;
+        }
+
+        Vector3 dir = (bWorld - aWorld);
+        float len = dir.magnitude;
+        if (len < 1e-4f)
+        {
+            Hide();
+            return;
+        }
+
+        Vector3 p0 = aWorld + dir * a01;
+        Vector3 p1 = aWorld + dir * b01;
+
+        line.positionCount = 2;
+        line.SetPosition(0, p0);
+        line.SetPosition(1, p1);
+
+        Show();
+    }
+
+    /// <summary>区間全部を描く（0..1）</summary>
+    public void ShowFull(Vector3 aWorld, Vector3 bWorld)
     {
         if (!line) return;
         line.positionCount = 2;
-        line.SetPosition(0, a);
-        line.SetPosition(1, b);
-    }
-
-    public void SetEndpoints(Transform a, Transform b)
-    {
-        if (!a || !b) { Clear(); return; }
-        SetEndpoints(a.position, b.position);
-    }
-
-    public void Clear()
-    {
-        if (!line) return;
-        line.positionCount = 0;
+        line.SetPosition(0, aWorld);
+        line.SetPosition(1, bWorld);
+        Show();
     }
 }
