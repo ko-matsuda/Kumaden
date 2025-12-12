@@ -3,9 +3,15 @@ using UnityEngine.Events;
 
 /// <summary>
 /// 帯がアクティブの間だけ連続で Tick を発火させるドライバ。
-/// ・OnHoldEnter()で開始、OnHoldExit()で停止
+/// ・StartTick() または OnHoldEnter() で開始
+/// ・StopTick() または OnHoldExit() で停止
 /// ・毎フレーム or 一定Hz で UnityEvent OnTick を呼ぶ
-/// ここに ComboProbe.OnHoldTick / HudCounterBinder.OnHoldTick を配線するだけで連続カウントが成立。
+/// 
+/// 【配線方法】
+/// - Pickup.cs から StartTick()/StopTick() を呼ぶ
+/// - OnTick に ComboProbe.OnHoldTick / HudCounterBinder.OnHoldTick を設定
+/// - OnEnter に ComboProbe.OnHoldEnter / HudCounterBinder.OnHoldEnter を設定
+/// - OnExit に ComboProbe.OnHoldExit / HudCounterBinder.OnHoldExit を設定
 /// </summary>
 public sealed class HoldTickPulse : MonoBehaviour
 {
@@ -14,34 +20,80 @@ public sealed class HoldTickPulse : MonoBehaviour
     [SerializeField] private float tickRateHz = 30f; // perFrame=false のとき使用（1秒間に何回）
 
     [Header("Gating")]
-    [SerializeField] private bool _active = false;   // 帯アクティブ中のみ発火
+    [SerializeField] private bool useGating = true;  // Gating 機能を使うかどうか
+    [SerializeField] private bool isGated = true;    // Inspector で状態確認用（読み取り専用的に使用）
 
     [Header("Events")]
-    public UnityEvent OnTick;                        // ここに OnHoldTick を複数ぶら下げる
+    public UnityEvent OnTick;                        // 連続カウント用
+    public UnityEvent OnEnter;                       // ホールド開始時のイベント
+    public UnityEvent OnExit;                        // ホールド終了時のイベント
 
+    [Header("Debug")]
+    [SerializeField] private bool debugLog = true;
+
+    private bool _active = false;                    // 内部状態（常に false で初期化）
     private float _accum;
 
-    // 帯開始/終了フック（LinkedHoldNote/HoldEventRouter から配線）
-    public void OnHoldEnter()
+    // ───────────────────────────────────────
+    // Pickup.cs から呼ばれるメソッド
+    // ───────────────────────────────────────
+    
+    /// <summary>
+    /// Tick 発火を開始する（Pickup.cs から呼ばれる）
+    /// </summary>
+    public void StartTick()
     {
         _active = true;
         _accum = 0f;
+        isGated = false;  // Inspector 表示用
+        OnEnter?.Invoke();
+        if (debugLog) Debug.Log("[HoldTickPulse] StartTick - Started (_active = true)");
+    }
+
+    /// <summary>
+    /// Tick 発火を停止する（Pickup.cs から呼ばれる）
+    /// </summary>
+    public void StopTick()
+    {
+        _active = false;
+        isGated = true;  // Inspector 表示用
+        OnExit?.Invoke();
+        if (debugLog) Debug.Log("[HoldTickPulse] StopTick - Stopped (_active = false)");
+    }
+
+    // ───────────────────────────────────────
+    // Inspector イベント用エイリアス（互換性のため残す）
+    // ───────────────────────────────────────
+    
+    public void OnHoldEnter()
+    {
+        StartTick();
     }
 
     public void OnHoldExit()
     {
-        _active = false;
+        StopTick();
     }
 
-    // 終端ゲート等からの強制停止も受けられるように
+    // ───────────────────────────────────────
+    // 強制停止（ゲートからの呼び出し用）
+    // ───────────────────────────────────────
+    
     public void ForceStopFromGate()
     {
         _active = false;
+        isGated = true;
+        if (debugLog) Debug.Log("[HoldTickPulse] ForceStopFromGate");
     }
 
+    // ───────────────────────────────────────
+    // Update ループ
+    // ───────────────────────────────────────
+    
     private void Update()
     {
-        if (!_active) return;
+        // Gating が有効な場合は _active をチェック
+        if (useGating && !_active) return;
         if (Time.timeScale <= 0f) return;
 
         if (perFrame)
@@ -65,6 +117,14 @@ public sealed class HoldTickPulse : MonoBehaviour
 
     private void FireTick()
     {
-        if (OnTick != null) OnTick.Invoke();
+        OnTick?.Invoke();
+        // Tick ログは大量に出るのでコメントアウト
+        // if (debugLog) Debug.Log("[HoldTickPulse] TICK");
     }
+
+    // ───────────────────────────────────────
+    // 状態確認用
+    // ───────────────────────────────────────
+    
+    public bool IsActive => _active;
 }

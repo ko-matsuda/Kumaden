@@ -1,83 +1,155 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
+using TMPro;
 
-/// ノーツ接触 → 判定(PERFECT/GOOD/MISS) → SE → スコア更新 → レーン発光 → ノーツ破棄
-/// 判定は「プレイヤー BoxCollider の“前面”のワールドZ」と「ノーツ中心Z」の距離で行う。
 public class Pickup : MonoBehaviour
 {
+    [Header("Basic Pickup")]
+    public UnityEvent onEnter;
+
     [Header("SE（Player の AudioSource を割り当て）")]
     public AudioSource seSource;
     public AudioClip sePerfect;
     public AudioClip seGood;
 
     [Header("判定幅（Z距離）")]
-    public float perfectRangeZ = 0.30f;
-    public float goodRangeZ    = 0.80f;
+    public float perfectRangeZ = 1f;
+    public float goodRangeZ = 2f;
 
     [Header("微調整（前面からのオフセット +前 / -後）")]
-    public float judgeOffsetFromFront = 0f;
+    public float judgeOffsetFromFront = 0.4f;
 
-    [Header("デバッグ")]
-    public bool printDebug = true;
+    [Header("Hold Note")]
+    public HoldTickPulse holdTickPulse;
 
-    private BoxCollider playerBox;   // 前面を正確に求めるため BoxCollider を使用
+    [Header("カウンター")]
+    public HudCounterBinder hudCounterBinder;
+    public ComboProbe comboProbe;
 
-    void Awake()
+    [Header("判定表示")]
+    public TextMeshProUGUI judgeText;
+    public float judgeDisplayTime = 0.5f;
+
+    [Header("Debug")]
+    public bool debugLog = true;
+
+    private float judgeDisplayTimer = 0f;
+
+    void Start()
     {
-        playerBox = GetComponent<BoxCollider>();
-        if (playerBox == null)
+        // 自動的に JudgeText を探す
+        if (judgeText == null)
         {
-            Debug.LogError("[Pickup] Player に BoxCollider が必要です。");
-        }
-        if (seSource != null)
-        {
-            seSource.playOnAwake  = false;
-            seSource.loop         = false;
-            seSource.spatialBlend = 0f;
-            seSource.dopplerLevel = 0f;
+            var judgeTextObj = GameObject.Find("JudgeText");
+            if (judgeTextObj != null)
+            {
+                judgeText = judgeTextObj.GetComponent<TextMeshProUGUI>();
+                Debug.Log("[Pickup] Auto-found JudgeText");
+            }
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    void Update()
     {
-        var note = other.GetComponent<NoteBehaviour>();
-        if (note == null || playerBox == null) return;
-
-        // 二重判定防止
-        if (!note.TryMarkJudged()) return;
-
-        // ★ プレイヤー前面のワールドZを求める（center + size/2 をローカル→ワールド変換）
-        Vector3 localFront = playerBox.center + new Vector3(0f, 0f, playerBox.size.z * 0.5f);
-        float playerFrontZ = transform.TransformPoint(localFront).z + judgeOffsetFromFront;
-
-        // ノーツ中心のワールドZ
-        float noteCenterZ = other.bounds.center.z;
-
-        // 前後距離で判定
-        float dz = Mathf.Abs(noteCenterZ - playerFrontZ);
-        string judge = (dz <= perfectRangeZ) ? "PERFECT"
-                     : (dz <= goodRangeZ)    ? "GOOD"
-                     :                         "MISS";
-
-        if (printDebug)
+        // 判定表示のタイマー
+        if (judgeDisplayTimer > 0)
         {
-            Debug.Log($"[Pickup] lane={note.laneIndex}, PlayerFrontZ={playerFrontZ:F2}, NoteZ={noteCenterZ:F2}, dz={dz:F2} → {judge}  (center.z={playerBox.center.z:F2}, size.z={playerBox.size.z:F2})");
+            judgeDisplayTimer -= Time.deltaTime;
+            if (judgeDisplayTimer <= 0 && judgeText != null)
+            {
+                judgeText.text = "";
+            }
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (debugLog) Debug.Log($"[Pickup] OnTriggerEnter: {other.name}, Tag={other.tag}");
+
+        // ホールド開始
+        if (other.CompareTag("LinkedHoldStart"))
+        {
+            if (holdTickPulse != null)
+            {
+                holdTickPulse.StartTick();
+                if (debugLog) Debug.Log("[Pickup] StartTick called");
+            }
+            PlayJudgedSE(other.transform);
+            return;
         }
 
-        // SE（MISSは無音）
-        if (seSource != null)
+        // ホールド終了
+        if (other.CompareTag("LinkedHoldEnd"))
         {
-            if (judge == "PERFECT" && sePerfect != null) seSource.PlayOneShot(sePerfect);
-            else if (judge == "GOOD" && seGood != null)  seSource.PlayOneShot(seGood);
+            if (holdTickPulse != null)
+            {
+                holdTickPulse.StopTick();
+                if (debugLog) Debug.Log("[Pickup] StopTick called");
+            }
+            PlayJudgedSE(other.transform);
+            return;
         }
 
-        // スコア
-        ScoreManagerLite.Instance?.OnPick(note.Type, judge);
+        // 通常ノーツ
+        PlayJudgedSE(other.transform);
+        CountUpNormal();
+        onEnter?.Invoke();
+    }
 
-        // レーン発光（成功時のみ）
-        if ((judge == "PERFECT" || judge == "GOOD"))
-            LaneController.Instance?.HighlightLane(note.laneIndex, 0.2f);
+    void PlayJudgedSE(Transform noteTransform)
+    {
+        float noteZ = noteTransform.position.z;
+        float playerZ = transform.position.z + judgeOffsetFromFront;
+        float distance = Mathf.Abs(noteZ - playerZ);
 
-        // ノーツ破棄
-        Destroy(note.gameObject);
+        if (debugLog) Debug.Log($"[Pickup] Judge: noteZ={noteZ:F2}, playerZ={playerZ:F2}, distance={distance:F2}");
+
+        if (distance <= perfectRangeZ)
+        {
+            // PERFECT
+            if (seSource != null && sePerfect != null)
+            {
+                seSource.PlayOneShot(sePerfect);
+            }
+            ShowJudge("PERFECT");
+            if (debugLog) Debug.Log("[Pickup] PERFECT!");
+        }
+        else if (distance <= goodRangeZ)
+        {
+            // GOOD
+            if (seSource != null && seGood != null)
+            {
+                seSource.PlayOneShot(seGood);
+            }
+            ShowJudge("GOOD");
+            if (debugLog) Debug.Log("[Pickup] GOOD!");
+        }
+        else
+        {
+            // MISS
+            ShowJudge("MISS");
+            if (debugLog) Debug.Log("[Pickup] MISS!");
+        }
+    }
+
+    void ShowJudge(string text)
+    {
+        if (judgeText != null)
+        {
+            judgeText.text = text;
+            judgeDisplayTimer = judgeDisplayTime;
+        }
+    }
+
+    void CountUpNormal()
+    {
+        if (hudCounterBinder != null)
+        {
+            hudCounterBinder.OnNormalNote();
+        }
+        if (comboProbe != null)
+        {
+            comboProbe.OnNormalNote();
+        }
     }
 }

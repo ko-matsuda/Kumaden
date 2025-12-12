@@ -1,122 +1,90 @@
-using System;
 using UnityEngine;
-using UnityEngine.Events;
+using TMPro;
 
-namespace Kuma
+public class HudCounterBinder : MonoBehaviour
 {
-    /// <summary>
-    /// ノーツ（食材）カウンタ。帯がアクティブの間だけ、Tickごとに 1:1 で加算。
-    /// 表示更新は isUpdating ラッチで停止可能（内部値は保持）。
-    /// </summary>
-    public sealed class HudCounterBinder : MonoBehaviour
+    [Header("UI Reference")]
+    [SerializeField] private TextMeshProUGUI flourText;
+
+    [Header("Settings")]
+    [SerializeField] private int tickInterval = 1;
+    
+    [Header("Debug")]
+    [SerializeField] private int currentFlourCount = 0;
+    [SerializeField] private bool isCountingFlour = false;
+
+    private int frameCounter = 0;
+
+    private void Start()
     {
-        public enum IngredientType
+        if (flourText == null)
         {
-            Milk = 0,
-            Flour = 1,
-            Egg = 2
-        }
-
-        [Header("Config")]
-        [SerializeField] private IngredientType _tickAddsTo = IngredientType.Milk;
-
-        [Header("Latch (UI更新のみ停止)")]
-        [SerializeField] private bool _isUpdating = true;
-
-        [Header("State")]
-        [SerializeField] private bool _ribbonActive = false;
-
-        [Header("Totals")]
-        [SerializeField] private int _milk;
-        [SerializeField] private int _flour;
-        [SerializeField] private int _egg;
-
-        [Header("Events")]
-        public UnityEvent<int> OnMilkChanged;
-        public UnityEvent<int> OnFlourChanged;
-        public UnityEvent<int> OnEggChanged;
-        public UnityEvent OnAnyChanged;
-
-        private int _lastTickFrame = -1;
-
-        // ───── 帯イベント（発火元に合わせて OnHold* 命名） ─────
-
-        public void OnHoldEnter()
-        {
-            _ribbonActive = true;
-            ResumeUpdating();
-            NotifyAll(); // 現在値を即反映（UI取りこぼし防止）
-        }
-
-        public void OnHoldTick()
-        {
-            if (!_ribbonActive) return; // 帯外のTickは無視
-
-            int currentFrame = Time.frameCount;
-            if (_lastTickFrame == currentFrame) return; // 同フレーム多重Tick防止
-            _lastTickFrame = currentFrame;
-
-            // 内部カウント（表示更新の有無と独立）
-            switch (_tickAddsTo)
+            var flourTextObj = GameObject.Find("FlourText");
+            if (flourTextObj != null)
             {
-                case IngredientType.Milk:  _milk += 1; break;
-                case IngredientType.Flour: _flour += 1; break;
-                case IngredientType.Egg:   _egg += 1; break;
-            }
-
-            // 表示更新はラッチに従う
-            if (_isUpdating)
-            {
-                switch (_tickAddsTo)
-                {
-                    case IngredientType.Milk:  if (OnMilkChanged  != null) OnMilkChanged.Invoke(_milk);   break;
-                    case IngredientType.Flour: if (OnFlourChanged != null) OnFlourChanged.Invoke(_flour); break;
-                    case IngredientType.Egg:   if (OnEggChanged   != null) OnEggChanged.Invoke(_egg);     break;
-                }
-                if (OnAnyChanged != null) OnAnyChanged.Invoke();
+                flourText = flourTextObj.GetComponent<TextMeshProUGUI>();
+                Debug.Log("[HudCounterBinder] Auto-found FlourText");
             }
         }
+    }
 
-        public void OnHoldExit()
+    // 通常ノーツ用：1カウント増やすだけ（リセットしない）
+    public void OnNormalNote()
+    {
+        currentFlourCount++;
+        Debug.Log($"[HudCounterBinder] Normal note - Flour count: {currentFlourCount}");
+        UpdateUI();
+    }
+
+    public void OnHoldEnter()
+    {
+        Debug.Log($"[HudCounterBinder] OnHoldEnter - Starting Flour count");
+        isCountingFlour = true;
+        frameCounter = 0;
+        // リセットしない
+        UpdateUI();
+    }
+
+    public void OnHoldTick()
+    {
+        if (!isCountingFlour)
         {
-            _ribbonActive = false;
-            StopUpdating(); // 帯終端で表示更新のみ停止（内部値は保持）
+            Debug.LogWarning($"[HudCounterBinder] OnHoldTick called but isCountingFlour is false!");
+            return;
         }
 
-        // ───── 外部ゲートからの強制停止も受けられるように ─────
-
-        public void ForceStopFromGate()
+        frameCounter++;
+        if (frameCounter >= tickInterval)
         {
-            _ribbonActive = false;
-            StopUpdating();
+            currentFlourCount++;
+            Debug.Log($"[HudCounterBinder] Flour count increased: {currentFlourCount}");
+            frameCounter = 0;
+            UpdateUI();
         }
+    }
 
-        // ───── ラッチ操作 ─────
+    public void OnHoldExit()
+    {
+        Debug.Log($"[HudCounterBinder] OnHoldExit - Stopping Flour count at {currentFlourCount}");
+        isCountingFlour = false;
+        frameCounter = 0;
+        UpdateUI();
+    }
 
-        public void StopUpdating()
+    private void UpdateUI()
+    {
+        if (flourText != null)
         {
-            _isUpdating = false;
+            flourText.text = currentFlourCount.ToString("00");
         }
+    }
 
-        public void ResumeUpdating()
+    private void OnDisable()
+    {
+        if (isCountingFlour)
         {
-            _isUpdating = true;
-        }
-
-        // ───── 補助 ─────
-
-        public void SetTickAddsTo(int typeIndex)
-        {
-            if (typeIndex < 0 || typeIndex > 2) return;
-            _tickAddsTo = (IngredientType)typeIndex;
-        }
-
-        private void NotifyAll()
-        {
-            if (OnMilkChanged  != null) OnMilkChanged.Invoke(_milk);
-            if (OnFlourChanged != null) OnFlourChanged.Invoke(_flour);
-            if (OnEggChanged   != null) OnEggChanged.Invoke(_egg);
-            if (OnAnyChanged   != null) OnAnyChanged.Invoke();
+            Debug.Log($"[HudCounterBinder] OnDisable - forcing OnHoldExit");
+            OnHoldExit();
         }
     }
 }

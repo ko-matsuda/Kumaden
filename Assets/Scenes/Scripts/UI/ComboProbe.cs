@@ -1,104 +1,90 @@
-using System;
 using UnityEngine;
-using UnityEngine.Events;
+using TMPro;
 
-namespace Kuma
+public class ComboProbe : MonoBehaviour
 {
-    /// <summary>
-    /// COMBOの集計とUI表示更新のラッチ制御。
-    /// ・帯がアクティブの間だけTickを受理（_ribbonActive）
-    /// ・StopUpdatingで「表示更新のみ停止」（内部値は保持）
-    /// ・次帯のOnHoldEnterでResumeUpdating（再通知あり）
-    /// </summary>
-    public sealed class ComboProbe : MonoBehaviour
+    [Header("UI Reference")]
+    [SerializeField] private TextMeshProUGUI comboText;
+
+    [Header("Settings")]
+    [SerializeField] private int tickInterval = 1;
+    
+    [Header("Debug")]
+    [SerializeField] private int currentComboCount = 0;
+    [SerializeField] private bool isCountingCombo = false;
+
+    private int frameCounter = 0;
+
+    private void Start()
     {
-        [Header("Config")]
-        [SerializeField] private int _tickIncrement = 1;          // Tick毎の増分（通常1）
-        [SerializeField] private bool _resetOnExplicitMiss = true; // 明示ミス時のみリセット運用
-
-        [Header("Latch / State")]
-        [SerializeField] private bool _isUpdating = true;  // 表示更新ラッチ
-        [SerializeField] private bool _ribbonActive = false; // 帯アクティブ判定
-
-        [Header("Events")]
-        public UnityEvent<int> OnShownComboChanged; // 表示用
-        public UnityEvent<int> OnTotalComboChanged; // 内部統計用など
-
-        private int _shownCombo; // 画面表示値
-        private int _totalCombo; // 総カウント
-        private int _lastTickFrame = -1; // 同フレーム二重加算ガード
-
-        // ───────── 帯イベント（発火元に合わせて OnHold* 命名） ─────────
-
-        public void OnHoldEnter()
+        if (comboText == null)
         {
-            _ribbonActive = true;
-            ResumeUpdating();   // 表示更新を再開し、現値を即再通知
-        }
-
-        public void OnHoldTick()
-        {
-            if (!_ribbonActive) return; // 帯外のTickは無視
-
-            int f = Time.frameCount;
-            if (_lastTickFrame == f) return; // 同フレーム多重防止
-            _lastTickFrame = f;
-
-            // 内部値は常に積む
-            _totalCombo += _tickIncrement;
-            if (OnTotalComboChanged != null) OnTotalComboChanged.Invoke(_totalCombo);
-
-            // 表示更新はラッチに従う
-            if (_isUpdating)
+            var comboTextObj = GameObject.Find("ComboText");
+            if (comboTextObj != null)
             {
-                _shownCombo += _tickIncrement;
-                if (OnShownComboChanged != null) OnShownComboChanged.Invoke(_shownCombo);
+                comboText = comboTextObj.GetComponent<TextMeshProUGUI>();
+                Debug.Log("[ComboProbe] Auto-found ComboText");
             }
         }
+    }
 
-        public void OnHoldExit()
+    // 通常ノーツ用：1カウント増やすだけ（リセットしない）
+    public void OnNormalNote()
+    {
+        currentComboCount++;
+        Debug.Log($"[ComboProbe] Normal note - COMBO count: {currentComboCount}");
+        UpdateUI();
+    }
+
+    public void OnHoldEnter()
+    {
+        Debug.Log($"[ComboProbe] OnHoldEnter - Starting COMBO count");
+        isCountingCombo = true;
+        frameCounter = 0;
+        // リセットしない
+        UpdateUI();
+    }
+
+    public void OnHoldTick()
+    {
+        if (!isCountingCombo)
         {
-            // 帯終端時の安全策：表示更新のみ停止＋帯を非アクティブ化
-            _ribbonActive = false;
-            StopUpdating();
+            Debug.LogWarning($"[ComboProbe] OnHoldTick called but isCountingCombo is false!");
+            return;
         }
 
-        // ───────── ラッチ操作（外部からも呼べるAPI） ─────────
-
-        /// <summary>表示更新のみ停止（内部値は保持）。冪等。</summary>
-        public void StopUpdating()
+        frameCounter++;
+        if (frameCounter >= tickInterval)
         {
-            _isUpdating = false;
+            currentComboCount++;
+            Debug.Log($"[ComboProbe] COMBO count increased: {currentComboCount}");
+            frameCounter = 0;
+            UpdateUI();
         }
+    }
 
-        /// <summary>表示更新を再開。現値を即座に再通知（UIの取りこぼし防止）。</summary>
-        public void ResumeUpdating()
+    public void OnHoldExit()
+    {
+        Debug.Log($"[ComboProbe] OnHoldExit - Stopping COMBO count at {currentComboCount}");
+        isCountingCombo = false;
+        frameCounter = 0;
+        UpdateUI();
+    }
+
+    private void UpdateUI()
+    {
+        if (comboText != null)
         {
-            _isUpdating = true;
-            if (OnShownComboChanged != null) OnShownComboChanged.Invoke(_shownCombo);
-            if (OnTotalComboChanged != null) OnTotalComboChanged.Invoke(_totalCombo);
+            comboText.text = currentComboCount.ToString("00");
         }
+    }
 
-        /// <summary>EndGate等からの外部強制停止用（帯も非アクティブに落とす）。</summary>
-        public void ForceStopFromGate()
+    private void OnDisable()
+    {
+        if (isCountingCombo)
         {
-            _ribbonActive = false;
-            StopUpdating();
-        }
-
-        // ───────── 明示イベント時のリセット（ミス等） ─────────
-
-        public void ResetAll()
-        {
-            _shownCombo = 0;
-            _totalCombo = 0;
-            if (OnShownComboChanged != null) OnShownComboChanged.Invoke(_shownCombo);
-            if (OnTotalComboChanged != null) OnTotalComboChanged.Invoke(_totalCombo);
-        }
-
-        public void OnExplicitMiss()
-        {
-            if (_resetOnExplicitMiss) ResetAll();
+            Debug.Log($"[ComboProbe] OnDisable - forcing OnHoldExit");
+            OnHoldExit();
         }
     }
 }

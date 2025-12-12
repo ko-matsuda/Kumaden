@@ -8702,7 +8702,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::HoldNoteEndDetector
   endNote: {fileID: 9066339400603248805}
-  holdTickPulse: {fileID: 0}
+  holdTickPulse: {fileID: 1254712119}
   judgeZ: 0
   debugLog: 1
 --- !u!1 &891588767
@@ -9748,20 +9748,8 @@ MonoBehaviour:
   OnTick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 376677633}
-        m_TargetAssemblyTypeName: HudCounterBinder, Unity.Hypercasual
-        m_MethodName: OnHoldTick
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 217732779}
-        m_TargetAssemblyTypeName: ComboProbe, Unity.Hypercasual
+      - m_Target: {fileID: 1808734651}
+        m_TargetAssemblyTypeName: Kuma.HudCounterBinder, Unity.Hypercasual
         m_MethodName: OnHoldTick
         m_Mode: 1
         m_Arguments:
@@ -9774,58 +9762,10 @@ MonoBehaviour:
         m_CallState: 2
   OnEnter:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 376677633}
-        m_TargetAssemblyTypeName: HudCounterBinder, Unity.Hypercasual
-        m_MethodName: OnHoldEnter
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 217732779}
-        m_TargetAssemblyTypeName: ComboProbe, Unity.Hypercasual
-        m_MethodName: OnHoldEnter
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   OnExit:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 376677633}
-        m_TargetAssemblyTypeName: HudCounterBinder, Unity.Hypercasual
-        m_MethodName: OnHoldExit
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 217732779}
-        m_TargetAssemblyTypeName: ComboProbe, Unity.Hypercasual
-        m_MethodName: OnHoldExit
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   debugLog: 1
 --- !u!1 &1003283521
 GameObject:
@@ -12173,7 +12113,7 @@ PrefabInstance:
       objectReference: {fileID: 2093223783320060387}
     - target: {fileID: -2405214630835439499, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: enterAhead
-      value: 2
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -2405214630835439499, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: exitBehind
@@ -12250,7 +12190,7 @@ PrefabInstance:
     - target: {fileID: -2405214630835439499, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: onHoldExit.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1254712119}
     - target: {fileID: -2405214630835439499, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: onHoldExit.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -12274,7 +12214,7 @@ PrefabInstance:
     - target: {fileID: -2405214630835439499, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: onHoldEnter.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1254712119}
     - target: {fileID: -2405214630835439499, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: onHoldEnter.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -12789,7 +12729,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9066339401522269082, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9066339401522269085, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       propertyPath: m_TagString
@@ -12806,8 +12746,109 @@ PrefabInstance:
       addedObject: {fileID: 998484023}
     - targetCorrespondingSourceObject: {fileID: 2093223782158721755, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 1254712119}
+    - targetCorrespondingSourceObject: {fileID: 2093223782158721755, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 846411495}
   m_SourcePrefab: {fileID: 100100000, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+--- !u!114 &1254712119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2093223783320060392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ae14796f8dc7b74492fcc99b320d571, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::HoldTickPulse
+  perFrame: 1
+  tickRateHz: 30
+  useGating: 1
+  isGated: 1
+  OnTick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 376677633}
+        m_TargetAssemblyTypeName: HudCounterBinder, Unity.Hypercasual
+        m_MethodName: OnHoldTick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 217732779}
+        m_TargetAssemblyTypeName: ComboProbe, Unity.Hypercasual
+        m_MethodName: OnHoldTick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnEnter:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 376677633}
+        m_TargetAssemblyTypeName: HudCounterBinder, Unity.Hypercasual
+        m_MethodName: OnHoldEnter
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 217732779}
+        m_TargetAssemblyTypeName: ComboProbe, Unity.Hypercasual
+        m_MethodName: OnHoldEnter
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnExit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 376677633}
+        m_TargetAssemblyTypeName: HudCounterBinder, Unity.Hypercasual
+        m_MethodName: OnHoldExit
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 217732779}
+        m_TargetAssemblyTypeName: ComboProbe, Unity.Hypercasual
+        m_MethodName: OnHoldExit
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  debugLog: 1
 --- !u!1 &1268904765
 GameObject:
   m_ObjectHideFlags: 0
@@ -20449,15 +20490,10 @@ MonoBehaviour:
   onEnter:
     m_PersistentCalls:
       m_Calls: []
-  seSource: {fileID: 1899053744}
-  sePerfect: {fileID: 8300000, guid: 419ac77019cc0744f8ed8293200952b2, type: 3}
-  seGood: {fileID: 8300000, guid: 66d69b48a7b040c42823e04c749bdbd1, type: 3}
-  perfectRangeZ: 1
-  goodRangeZ: 2
-  judgeOffsetFromFront: 0.4
-  holdTickPulse: {fileID: 998484023}
-  hudCounterBinder: {fileID: 376677633}
-  comboProbe: {fileID: 217732779}
+  holdTickPulse: {fileID: 1254712119}
+  holdNoteLaneIndex: 1
+  laneTolerance: 0.5
+  endNoteDetectZ: -100
   debugLog: 1
 --- !u!82 &1899053744
 AudioSource:

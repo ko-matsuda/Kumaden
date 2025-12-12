@@ -1,7 +1,9 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
+/// <summary>
+/// LinkedHoldNote - リボン表示専用版
+/// ノーツがプレイヤーに向かってくる（Z座標が減少する）前提
+/// </summary>
 public class LinkedHoldNote : MonoBehaviour
 {
     [Header("参照（必ず実ノーツを割当）")]
@@ -10,35 +12,13 @@ public class LinkedHoldNote : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private LineRenderer ribbonLine;
 
-    [Header("自動検出（必要な時だけ）")]
-    [SerializeField] private bool autoFindNotes = false;
-
     [Header("見た目")]
     [Range(0.02f, 1.0f)] public float lineWidth = 0.30f;
 
-    [Header("判定バッファ")]
-    public float enterAhead = 2.0f;
-    public float exitBehind = 0.5f;
+    [Header("デバッグ")]
+    public bool debugLog = false;
 
-    [Header("プレイヤー前端オフセットZ")]
-    public float playerFrontOffsetZ = 0.15f;
-
-    [Header("連続カウント（Tick）")]
-    public float tickInterval = 0.08f;
-    public bool debugLog = true;
-
-    [Header("イベント（必要ならインスペクタで接続）")]
-    public UnityEvent onHoldEnter;
-    public UnityEvent onHoldTick;
-    public UnityEvent onHoldExit;
-
-    private bool isInside = false;
-    private float lastTickTime = -999f;
-
-    private Vector3 startPos;
-    private Vector3 endPos;
-
-    private const float LaneEps = 1.20f;
+    private bool hasStarted = false;
 
     void Awake()
     {
@@ -58,7 +38,7 @@ public class LinkedHoldNote : MonoBehaviour
 
     void OnEnable()
     {
-        CacheEndsFromRefs();
+        hasStarted = false;
         ShowFull();
     }
 
@@ -66,94 +46,62 @@ public class LinkedHoldNote : MonoBehaviour
     {
         if (!Ready()) return;
 
-        RefreshCachedEnds();
+        Vector3 start = startNote.position;
+        Vector3 end = endNote.position;
+        float playerZ = player.position.z;
 
-        if (Mathf.Abs(PlayerPos().x - startPos.x) > LaneEps)
+        // StartNote がプレイヤーを通過したか
+        if (start.z <= playerZ && !hasStarted)
         {
-            isInside = false;
-            ShowFull();
-            return;
+            hasStarted = true;
+            if (debugLog) Debug.Log("[Ribbon] StartNote passed player");
         }
 
-        float pz = PlayerPos().z;
-        bool shouldEnter = (pz >= (startPos.z - enterAhead)) && (pz <= (endPos.z + exitBehind));
-
-        if (!isInside && shouldEnter)
+        // EndNote がプレイヤーを通過したら非表示
+        if (end.z <= playerZ)
         {
-            isInside = true;
-            onHoldEnter?.Invoke();
-            if (debugLog) Debug.Log("[Hold] ENTER");
-        }
-        else if (isInside && !shouldEnter)
-        {
-            isInside = false;
             Hide();
-            onHoldExit?.Invoke();
-            if (debugLog) Debug.Log("[Hold] EXIT");
             return;
         }
 
-        if (isInside)
-        {
-            float headZ = Mathf.Clamp(pz, startPos.z, endPos.z);
-            Vector3 head = startPos; head.z = headZ;
-            ribbonLine.SetPosition(0, head);
-            ribbonLine.SetPosition(1, endPos);
-            ribbonLine.enabled = true;
-
-            if (tickInterval <= 0f || Time.unscaledTime - lastTickTime >= tickInterval)
-            {
-                lastTickTime = Time.unscaledTime;
-                onHoldTick?.Invoke();
-                if (debugLog) Debug.Log("[Hold] TICK");
-            }
-        }
-        else
+        // StartNote がまだプレイヤーより前にある場合はフル表示
+        if (!hasStarted)
         {
             ShowFull();
+            return;
         }
+
+        // StartNote を通過後、リボンを縮小表示
+        // 先頭をプレイヤー位置に固定、終端は EndNote
+        Vector3 head = start;
+        head.z = playerZ;
+        
+        ribbonLine.SetPosition(0, head);
+        ribbonLine.SetPosition(1, end);
+        ribbonLine.enabled = true;
+
+        if (debugLog) Debug.Log($"[Ribbon] Shortened: head={playerZ:F2}, end={end.z:F2}");
     }
 
     private bool Ready()
     {
-        return (player != null && ribbonLine != null);
-    }
-
-    private Vector3 PlayerPos()
-    {
-        Vector3 p = player.position;
-        p.z += playerFrontOffsetZ;
-        return p;
-    }
-
-    private void CacheEndsFromRefs()
-    {
-        startPos = (startNote != null) ? startNote.position : startPos;
-        endPos = (endNote != null) ? endNote.position : endPos;
-        if (endPos.z < startPos.z)
-        {
-            Vector3 t = startPos; startPos = endPos; endPos = t;
-        }
-    }
-
-    private void RefreshCachedEnds()
-    {
-        if (startNote != null) startPos = startNote.position;
-        if (endNote != null) endPos = endNote.position;
+        return (player != null && ribbonLine != null && startNote != null && endNote != null);
     }
 
     private void ShowFull()
     {
+        if (ribbonLine == null || startNote == null || endNote == null) return;
         ribbonLine.startWidth = lineWidth;
         ribbonLine.endWidth = lineWidth;
-        ribbonLine.SetPosition(0, startPos);
-        ribbonLine.SetPosition(1, endPos);
+        ribbonLine.SetPosition(0, startNote.position);
+        ribbonLine.SetPosition(1, endNote.position);
         ribbonLine.enabled = true;
     }
 
     private void Hide()
     {
-        ribbonLine.enabled = false;
+        if (ribbonLine != null)
+            ribbonLine.enabled = false;
     }
 
     private void TryAutoDetect()
@@ -175,51 +123,5 @@ public class LinkedHoldNote : MonoBehaviour
                 if (lr != null) ribbonLine = lr;
             }
         }
-
-        if (!autoFindNotes) return;
-
-        var rootGO = GameObject.Find("NoteRoot");
-        if (rootGO == null || player == null) return;
-
-        var list = new List<Transform>();
-        var rt = rootGO.transform;
-        for (int i = 0; i < rt.childCount; i++)
-        {
-            var c = rt.GetChild(i);
-            if (c.GetComponent("NoteBehaviour") != null) list.Add(c);
-        }
-        if (list.Count < 2) return;
-
-        list.Sort((a, b) => a.position.z.CompareTo(b.position.z));
-
-        float px = player.position.x;
-        var sameLane = new List<Transform>();
-        for (int i = 0; i < list.Count; i++)
-            if (Mathf.Abs(list[i].position.x - px) <= LaneEps) sameLane.Add(list[i]);
-
-        if (sameLane.Count < 2) return;
-
-        float pz = player.position.z;
-        int idx = -1;
-        for (int i = 0; i < sameLane.Count; i++)
-        {
-            if (sameLane[i].position.z >= pz - 0.05f) { idx = i; break; }
-        }
-        if (idx >= 0 && idx + 1 < sameLane.Count)
-        {
-            startNote = sameLane[idx];
-            endNote = sameLane[idx + 1];
-            if (debugLog) Debug.Log("[Hold] Auto: " + startNote.name + " -> " + endNote.name);
-        }
     }
-
-#if UNITY_EDITOR
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(startNote ? startNote.position : startPos, 0.1f);
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawSphere(endNote ? endNote.position : endPos, 0.1f);
-    }
-#endif
 }

@@ -6,6 +6,8 @@ TagManager:
   tags:
   - judge
   - LevelParent
+  - LinkedHoldEnd
+  - LinkedHoldStart
   layers:
   - Default
   - TransparentFX
