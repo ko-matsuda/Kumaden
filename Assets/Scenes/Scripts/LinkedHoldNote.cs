@@ -1,9 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// LinkedHoldNote - リボン表示専用版
-/// ノーツがプレイヤーに向かってくる（Z座標が減少する）前提
-/// </summary>
 public class LinkedHoldNote : MonoBehaviour
 {
     [Header("参照（必ず実ノーツを割当）")]
@@ -19,6 +15,8 @@ public class LinkedHoldNote : MonoBehaviour
     public bool debugLog = false;
 
     private bool hasStarted = false;
+    private bool hasEnded = false;
+    private Vector3 cachedEndPos;
 
     void Awake()
     {
@@ -32,76 +30,88 @@ public class LinkedHoldNote : MonoBehaviour
             ribbonLine.endWidth = lineWidth;
 
             var wr = ribbonLine.GetComponent("WorldRibbon") as MonoBehaviour;
-            if (wr != null && wr.enabled) wr.enabled = false;
+            if (wr != null) wr.enabled = false;
         }
     }
 
     void OnEnable()
     {
         hasStarted = false;
-        ShowFull();
+        hasEnded = false;
+        Show();
     }
 
     void Update()
     {
-        if (!Ready()) return;
+        if (player == null || ribbonLine == null) return;
+        
+        if (hasEnded) return;
 
-        Vector3 start = startNote.position;
-        Vector3 end = endNote.position;
+        Vector3 start = startNote != null && startNote.gameObject.activeInHierarchy 
+                        ? startNote.position 
+                        : Vector3.zero;
+        Vector3 end = endNote != null && endNote.gameObject.activeInHierarchy 
+                      ? endNote.position 
+                      : cachedEndPos;
+        
+        if (endNote != null && endNote.gameObject.activeInHierarchy)
+        {
+            cachedEndPos = endNote.position;
+        }
+
         float playerZ = player.position.z;
 
-        // StartNote がプレイヤーを通過したか
         if (start.z <= playerZ && !hasStarted)
         {
             hasStarted = true;
             if (debugLog) Debug.Log("[Ribbon] StartNote passed player");
         }
 
-        // EndNote がプレイヤーを通過したら非表示
         if (end.z <= playerZ)
         {
-            Hide();
+            HideRibbon();
             return;
         }
 
-        // StartNote がまだプレイヤーより前にある場合はフル表示
         if (!hasStarted)
         {
-            ShowFull();
+            ribbonLine.SetPosition(0, start);
+            ribbonLine.SetPosition(1, end);
             return;
         }
 
-        // StartNote を通過後、リボンを縮小表示
-        // 先頭をプレイヤー位置に固定、終端は EndNote
-        Vector3 head = start;
-        head.z = playerZ;
-        
+        Vector3 head = new Vector3(end.x, start.y, playerZ);
         ribbonLine.SetPosition(0, head);
         ribbonLine.SetPosition(1, end);
-        ribbonLine.enabled = true;
-
-        if (debugLog) Debug.Log($"[Ribbon] Shortened: head={playerZ:F2}, end={end.z:F2}");
     }
 
-    private bool Ready()
+    // 外部から呼び出し可能（Pickup.cs から）
+    public void HideRibbon()
     {
-        return (player != null && ribbonLine != null && startNote != null && endNote != null);
+        if (hasEnded) return;
+        
+        hasEnded = true;
+        if (ribbonLine != null)
+        {
+            ribbonLine.gameObject.SetActive(false);
+            if (debugLog) Debug.Log("[Ribbon] HideRibbon called - GameObject hidden");
+        }
     }
 
-    private void ShowFull()
-    {
-        if (ribbonLine == null || startNote == null || endNote == null) return;
-        ribbonLine.startWidth = lineWidth;
-        ribbonLine.endWidth = lineWidth;
-        ribbonLine.SetPosition(0, startNote.position);
-        ribbonLine.SetPosition(1, endNote.position);
-        ribbonLine.enabled = true;
-    }
-
-    private void Hide()
+    private void Show()
     {
         if (ribbonLine != null)
-            ribbonLine.enabled = false;
+        {
+            ribbonLine.gameObject.SetActive(true);
+        }
+    }
+
+    void OnDisable()
+    {
+        if (ribbonLine != null)
+        {
+            ribbonLine.gameObject.SetActive(false);
+        }
     }
 
     private void TryAutoDetect()

@@ -28,7 +28,6 @@ public class HudCounterBinder : MonoBehaviour
         }
     }
 
-    // 通常ノーツ用：1カウント増やすだけ（リセットしない）
     public void OnNormalNote()
     {
         currentFlourCount++;
@@ -41,7 +40,6 @@ public class HudCounterBinder : MonoBehaviour
         Debug.Log($"[HudCounterBinder] OnHoldEnter - Starting Flour count");
         isCountingFlour = true;
         frameCounter = 0;
-        // リセットしない
         UpdateUI();
     }
 
@@ -49,7 +47,6 @@ public class HudCounterBinder : MonoBehaviour
     {
         if (!isCountingFlour)
         {
-            Debug.LogWarning($"[HudCounterBinder] OnHoldTick called but isCountingFlour is false!");
             return;
         }
 
@@ -83,7 +80,6 @@ public class HudCounterBinder : MonoBehaviour
     {
         if (isCountingFlour)
         {
-            Debug.Log($"[HudCounterBinder] OnDisable - forcing OnHoldExit");
             OnHoldExit();
         }
     }

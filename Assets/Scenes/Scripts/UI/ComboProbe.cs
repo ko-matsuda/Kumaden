@@ -28,7 +28,6 @@ public class ComboProbe : MonoBehaviour
         }
     }
 
-    // 通常ノーツ用：1カウント増やすだけ（リセットしない）
     public void OnNormalNote()
     {
         currentComboCount++;
@@ -41,7 +40,6 @@ public class ComboProbe : MonoBehaviour
         Debug.Log($"[ComboProbe] OnHoldEnter - Starting COMBO count");
         isCountingCombo = true;
         frameCounter = 0;
-        // リセットしない
         UpdateUI();
     }
 
@@ -49,7 +47,6 @@ public class ComboProbe : MonoBehaviour
     {
         if (!isCountingCombo)
         {
-            Debug.LogWarning($"[ComboProbe] OnHoldTick called but isCountingCombo is false!");
             return;
         }
 
@@ -71,11 +68,28 @@ public class ComboProbe : MonoBehaviour
         UpdateUI();
     }
 
+    // MISS 時にコンボをリセット
+    public void ResetCombo()
+    {
+        Debug.Log($"[ComboProbe] ResetCombo - COMBO reset from {currentComboCount} to 0");
+        currentComboCount = 0;
+        isCountingCombo = false;
+        frameCounter = 0;
+        UpdateUI();
+    }
+
     private void UpdateUI()
     {
         if (comboText != null)
         {
-            comboText.text = currentComboCount.ToString("00");
+            if (currentComboCount >= 2)
+            {
+                comboText.text = "COMBO " + currentComboCount.ToString("00");
+            }
+            else
+            {
+                comboText.text = currentComboCount.ToString("00");
+            }
         }
     }
 
@@ -83,7 +97,6 @@ public class ComboProbe : MonoBehaviour
     {
         if (isCountingCombo)
         {
-            Debug.Log($"[ComboProbe] OnDisable - forcing OnHoldExit");
             OnHoldExit();
         }
     }

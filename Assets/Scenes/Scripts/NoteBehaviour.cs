@@ -4,12 +4,6 @@ using UnityEngine.Events;
 
 /// <summary>
 /// リズムノーツ本体（既存コード互換）
-/// 互換点:
-///  - public IngredientType Type  … 呼び出し側の期待に合わせて統一
-///  - public enum LegacyNoteType / public LegacyNoteType LegacyType  … 旧型互換
-///  - public void Init(..., IngredientType) と public void Init(..., LegacyNoteType)
-///  - public bool TryMarkJudged()  // ← bool 返す（!note.TryMarkJudged() が使える）
-///  - OnHoldTick(float) でホールド連続ヒット
 /// </summary>
 public class NoteBehaviour : MonoBehaviour
 {
@@ -64,14 +58,12 @@ public class NoteBehaviour : MonoBehaviour
     void Awake()
     {
         if (!visual) visual = transform;
-        // 旧→新の初期同期（Prefabで片方だけ設定していてもズレないように）
         Type       = MapToIngredient(LegacyType);
         LegacyType = MapFromIngredient(Type);
     }
 
     void OnValidate()
     {
-        // Inspectorでどちらかを変えた時に相互同期
         LegacyType = MapFromIngredient(Type);
     }
 
@@ -106,7 +98,7 @@ public class NoteBehaviour : MonoBehaviour
         }
     }
 
-    // ===== Spawner 互換 Init（どちらでもOK） =====
+    // ===== Spawner 互換 Init =====
     public void Init(float scrollSpeed, float judgeZ, float lingerDistance, int lane, IngredientType type)
     {
         this.scrollSpeed    = scrollSpeed;
@@ -126,7 +118,7 @@ public class NoteBehaviour : MonoBehaviour
         this.Type           = MapToIngredient(legacyType);
     }
 
-    // ===== 判定済みマーク（bool 返す → if(!note.TryMarkJudged())対応） =====
+    // ===== 判定済みマーク =====
     public bool TryMarkJudged()
     {
         if (_judged) return false;
@@ -134,7 +126,7 @@ public class NoteBehaviour : MonoBehaviour
         return true;
     }
 
-    // ===== 連続ヒット（帯から毎フレーム飛んでくる） =====
+    // ===== 連続ヒット =====
     public void OnHoldTick(float dt)
     {
         if (state == State.Finished) return;
@@ -155,7 +147,7 @@ public class NoteBehaviour : MonoBehaviour
         }
     }
 
-    // ===== 単発ヒット（既存呼び名を全部吸収） =====
+    // ===== 単発ヒット =====
     public void Pickup()
     {
         if (state == State.Finished) return;
@@ -194,7 +186,7 @@ public class NoteBehaviour : MonoBehaviour
         Release();
     }
 
-    // ===== 移動と自動クリーンアップ（必要な人だけ使われます） =====
+    // ===== 移動と自動クリーンアップ =====
     void Update()
     {
         if (state != State.Finished)
@@ -210,7 +202,26 @@ public class NoteBehaviour : MonoBehaviour
         {
             if (Mathf.Abs(_zWhenPassedJudge - transform.position.z) >= lingerDistance)
             {
-                Release();
+                // 判定されずに通過した場合は MISS
+                if (!_judged)
+                {
+                    // ScoreManagerLite に MISS を通知
+                    ScoreManagerLite.Instance?.OnPick(Type, "MISS");
+                    
+                    // ComboProbe をリセット
+                    var comboProbe = FindObjectOfType<ComboProbe>();
+                    if (comboProbe != null)
+                    {
+                        comboProbe.ResetCombo();
+                    }
+                    
+                    Debug.Log($"[NoteBehaviour] MISS - Note passed without being judged");
+                    Miss();
+                }
+                else
+                {
+                    Release();
+                }
             }
         }
     }
