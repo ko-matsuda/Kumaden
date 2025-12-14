@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3668814847879113081}
   - component: {fileID: -2405214630835439499}
+  - component: {fileID: 7421127826966523186}
   m_Layer: 3
   m_Name: LinkedHoldNote
   m_TagString: Untagged
@@ -46,26 +47,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4deae8d791962e245bef4be5bd43a7c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::LinkedHoldNote
-  startNote: {fileID: 0}
-  endNote: {fileID: 0}
+  startNote: {fileID: 2093223782158721744}
+  endNote: {fileID: 9066339401522269078}
   player: {fileID: 0}
-  ribbonLine: {fileID: 0}
-  autoFindNotes: 1
   lineWidth: 0.3
-  enterAhead: 0.2
-  exitBehind: 0.3
-  playerFrontOffsetZ: 0.15
-  tickInterval: 0.08
+  sourceLineRenderer: {fileID: 0}
+  ribbonColor: {r: 1, g: 0.9, b: 0.2, a: 1}
   debugLog: 0
-  onHoldEnter:
+--- !u!114 &7421127826966523186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6694813725552871513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ae14796f8dc7b74492fcc99b320d571, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::HoldTickPulse
+  perFrame: 1
+  tickRateHz: 30
+  useGating: 1
+  isGated: 1
+  OnTick:
     m_PersistentCalls:
       m_Calls: []
-  onHoldTick:
+  OnEnter:
     m_PersistentCalls:
       m_Calls: []
-  onHoldExit:
+  OnExit:
     m_PersistentCalls:
       m_Calls: []
+  debugLog: 1
 --- !u!1001 &687894730988116393
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -74,9 +88,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3668814847879113081}
     m_Modifications:
+    - target: {fileID: 2260780714683258190, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
+      propertyPath: laneIndex
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8384012808243909172, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
       propertyPath: m_Name
       value: EndNote
+      objectReference: {fileID: 0}
+    - target: {fileID: 8384012808243909172, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
+      propertyPath: m_TagString
+      value: LinkedHoldEnd
       objectReference: {fileID: 0}
     - target: {fileID: 8384012808243909183, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
       propertyPath: m_LocalScale.x
@@ -100,7 +122,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8384012808243909183, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 80
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8384012808243909183, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
       propertyPath: m_LocalRotation.w
@@ -130,7 +152,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2260780714683258190, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -148,6 +171,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3668814847879113081}
     m_Modifications:
+    - target: {fileID: 2260780714683258190, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
+      propertyPath: laneIndex
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8384012808243909172, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
       propertyPath: m_Name
       value: StartNote
@@ -155,6 +182,10 @@ PrefabInstance:
     - target: {fileID: 8384012808243909172, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8384012808243909172, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
+      propertyPath: m_TagString
+      value: LinkedHoldStart
       objectReference: {fileID: 0}
     - target: {fileID: 8384012808243909183, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
       propertyPath: m_LocalScale.x
@@ -208,7 +239,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2260780714683258190, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

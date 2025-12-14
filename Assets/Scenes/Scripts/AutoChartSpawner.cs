@@ -222,11 +222,57 @@ public class AutoChartSpawner : MonoBehaviour
 
         if (startNote != null)
         {
-            startNote.position = new Vector3(laneX[lane], laneY, startZ);
+            startNote.localPosition = new Vector3(0, 0, 0);
         }
         if (endNote != null)
         {
-            endNote.position = new Vector3(laneX[lane], laneY, endZ);
+            endNote.localPosition = new Vector3(0, 0, distanceZ);
+        }
+
+        // LinkedHoldNote コンポーネントを取得して Player の Pickup に設定
+        var linkedHoldNoteComponent = holdObj.GetComponent<LinkedHoldNote>();
+        var holdTickPulseComponent = holdObj.GetComponent<HoldTickPulse>();
+        
+        // scrollSpeed を設定
+        if (linkedHoldNoteComponent != null)
+        {
+            linkedHoldNoteComponent.scrollSpeed = scrollSpeed;
+        }
+        
+        var player = GameObject.Find("Player");
+        
+        if (player != null)
+        {
+            var pickup = player.GetComponent<Pickup>();
+            if (pickup != null)
+            {
+                pickup.linkedHoldNote = linkedHoldNoteComponent;
+                pickup.holdTickPulse = holdTickPulseComponent;
+            }
+        }
+
+        // HoldTickPulse の Events を設定
+        if (holdTickPulseComponent != null)
+        {
+            // HudCounterBinder を探して設定
+            var hudCounterBinder = FindObjectOfType<HudCounterBinder>();
+            if (hudCounterBinder != null)
+            {
+                holdTickPulseComponent.OnTick.AddListener(hudCounterBinder.OnHoldTick);
+                holdTickPulseComponent.OnEnter.AddListener(hudCounterBinder.OnHoldEnter);
+                holdTickPulseComponent.OnExit.AddListener(hudCounterBinder.OnHoldExit);
+            }
+
+            // ComboProbe を探して設定
+            var comboProbe = FindObjectOfType<ComboProbe>();
+            if (comboProbe != null)
+            {
+                holdTickPulseComponent.OnTick.AddListener(comboProbe.OnHoldTick);
+                holdTickPulseComponent.OnEnter.AddListener(comboProbe.OnHoldEnter);
+                holdTickPulseComponent.OnExit.AddListener(comboProbe.OnHoldExit);
+            }
+
+            Debug.Log($"[AutoChartSpawner] HoldTickPulse events configured");
         }
 
         // ホールドノート状態を設定

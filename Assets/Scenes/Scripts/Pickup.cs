@@ -54,6 +54,7 @@ public class Pickup : MonoBehaviour
                 if (printDebug) Debug.Log("[Pickup] StartTick called");
             }
             PlaySEOnly(other);
+            Destroy(other.gameObject);  // StartNote を破棄
             return;
         }
 
@@ -72,6 +73,7 @@ public class Pickup : MonoBehaviour
                 if (printDebug) Debug.Log("[Pickup] HideRibbon called");
             }
             PlaySEOnly(other);
+            Destroy(other.gameObject);  // EndNote を破棄
             return;
         }
 

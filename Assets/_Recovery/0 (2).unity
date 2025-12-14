@@ -4550,7 +4550,7 @@ MonoBehaviour:
   - {fileID: -9046518638822966828, guid: 4fa3650ca6181984aba4facbe1705289, type: 3}
   linkedHoldNotePrefab: {fileID: 6694813725552871513, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
   holdNoteProbability: 0.1
-  holdNoteDurationBeats: 8
+  holdNoteDurationBeats: 4
   laneX:
   - -1.6
   - 0
@@ -22031,7 +22031,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1436615844580692681, guid: 703d6004062e2384686712cb101c7175, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4338999685137209249, guid: 703d6004062e2384686712cb101c7175, type: 3}
       propertyPath: debugLog
@@ -22039,7 +22039,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4338999685137209249, guid: 703d6004062e2384686712cb101c7175, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6824176801508813199, guid: 703d6004062e2384686712cb101c7175, type: 3}
       propertyPath: m_LocalPosition.x
