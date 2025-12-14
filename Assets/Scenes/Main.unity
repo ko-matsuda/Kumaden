@@ -1063,7 +1063,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &147680035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4284,10 +4284,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 973cfdb1f0c91154e8d286fa94d934a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::HudCounterBinder
+  milkText: {fileID: 0}
   flourText: {fileID: 1722287843}
+  eggText: {fileID: 0}
   tickInterval: 1
+  currentMilkCount: 0
   currentFlourCount: 0
-  isCountingFlour: 0
+  currentEggCount: 0
+  isCounting: 0
+  currentLane: -1
 --- !u!4 &376677634
 Transform:
   m_ObjectHideFlags: 0
@@ -4550,7 +4555,7 @@ MonoBehaviour:
   - {fileID: -9046518638822966828, guid: 4fa3650ca6181984aba4facbe1705289, type: 3}
   linkedHoldNotePrefab: {fileID: 6694813725552871513, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
   holdNoteProbability: 0.1
-  holdNoteDurationBeats: 8
+  holdNoteDurationBeats: 16
   laneX:
   - -1.6
   - 0
@@ -18161,10 +18166,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 973cfdb1f0c91154e8d286fa94d934a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::HudCounterBinder
+  milkText: {fileID: 0}
   flourText: {fileID: 0}
+  eggText: {fileID: 0}
   tickInterval: 1
+  currentMilkCount: 0
   currentFlourCount: 0
-  isCountingFlour: 0
+  currentEggCount: 0
+  isCounting: 0
+  currentLane: -1
 --- !u!43 &1825886223
 Mesh:
   m_ObjectHideFlags: 0

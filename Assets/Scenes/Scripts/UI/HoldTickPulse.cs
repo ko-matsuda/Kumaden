@@ -23,6 +23,9 @@ public sealed class HoldTickPulse : MonoBehaviour
     [SerializeField] private bool useGating = true;  // Gating 機能を使うかどうか
     [SerializeField] private bool isGated = true;    // Inspector で状態確認用（読み取り専用的に使用）
 
+    [Header("レーン情報")]
+    public int laneIndex = 0;  // 0=Milk, 1=Flour, 2=Egg
+
     [Header("Events")]
     public UnityEvent OnTick;                        // 連続カウント用
     public UnityEvent OnEnter;                       // ホールド開始時のイベント

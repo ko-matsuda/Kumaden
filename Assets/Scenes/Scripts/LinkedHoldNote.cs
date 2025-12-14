@@ -12,6 +12,8 @@ public class LinkedHoldNote : MonoBehaviour
 
     [Header("見た目")]
     [Range(0.02f, 1.0f)] public float lineWidth = 0.30f;
+    [Tooltip("帯のマテリアル（Glow系など）を直接設定")]
+    public Material ribbonMaterial;
     [Tooltip("WorldRibbon_Runtime等の既存LineRendererからマテリアルをコピーする場合に指定")]
     public LineRenderer sourceLineRenderer;
     public Color ribbonColor = new Color(1f, 0.9f, 0.2f, 1f);
@@ -158,8 +160,15 @@ public class LinkedHoldNote : MonoBehaviour
         ribbonLine.startWidth = lineWidth;
         ribbonLine.endWidth = lineWidth;
 
-        // マテリアル設定
-        if (sourceLineRenderer != null && sourceLineRenderer.sharedMaterial != null)
+        // マテリアル設定（優先順位: ribbonMaterial > sourceLineRenderer > 自動検出 > デフォルト）
+        if (ribbonMaterial != null)
+        {
+            // 直接設定されたマテリアルを使用
+            ribbonLine.material = ribbonMaterial;
+            ribbonLine.startColor = ribbonColor;
+            ribbonLine.endColor = ribbonColor;
+        }
+        else if (sourceLineRenderer != null && sourceLineRenderer.sharedMaterial != null)
         {
             // 既存のLineRendererからマテリアルをコピー
             ribbonLine.material = sourceLineRenderer.sharedMaterial;

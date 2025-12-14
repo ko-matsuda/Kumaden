@@ -50,9 +50,11 @@ MonoBehaviour:
   startNote: {fileID: 2093223782158721744}
   endNote: {fileID: 9066339401522269078}
   player: {fileID: 0}
-  lineWidth: 0.3
+  scrollSpeed: 12
+  lineWidth: 0.4
+  ribbonMaterial: {fileID: 2100000, guid: ee4c73e5e28219846be78c0ae0ff6b68, type: 2}
   sourceLineRenderer: {fileID: 0}
-  ribbonColor: {r: 1, g: 0.9, b: 0.2, a: 1}
+  ribbonColor: {r: 1, g: 1, b: 1, a: 1}
   debugLog: 0
 --- !u!114 &7421127826966523186
 MonoBehaviour:
@@ -66,8 +68,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ae14796f8dc7b74492fcc99b320d571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::HoldTickPulse
-  perFrame: 1
-  tickRateHz: 30
+  perFrame: 0
+  tickRateHz: 5
   useGating: 1
   isGated: 1
   OnTick:

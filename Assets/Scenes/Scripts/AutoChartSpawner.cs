@@ -239,6 +239,12 @@ public class AutoChartSpawner : MonoBehaviour
             linkedHoldNoteComponent.scrollSpeed = scrollSpeed;
         }
         
+        // レーン情報を設定
+        if (holdTickPulseComponent != null)
+        {
+            holdTickPulseComponent.laneIndex = lane;
+        }
+        
         var player = GameObject.Find("Player");
         
         if (player != null)
