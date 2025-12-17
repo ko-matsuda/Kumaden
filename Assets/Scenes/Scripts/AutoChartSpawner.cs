@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 /// <summary>
 /// AutoChartSpawner（ホールドノート自動生成対応）
-/// - ホールドノート中は他のレーンにノーツを出さない
-/// - ホールドノートのレーンはランダム
 /// </summary>
 public class AutoChartSpawner : MonoBehaviour
 {
@@ -89,6 +87,9 @@ public class AutoChartSpawner : MonoBehaviour
     private void Update()
     {
         if (conductor == null || spawningStopped) return;
+        
+        // 音楽が再生されていなければスポーンしない
+        if (musicSource == null || !musicSource.isPlaying) return;
 
         float songBeat = conductor.songPositionBeats;
         float step     = 1f / Mathf.Max(1, subdivision);

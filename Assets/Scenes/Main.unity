@@ -18927,7 +18927,7 @@ GameObject:
   - component: {fileID: 1859113768}
   - component: {fileID: 1859113767}
   - component: {fileID: 1859113770}
-  - component: {fileID: 1859113769}
+  - component: {fileID: 1859113771}
   m_Layer: 0
   m_Name: VideoPlayerObject
   m_TagString: Untagged
@@ -18986,18 +18986,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1859113769
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1859113766}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39a790f732e0e1d4885f459928155ec5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::PrologueVideo
 --- !u!82 &1859113770
 AudioSource:
   m_ObjectHideFlags: 0
@@ -19095,6 +19083,20 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1859113771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859113766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f36c26c5231513488c32a143b9efef8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::PrologueVideo
+  videoClip: {fileID: 32900000, guid: 4e439673c6d7f19449f519da1d103437, type: 3}
+  bgmLeadTime: 3.9
 --- !u!1 &1860592125
 GameObject:
   m_ObjectHideFlags: 0
@@ -22138,17 +22140,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::PrologueOverlay
   overlay: {fileID: 1956575465}
-  totalDuration: 23.16
-  bgmLeadTime: 1.9
   fadeTime: 0.25
-  bgmSources:
-  - {fileID: 538003175}
   componentsToDisable:
   - {fileID: 1999945296}
   - {fileID: 1899053744}
   - {fileID: 420155180}
-  restartBgmFromBeginning: 1
-  hardStopAtStart: 1
 --- !u!4 &2144784087
 Transform:
   m_ObjectHideFlags: 0

@@ -4,19 +4,27 @@ using UnityEngine;
 
 public class PrologueOverlay : MonoBehaviour
 {
-    public CanvasGroup overlay;       // BlackPanel ‚Ì CanvasGroup
-    public float totalDuration = 23f; // ƒvƒƒ[ƒO“®‰æ‚Ì’·‚³i•bj
-    public float bgmLeadTime = 3.9f;  // I—¹‰½•b‘O‚©‚çBGM‚ğã‚°‚é‚©
-    public float fadeTime = 0.25f;    // ‰æ–ÊƒtƒF[ƒhŠÔ
+    public CanvasGroup overlay;
+    public float fadeTime = 0.25f;
 
-    public List<AudioSource> bgmSources = new List<AudioSource>(); // ƒCƒ“ƒQ[ƒ€BGM
-    public List<Behaviour> componentsToDisable = new List<Behaviour>(); // ~‚ß‚½‚¢ƒXƒNƒŠƒvƒg
+    public List<Behaviour> componentsToDisable = new List<Behaviour>();
 
-    public bool restartBgmFromBeginning = true; // BGM‚ğæ“ª‚©‚çÄ¶‚·‚é
-    public bool hardStopAtStart = true;         // ŠJn‚ÉBGM‚ğŠ®‘S’â~
+    private Conductor _conductor;
+    private AutoChartSpawner _autoChartSpawner;
+    private CookingResultSequence _cookingResult;
+    private bool _bgmStarted = false;
 
-    private readonly List<float> _bgmOriginalVolumes = new List<float>();
-    private readonly List<int>   _savedTimeSamples    = new List<int>();
+    void Awake()
+    {
+        // ãƒ—ãƒ­ãƒ­ãƒ¼ã‚°ä¸­ã«å‹•ã„ã¦ã»ã—ããªã„ã‚¹ã‚¯ãƒªãƒ—ãƒˆã‚’è‡ªå‹•æ¤œå‡ºã—ã¦ç„¡åŠ¹åŒ–
+        _conductor = FindObjectOfType<Conductor>();
+        _autoChartSpawner = FindObjectOfType<AutoChartSpawner>();
+        _cookingResult = FindObjectOfType<CookingResultSequence>();
+        
+        if (_conductor != null) _conductor.enabled = false;
+        if (_autoChartSpawner != null) _autoChartSpawner.enabled = false;
+        if (_cookingResult != null) _cookingResult.enabled = false;
+    }
 
     void OnEnable()
     {
@@ -28,95 +36,53 @@ public class PrologueOverlay : MonoBehaviour
         }
     }
 
-    IEnumerator Start()
+    void Start()
     {
-        // ‡@ ƒQ[ƒ€’â~
-        Time.timeScale = 0f;
-
-        // ‡A BGM‚ÍgƒtƒF[ƒhŠJn‚Ü‚ÅÄ¶‚³‚¹‚È‚¢h
-        _bgmOriginalVolumes.Clear();
-        _savedTimeSamples.Clear();
-        foreach (var s in bgmSources)
-        {
-            if (s == null) { _bgmOriginalVolumes.Add(0f); _savedTimeSamples.Add(0); continue; }
-            _bgmOriginalVolumes.Add(s.volume);
-            _savedTimeSamples.Add(s.clip != null ? s.timeSamples : 0);
-
-            s.volume = 0f;
-            s.mute   = true;
-            s.playOnAwake = false;
-
-            if (hardStopAtStart) s.Stop(); else if (s.isPlaying) s.Pause();
-        }
-
-        // ‡B “®‚«‘±‚¯‚éˆ—‚Íè“®‚Å’â~
         foreach (var b in componentsToDisable)
             if (b != null) b.enabled = false;
-
-        // ‡C BGMƒtƒF[ƒhŠJn‚Ìƒ^ƒCƒ~ƒ“ƒO‚Ü‚ÅgƒŠƒAƒ‹ŠÔh‚Å‘Ò‹@
-        float fadeStart = Mathf.Max(0f, totalDuration - bgmLeadTime);
-        yield return new WaitForSecondsRealtime(fadeStart);
-
-        // ‡D BGMƒtƒF[ƒhƒCƒ“i‚±‚ÌuŠÔ‚É‚¾‚¯ Playj
-        yield return StartCoroutine(FadeInBgmFromSilence(bgmLeadTime));
-
-        // ‡E “®‰æI—¹‚Ü‚Å‘Ò‚Âic‚èbgmLeadTime‚Í‚·‚Å‚ÉÁ‰»Ï‚İj
-        // ¨ ‚·‚®‚ÉÄŠJƒtƒF[ƒh‚Ö
-        yield return FadeOutAndStartGame();
     }
 
-    IEnumerator FadeInBgmFromSilence(float duration)
+    // å‹•ç”»çµ‚äº†ã® bgmLeadTime ç§’å‰ã«å‘¼ã°ã‚Œã‚‹
+    public void StartBgmFadeIn(float duration)
     {
-        for (int i = 0; i < bgmSources.Count; i++)
+        if (_bgmStarted) return;
+        _bgmStarted = true;
+        
+        // Conductor ã‚’æœ‰åŠ¹åŒ–ã—ã¦ BGM é–‹å§‹
+        if (_conductor != null)
         {
-            var s = bgmSources[i];
-            if (s == null) continue;
-
-            if (restartBgmFromBeginning && s.clip != null) s.timeSamples = 0;
-            else if (!restartBgmFromBeginning && s.clip != null) s.timeSamples = _savedTimeSamples[i];
-
-            s.mute = false;
-            if (!s.isPlaying) s.Play();
+            _conductor.enabled = true;
         }
-
-        float t = 0f;
-        while (t < duration)
-        {
-            t += Time.unscaledDeltaTime;
-            float k = duration <= 0f ? 1f : Mathf.Clamp01(t / duration);
-
-            for (int i = 0; i < bgmSources.Count; i++)
-            {
-                var s = bgmSources[i];
-                if (s == null) continue;
-                float target = _bgmOriginalVolumes.Count > i ? _bgmOriginalVolumes[i] : 1f;
-                s.volume = Mathf.Lerp(0f, target, k);
-            }
-            yield return null;
-        }
-
-        for (int i = 0; i < bgmSources.Count; i++)
-        {
-            var s = bgmSources[i];
-            if (s == null) continue;
-            s.volume = _bgmOriginalVolumes[i];
-        }
-        yield break;
+        
+        Debug.Log("[PrologueOverlay] BGM started");
     }
 
+    // å‹•ç”»çµ‚äº†æ™‚ã«å‘¼ã°ã‚Œã‚‹
+    public void OnVideoEnded()
+    {
+        StartCoroutine(FadeOutAndStartGame());
+    }
+
+    // ã‚¹ã‚­ãƒƒãƒ—ãƒœã‚¿ãƒ³ç”¨
     public void Skip()
     {
         StopAllCoroutines();
+        
+        // BGMãŒã¾ã ãªã‚‰é–‹å§‹
+        if (!_bgmStarted && _conductor != null)
+        {
+            _conductor.enabled = true;
+            _bgmStarted = true;
+        }
+        
         StartCoroutine(FadeOutAndStartGame());
     }
 
     IEnumerator FadeOutAndStartGame()
     {
-        // š ƒXƒ|[ƒi[‚ÉuÄŠJ‚Í¡‚©‚çIv‚ğ’Ê’mi‚Ü‚Æ‚ß—N‚«–h~j
         foreach (var helper in FindObjectsOfType<PrologueSpawnerResumeHelper>())
-            helper.ResetScheduleBeats(); // Inspector‚Ì’liŠù’è0.75”j‚ğg—p
+            helper.ResetScheduleBeats();
 
-        // •ƒtƒF[ƒhiUnscaledj
         float t = 0f;
         while (t < fadeTime)
         {
@@ -128,6 +94,7 @@ public class PrologueOverlay : MonoBehaviour
             }
             yield return null;
         }
+        
         if (overlay != null)
         {
             overlay.alpha = 0f;
@@ -135,12 +102,12 @@ public class PrologueOverlay : MonoBehaviour
             overlay.interactable = false;
         }
 
-        // ’â‚ß‚Ä‚¢‚½ƒRƒ“ƒ|[ƒlƒ“ƒg‚ğÄŠJ
         foreach (var b in componentsToDisable)
             if (b != null) b.enabled = true;
 
-        // ƒQ[ƒ€ÄŠJ
-        Time.timeScale = 1f;
+        // ã‚²ãƒ¼ãƒ é–‹å§‹ã«å¿…è¦ãªã‚¹ã‚¯ãƒªãƒ—ãƒˆã‚’æœ‰åŠ¹åŒ–
+        if (_autoChartSpawner != null) _autoChartSpawner.enabled = true;
+        if (_cookingResult != null) _cookingResult.enabled = true;
 
         gameObject.SetActive(false);
     }

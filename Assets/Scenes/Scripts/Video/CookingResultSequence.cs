@@ -40,6 +40,7 @@ public class CookingResultSequence : MonoBehaviour
     public float settleWait = 0.05f;
 
     bool running;
+    bool initialized;
     double scheduledFireDsp = -1;
 
     // -------------------- 初期化 --------------------
@@ -90,8 +91,16 @@ public class CookingResultSequence : MonoBehaviour
         if (!jingleSource && resultRoot)
             jingleSource = resultRoot.GetComponent<AudioSource>() ?? resultRoot.GetComponentInChildren<AudioSource>(true);
 
-        // 秒トリガをスケジュール
-        ArmBySeconds();
+        initialized = true;
+    }
+
+    // タイマー開始を OnEnable に移動（プロローグ中は enabled=false なので呼ばれない）
+    void OnEnable()
+    {
+        if (initialized)
+        {
+            ArmBySeconds();
+        }
     }
 
     void ArmBySeconds()

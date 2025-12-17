@@ -1,46 +1,80 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Video;
-using System.IO;
 
-// VideoPlayer と AudioSource を自動で用意してくれる
-[RequireComponent(typeof(VideoPlayer), typeof(AudioSource))]
+[RequireComponent(typeof(VideoPlayer))]
 public class PrologueVideo : MonoBehaviour
 {
+    [Header("動画クリップ")]
+    public VideoClip videoClip;
+    
+    [Header("BGMフェード設定")]
+    public float bgmLeadTime = 3.9f;
+    
+    private VideoPlayer vp;
+    private PrologueOverlay overlay;
+    private bool hasEnded = false;
+    private bool bgmStarted = false;
+
     void Start()
     {
-        // 動画プレイヤーと音のスピーカーを取得
-        var vp  = GetComponent<VideoPlayer>();
-        var src = GetComponent<AudioSource>();
-
-        // 音を AudioSource から出すように設定
-        vp.audioOutputMode = VideoAudioOutputMode.AudioSource;
-        vp.SetTargetAudioSource(0, src);
-
-        // 動画の場所を指定（Assets/StreamingAssets/Prologue/intro.mp4）
-        var path = Path.Combine(Application.streamingAssetsPath, "Prologue", "intro.mp4");
-
-        // Android 以外では "file://" をつける
-        #if !UNITY_ANDROID
-        path = "file://" + path;
-        #endif
-
-        vp.source = VideoSource.Url;
-        vp.url    = path;
-
-        // 事前に準備してから再生（カクつき防止）
-        vp.prepareCompleted += _ => vp.Play();
-        vp.Prepare();
-
-        // 👇★追加ポイント★
-        // 動画が終わった瞬間に呼ばれるイベント
-        vp.loopPointReached += _ =>
+        vp = GetComponent<VideoPlayer>();
+        
+        if (videoClip == null)
         {
-            // PrologueOverlay（黒いふた）を見つけて「Skip()」を呼ぶ
-            var overlay = FindObjectOfType<PrologueOverlay>();
+            Debug.LogError("[PrologueVideo] VideoClip が設定されていません");
+            return;
+        }
+        
+        // VideoClip を使用
+        vp.source = VideoSource.VideoClip;
+        vp.clip = videoClip;
+        
+        // Direct Audio を使用（バッファオーバーフロー対策）
+        vp.audioOutputMode = VideoAudioOutputMode.Direct;
+        vp.playbackSpeed = 1f;
+        vp.isLooping = false;
+        vp.skipOnDrop = false;
+
+        overlay = FindObjectOfType<PrologueOverlay>();
+
+        vp.prepareCompleted += OnPrepared;
+        vp.loopPointReached += OnVideoEnd;
+        
+        vp.Prepare();
+    }
+
+    void OnPrepared(VideoPlayer source)
+    {
+        Debug.Log($"[PrologueVideo] Prepared. Duration: {vp.length} sec");
+        vp.Play();
+    }
+
+    void Update()
+    {
+        if (vp == null || !vp.isPlaying || hasEnded) return;
+        
+        double fadeStartTime = vp.length - bgmLeadTime;
+        if (!bgmStarted && vp.time >= fadeStartTime)
+        {
+            bgmStarted = true;
+            Debug.Log($"[PrologueVideo] Starting BGM at {vp.time:F1} sec");
             if (overlay != null)
             {
-                overlay.Skip();
+                overlay.StartBgmFadeIn(bgmLeadTime);
             }
-        };
+        }
+    }
+
+    void OnVideoEnd(VideoPlayer source)
+    {
+        if (hasEnded) return;
+        hasEnded = true;
+        
+        Debug.Log("[PrologueVideo] Video ended");
+        
+        if (overlay != null)
+        {
+            overlay.OnVideoEnded();
+        }
     }
 }
