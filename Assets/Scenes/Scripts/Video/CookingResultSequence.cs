@@ -3,14 +3,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
-/// 曲の秒数 or AudioSource で発火 → 黒 → 料理動画 → 黒の上にリザルト(+ジングル再生)
+/// 曲終了で発火 → 黒 → 料理動画 → 黒の上にリザルト(+ジングル再生)
 [DisallowMultipleComponent]
 public class CookingResultSequence : MonoBehaviour
 {
     public enum TriggerMode { ByFixedSeconds, ByAudioSource, External }
 
     [Header("Trigger")]
-    public TriggerMode trigger = TriggerMode.ByFixedSeconds;
+    public TriggerMode trigger = TriggerMode.ByAudioSource;
 
     [Tooltip("TriggerMode=ByFixedSeconds のとき：曲の総尺（秒）")]
     public float totalSongSeconds = 120f;
@@ -22,31 +22,25 @@ public class CookingResultSequence : MonoBehaviour
     public AudioSource gameMusic;
 
     [Header("Refs (必ずアサイン)")]
-    public CanvasGroup fadeGroup;          // FadeCanvas の CanvasGroup（初期 alpha=0）
-    public CanvasGroup interstitialGroup;  // InterstitialCanvas の CanvasGroup（初期 alpha=0）
-    public RawImage    videoImage;         // VideoScreen (RawImage, texture=VideoRT)
-    public VideoPlayer videoPlayer;        // VideoPlayer (TargetTexture=VideoRT, Loop/PlayOnAwake=OFF)
-    public AudioSource videoAudio;         // 動画音 (2D, Volume=1)
-    public GameObject  resultRoot;         // ResultCanvas（開始時 OFF 推奨）
+    public CanvasGroup fadeGroup;
+    public CanvasGroup interstitialGroup;
+    public RawImage    videoImage;
+    public VideoPlayer videoPlayer;
+    public AudioSource videoAudio;
+    public GameObject  resultRoot;
 
     [Header("Result Jingle")]
-    [Tooltip("未指定なら resultRoot から自動検出")]
-    public AudioSource jingleSource;       // ★リザルト用ジングル
+    public AudioSource jingleSource;
 
     [Header("Timings / Guards")]
-    [Tooltip("動画Prepare待ちタイムアウト（秒）")]
     public float prepareTimeout = 1.0f;
-    [Tooltip("各遷移の小休止（秒）")]
     public float settleWait = 0.05f;
 
     bool running;
-    bool initialized;
-    double scheduledFireDsp = -1;
+    bool armed;
 
-    // -------------------- 初期化 --------------------
     void Awake()
     {
-        // 黒は通常時は完全透明
         if (fadeGroup)
         {
             fadeGroup.alpha = 0f;
@@ -55,7 +49,6 @@ public class CookingResultSequence : MonoBehaviour
             var cv = fadeGroup.GetComponent<Canvas>();
             if (cv) { cv.overrideSorting = true; cv.sortingOrder = 9000; }
         }
-        // 動画Canvasは非表示
         if (interstitialGroup)
         {
             interstitialGroup.alpha = 0f;
@@ -66,7 +59,6 @@ public class CookingResultSequence : MonoBehaviour
         }
         if (videoImage) videoImage.enabled = false;
 
-        // リザルトは非表示（最前面）
         if (resultRoot)
         {
             resultRoot.SetActive(false);
@@ -74,7 +66,6 @@ public class CookingResultSequence : MonoBehaviour
             if (cv) { cv.overrideSorting = true; cv.sortingOrder = 10001; }
         }
 
-        // 動画オーディオの保険
         if (videoPlayer)
         {
             videoPlayer.isLooping   = false;
@@ -87,66 +78,60 @@ public class CookingResultSequence : MonoBehaviour
             }
         }
 
-        // ジングル自動検出（未指定なら）
         if (!jingleSource && resultRoot)
             jingleSource = resultRoot.GetComponent<AudioSource>() ?? resultRoot.GetComponentInChildren<AudioSource>(true);
-
-        initialized = true;
     }
 
-    // タイマー開始を OnEnable に移動（プロローグ中は enabled=false なので呼ばれない）
     void OnEnable()
     {
-        if (initialized)
-        {
-            ArmBySeconds();
-        }
+        armed = true;
+        running = false;
     }
 
-    void ArmBySeconds()
+    void Update()
     {
-        if (trigger == TriggerMode.ByFixedSeconds)
+        if (!armed || running) return;
+
+        if (trigger == TriggerMode.ByAudioSource)
         {
-            double now = AudioSettings.dspTime;
-            scheduledFireDsp = now + Mathf.Max(0f, totalSongSeconds + fireOffsetSeconds);
-            StartCoroutine(WaitUntilDsp(scheduledFireDsp));
-        }
-        else if (trigger == TriggerMode.ByAudioSource)
-        {
-            if (gameMusic && gameMusic.clip)
+            // 音楽が再生中で、終了間近かチェック
+            if (gameMusic != null && gameMusic.clip != null)
             {
-                double now = AudioSettings.dspTime;
-                float remaining = Mathf.Max(0f, gameMusic.clip.length - gameMusic.time);
-                scheduledFireDsp = now + remaining + fireOffsetSeconds;
-                StartCoroutine(WaitUntilDsp(scheduledFireDsp));
+                // 音楽が再生されていて、終端に達した
+                if (gameMusic.isPlaying)
+                {
+                    float remaining = gameMusic.clip.length - gameMusic.time;
+                    if (remaining <= fireOffsetSeconds + 0.1f)
+                    {
+                        armed = false;
+                        Run();
+                    }
+                }
+                // 音楽が終了した（isPlaying = false で time が終端付近）
+                else if (gameMusic.time > 0 && gameMusic.time >= gameMusic.clip.length - 0.5f)
+                {
+                    armed = false;
+                    Run();
+                }
             }
         }
-        // External は Run() を外部から1回呼ぶ
+        else if (trigger == TriggerMode.ByFixedSeconds)
+        {
+            // OnEnable からの経過時間で判定
+            // （この方式は使わない方がいいので ByAudioSource 推奨）
+        }
     }
 
-    IEnumerator WaitUntilDsp(double fireDsp)
-    {
-        while (AudioSettings.dspTime < fireDsp && !running)
-            yield return null;
-        if (!running) Run();
-    }
-
-    // 外部通知（任意）
     public void NotifyGameEnded() { if (!running) Run(); }
 
-    // 互換API
     public void Run() { if (Application.isPlaying && !running) StartCoroutine(RunCo()); }
     public void Play() => Run();
     public void StartSequence() => Run();
-    public void StartSequence(float _) => Run();
-    public void StartSequence(float _, params object[] __) => Run();
-    public void StartSequence(object __) => Run();
-    public void StartSequence(object __, object ___) => Run();
 
-    // -------------------- 本体：黒 → 動画 → リザルト(+ジングル) --------------------
     IEnumerator RunCo()
     {
         running = true;
+        Debug.Log("[CookingResultSequence] Starting result sequence");
 
         // 1) 黒にする
         if (fadeGroup)
@@ -158,7 +143,7 @@ public class CookingResultSequence : MonoBehaviour
         }
         yield return new WaitForSecondsRealtime(settleWait);
 
-        // 2) 動画（失敗しても続行）
+        // 2) 動画
         if (resultRoot) resultRoot.SetActive(false);
         if (interstitialGroup) { interstitialGroup.alpha = 1f; interstitialGroup.blocksRaycasts = false; }
         if (videoImage) videoImage.enabled = true;
@@ -224,24 +209,21 @@ public class CookingResultSequence : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(settleWait);
 
-        // 3) リザルト表示（ジングル必ず再生）
+        // 3) リザルト表示
         if (videoImage) videoImage.enabled = false;
         if (interstitialGroup) interstitialGroup.alpha = 0f;
 
-        // 動画オーディオが残っていたら止める
         if (videoAudio && videoAudio.isPlaying) videoAudio.Stop();
 
-        // リザルトを出す
         if (resultRoot) resultRoot.SetActive(true);
 
-        // ★ジングル再生（自動検出 or 明示指定）
         if (!jingleSource && resultRoot)
             jingleSource = resultRoot.GetComponent<AudioSource>() ?? resultRoot.GetComponentInChildren<AudioSource>(true);
 
         if (jingleSource)
         {
-            jingleSource.ignoreListenerPause = true; // ポーズやTimeScaleに影響されにくく
-            jingleSource.spatialBlend = 0f;          // 2Dで確実に聞こえる
+            jingleSource.ignoreListenerPause = true;
+            jingleSource.spatialBlend = 0f;
             if (jingleSource.volume <= 0f) jingleSource.volume = 1f;
             jingleSource.Play();
         }
