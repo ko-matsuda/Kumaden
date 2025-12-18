@@ -14,8 +14,8 @@ public class AutoChartSpawner : MonoBehaviour
     [Header("ノーツプレハブ（Milk/Flour/Egg の順）")]
     public NoteBehaviour[] notePrefabs;
 
-    [Header("ホールドノート")]
-    public GameObject linkedHoldNotePrefab;
+    [Header("ホールドノート（Milk/Flour/Egg の順）")]
+    public GameObject[] linkedHoldNotePrefabs;
     [Range(0f, 1f)] public float holdNoteProbability = 0.1f;
     [Tooltip("ホールドノートの長さ（拍数）")]
     public float holdNoteDurationBeats = 4f;
@@ -150,7 +150,7 @@ public class AutoChartSpawner : MonoBehaviour
         if (candidates.Count == 0) return;
 
         // ホールドノートを生成するか判定
-        bool spawnHold = linkedHoldNotePrefab != null && 
+        bool spawnHold = linkedHoldNotePrefabs != null && linkedHoldNotePrefabs.Length > 0 && 
                          (float)rng.NextDouble() < holdNoteProbability;
 
         if (spawnHold)
@@ -198,9 +198,14 @@ public class AutoChartSpawner : MonoBehaviour
         note.Init(scrollSpeed, judgeZ, lingerDistance, lane, prefab.Type);
     }
 
-    private void SpawnHoldNote(int lane, float startBeat)
+private void SpawnHoldNote(int lane, float startBeat)
     {
-        if (linkedHoldNotePrefab == null) return;
+        if (linkedHoldNotePrefabs == null || linkedHoldNotePrefabs.Length == 0) return;
+
+        // レーンに対応したプレハブを選択
+        int prefabIndex = Mathf.Clamp(lane, 0, linkedHoldNotePrefabs.Length - 1);
+        var holdPrefab = linkedHoldNotePrefabs[prefabIndex];
+        if (holdPrefab == null) return;
 
         // BPMから拍数を秒に変換
         float bps = conductor.bpm / 60f;
@@ -209,13 +214,11 @@ public class AutoChartSpawner : MonoBehaviour
 
         // StartNote の位置
         float startZ = spawnZ;
-        // EndNote の位置（StartNote より奥）
-        float endZ = spawnZ + distanceZ;
 
         Vector3 holdPos = new Vector3(laneX[lane], laneY, startZ);
         
         // LinkedHoldNote をインスタンス化
-        var holdObj = Instantiate(linkedHoldNotePrefab, holdPos, Quaternion.identity, spawnRoot);
+        var holdObj = Instantiate(holdPrefab, holdPos, Quaternion.identity, spawnRoot);
 
         // StartNote と EndNote の位置を設定
         Transform startNote = holdObj.transform.Find("StartNote");
@@ -261,7 +264,6 @@ public class AutoChartSpawner : MonoBehaviour
         // HoldTickPulse の Events を設定
         if (holdTickPulseComponent != null)
         {
-            // HudCounterBinder を探して設定
             var hudCounterBinder = FindObjectOfType<HudCounterBinder>();
             if (hudCounterBinder != null)
             {
@@ -270,7 +272,6 @@ public class AutoChartSpawner : MonoBehaviour
                 holdTickPulseComponent.OnExit.AddListener(hudCounterBinder.OnHoldExit);
             }
 
-            // ComboProbe を探して設定
             var comboProbe = FindObjectOfType<ComboProbe>();
             if (comboProbe != null)
             {

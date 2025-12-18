@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class Pickup : MonoBehaviour
 {
@@ -107,7 +107,7 @@ public class Pickup : MonoBehaviour
 
         if (judge == "PERFECT" || judge == "GOOD")
         {
-            if (hudCounterBinder != null) hudCounterBinder.OnNormalNote();
+            if (hudCounterBinder != null) hudCounterBinder.OnNormalNote(note.laneIndex);
             if (comboProbe != null) comboProbe.OnNormalNote();
             LaneController.Instance?.HighlightLane(note.laneIndex, 0.2f);
         }

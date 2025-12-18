@@ -4553,7 +4553,10 @@ MonoBehaviour:
   - {fileID: -5061303110908459532, guid: 118e31a6b1531a44da5a00462d606b32, type: 3}
   - {fileID: 2260780714683258190, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
   - {fileID: -9046518638822966828, guid: 4fa3650ca6181984aba4facbe1705289, type: 3}
-  linkedHoldNotePrefab: {fileID: 6694813725552871513, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+  linkedHoldNotePrefabs:
+  - {fileID: 6694813725552871513, guid: 510c7982a6cda6845822aeded1c23fa8, type: 3}
+  - {fileID: 6694813725552871513, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+  - {fileID: 6694813725552871513, guid: 51c4e6d5c3985f3469b8642269cd836d, type: 3}
   holdNoteProbability: 0.1
   holdNoteDurationBeats: 16
   laneX:
@@ -17861,7 +17864,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 519f09dcfef813642b24b77b124607cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::CookingResultSequence
-  trigger: 0
+  trigger: 1
   totalSongSeconds: 108
   fireOffsetSeconds: 0
   gameMusic: {fileID: 538003175}
