@@ -237,4 +237,17 @@ public class ChartSpawner : MonoBehaviour
     {
         nextNoteIndex = 0;
     }
+
+
+/// <summary>
+    /// ゲーム開始時点でのBGMオフセット（拍数）
+    /// プロローグ動画中にBGMが先行開始するため
+    /// </summary>
+    public float GetBgmOffsetBeats()
+    {
+        // bgmLeadTime = 3.9秒、BPM = 163
+        // 3.9秒 × (163/60) = 約10.6拍
+        float bps = conductor != null ? conductor.bpm / 60f : 163f / 60f;
+        return 3.9f * bps;
+    }
 }
