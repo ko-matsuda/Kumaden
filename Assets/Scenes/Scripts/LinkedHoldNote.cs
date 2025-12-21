@@ -190,7 +190,7 @@ public class LinkedHoldNote : MonoBehaviour
         }
     }
 
-    private void TryAutoDetect()
+private void TryAutoDetect()
     {
         if (player == null)
         {
@@ -209,8 +209,8 @@ public class LinkedHoldNote : MonoBehaviour
             endNote = transform.Find("EndNote");
         }
 
-        // WorldRibbon_Runtimeからマテリアルをコピーする
-        if (sourceLineRenderer == null)
+        // ribbonMaterialが設定されていない場合のみ、WorldRibbon_Runtimeからマテリアルをコピーする
+        if (ribbonMaterial == null && sourceLineRenderer == null)
         {
             var wr = GameObject.Find("WorldRibbon_Runtime");
             if (wr != null)

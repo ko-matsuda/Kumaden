@@ -4533,7 +4533,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &420155180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13139,72 +13139,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5338813825018829004, guid: f1f9599428762e146981865a602fd1dc, type: 3}
   m_PrefabInstance: {fileID: 1344967319}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1350261112
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1350261114}
-  - component: {fileID: 1350261113}
-  m_Layer: 0
-  m_Name: ChartSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1350261113
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1350261112}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24b31b6726070344296d8c9f610af48f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::ChartSpawner
-  conductor: {fileID: 538003176}
-  spawnRoot: {fileID: 1190428245}
-  musicSource: {fileID: 538003175}
-  notePrefabs:
-  - {fileID: -5061303110908459532, guid: 118e31a6b1531a44da5a00462d606b32, type: 3}
-  - {fileID: 2260780714683258190, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
-  - {fileID: -9046518638822966828, guid: 4fa3650ca6181984aba4facbe1705289, type: 3}
-  linkedHoldNotePrefabs:
-  - {fileID: 6694813725552871513, guid: 510c7982a6cda6845822aeded1c23fa8, type: 3}
-  - {fileID: 6694813725552871513, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
-  - {fileID: 6694813725552871513, guid: 51c4e6d5c3985f3469b8642269cd836d, type: 3}
-  chartFile: {fileID: 4900000, guid: a1633016c4f6a1a479213a6f313cb0da, type: 3}
-  laneX:
-  - -1.6
-  - 0
-  - 1.6
-  laneY: 1
-  spawnZ: 30
-  judgeZ: 1.5
-  scrollSpeed: 12
-  lingerDistance: 3
-  spawnAheadBeats: 8
---- !u!4 &1350261114
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1350261112}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.16888, y: 0, z: 3.07626}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1352201784
 GameObject:
   m_ObjectHideFlags: 0
@@ -20869,6 +20803,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2021122109}
   - component: {fileID: 2021122110}
+  - component: {fileID: 2021122112}
   - component: {fileID: 2021122111}
   m_Layer: 5
   m_Name: RankText
@@ -20995,6 +20930,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &2021122112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2021122108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1df6147dbbd8364393ac8979251454b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::RankFixer
+  rankText: {fileID: 2021122111}
 --- !u!1001 &2026104686
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23142,4 +23090,3 @@ SceneRoots:
   - {fileID: 280365849}
   - {fileID: 1313642958}
   - {fileID: 482702967}
-  - {fileID: 1350261114}

@@ -128,10 +128,13 @@ public class CookingResultSequence : MonoBehaviour
     public void Play() => Run();
     public void StartSequence() => Run();
 
-    IEnumerator RunCo()
+IEnumerator RunCo()
     {
         running = true;
         Debug.Log("[CookingResultSequence] Starting result sequence");
+
+        // ★ ScoreManagerLite からデータを取得して ResultStore に保存
+        SaveResultData();
 
         // 1) 黒にする
         if (fadeGroup)
@@ -229,5 +232,35 @@ public class CookingResultSequence : MonoBehaviour
         }
 
         running = false;
+    }
+
+
+void SaveResultData()
+    {
+        var score = ScoreManagerLite.Instance;
+        if (score == null)
+        {
+            Debug.LogWarning("[CookingResultSequence] ScoreManagerLite not found");
+            return;
+        }
+
+        int perfect = score.PerfectCount;
+        int good = score.GoodCount;
+        int miss = score.MissCount;
+        int maxCombo = score.MaxChain;
+        int milk = score.MilkCount;
+        int flour = score.FlourCount;
+        int egg = score.EggCount;
+        float playTime = Time.timeSinceLevelLoad;
+
+        // ランク計算
+        string rank;
+        if (miss == 0 && good <= 5) rank = "S";
+        else if (miss <= 3) rank = "A";
+        else if (miss <= 10) rank = "B";
+        else rank = "C";
+
+        ResultStore.Save(maxCombo, perfect, good, miss, egg, flour, milk, rank, playTime);
+        Debug.Log($"[CookingResultSequence] Saved result: P={perfect} G={good} M={miss} Combo={maxCombo} Rank={rank}");
     }
 }
