@@ -58,9 +58,25 @@ public class Pickup : MonoBehaviour
             return;
         }
 
-        // ホールド終了
+        // ホールド終了 - Colliderの中心がPlayerの中心を通過したら判定
         if (other.CompareTag("LinkedHoldEnd"))
         {
+            if (playerBox == null) return;
+            
+            // PlayerのCollider中心位置を取得
+            Vector3 playerCenter = transform.TransformPoint(playerBox.center);
+            float playerCenterZ = playerCenter.z;
+            
+            // EndNoteの中心位置を取得
+            float endNoteCenterZ = other.bounds.center.z;
+            
+            // EndNoteがまだPlayerより前にある場合は判定しない
+            if (endNoteCenterZ > playerCenterZ)
+            {
+                if (printDebug) Debug.Log($"[Pickup] EndNote too early: endZ={endNoteCenterZ:F2}, playerZ={playerCenterZ:F2}");
+                return;
+            }
+            
             if (holdTickPulse != null)
             {
                 holdTickPulse.StopTick();

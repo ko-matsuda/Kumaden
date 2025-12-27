@@ -43,21 +43,11 @@ public class ComboProbe : MonoBehaviour
         UpdateUI();
     }
 
-    public void OnHoldTick()
+public void OnHoldTick()
     {
-        if (!isCountingCombo)
-        {
-            return;
-        }
-
-        frameCounter++;
-        if (frameCounter >= tickInterval)
-        {
-            currentComboCount++;
-            Debug.Log($"[ComboProbe] COMBO count increased: {currentComboCount}");
-            frameCounter = 0;
-            UpdateUI();
-        }
+        currentComboCount++;
+        Debug.Log($"[ComboProbe] COMBO count increased: {currentComboCount}");
+        UpdateUI();
     }
 
     public void OnHoldExit()

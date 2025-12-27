@@ -4265,7 +4265,6 @@ GameObject:
   m_Component:
   - component: {fileID: 376677634}
   - component: {fileID: 376677633}
-  - component: {fileID: 376677635}
   m_Layer: 0
   m_Name: HoldComboCounter
   m_TagString: Untagged
@@ -4309,33 +4308,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &376677635
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 376677632}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ae14796f8dc7b74492fcc99b320d571, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::HoldTickPulse
-  perFrame: 0
-  tickRateHz: 2.5
-  useGating: 1
-  isGated: 1
-  laneIndex: 0
-  OnTick:
-    m_PersistentCalls:
-      m_Calls: []
-  OnEnter:
-    m_PersistentCalls:
-      m_Calls: []
-  OnExit:
-    m_PersistentCalls:
-      m_Calls: []
-  debugLog: 1
 --- !u!1 &376802099
 GameObject:
   m_ObjectHideFlags: 0

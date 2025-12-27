@@ -97,6 +97,9 @@ public class HudCounterBinder : MonoBehaviour
         UpdateUI();
     }
 
+    /// <summary>
+    /// HoldTickPulseから呼ばれるメソッド（フレームカウント方式）
+    /// </summary>
     public void OnHoldTick()
     {
         if (!isCounting)
@@ -135,6 +138,29 @@ public class HudCounterBinder : MonoBehaviour
             frameCounter = 0;
             UpdateUI();
         }
+    }
+
+    /// <summary>
+    /// レーンを指定してホールドカウント（LinkedHoldNoteから直接呼ばれる）
+    /// </summary>
+    public void OnHoldTick(int lane)
+    {
+        switch (lane)
+        {
+            case 0:
+                currentMilkCount++;
+                Debug.Log($"[HudCounterBinder] Hold tick - Milk count: {currentMilkCount}");
+                break;
+            case 1:
+                currentFlourCount++;
+                Debug.Log($"[HudCounterBinder] Hold tick - Flour count: {currentFlourCount}");
+                break;
+            case 2:
+                currentEggCount++;
+                Debug.Log($"[HudCounterBinder] Hold tick - Egg count: {currentEggCount}");
+                break;
+        }
+        UpdateUI();
     }
 
     public void OnHoldExit()

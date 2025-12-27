@@ -1,4 +1,4 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 using System.Collections;
 
@@ -77,6 +77,20 @@ public class ScoreManagerLite : MonoBehaviour
 
         UpdateUI();
     }
+
+    /// <summary>ホールドノート用：直接スコアを加算（判定なし）</summary>
+    /// <summary>ホールドノート用：直接スコアを加算（判定なし）</summary>
+    /// <summary>ホールドノート用：直接スコアを加算（判定なし）</summary>
+    public void AddScore(int amount)
+    {
+        // ホールド中もコンボを継続（PERFECTと同じ扱い）
+        perfectCount++;
+        combo++;
+        if (combo > maxChain) maxChain = combo;
+        
+        UpdateUI();
+    }
+
 
     private void GainItemAndCombo(IngredientType type)
     {

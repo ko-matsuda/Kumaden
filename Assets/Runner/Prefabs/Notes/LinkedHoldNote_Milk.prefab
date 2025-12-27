@@ -55,7 +55,11 @@ MonoBehaviour:
   ribbonMaterial: {fileID: 2100000, guid: e62dc8e9a3033a543ae78f7347705f18, type: 2}
   sourceLineRenderer: {fileID: 0}
   ribbonColor: {r: 1, g: 1, b: 1, a: 1}
-  debugLog: 0
+  laneIndex: 0
+  tickInterval: 0.2
+  tickScore: 10
+  tickSound: {fileID: 8300000, guid: 419ac77019cc0744f8ed8293200952b2, type: 3}
+  debugLog: 1
 --- !u!114 &7421127826966523186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,7 +73,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::HoldTickPulse
   perFrame: 0
-  tickRateHz: 5
+  tickRateHz: 2.5
   useGating: 1
   isGated: 1
   laneIndex: 0

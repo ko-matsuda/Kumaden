@@ -43,7 +43,7 @@ public class ChartSpawner : MonoBehaviour
     {
         public float beat;      // 何拍目に出現するか
         public int lane;        // 0=Milk(左), 1=Flour(中), 2=Egg(右)
-        public float hold;      // ホールドノートの長さ（拍数）、0なら通常ノート
+        public float duration;      // ホールドノートの長さ（拍数）、0なら通常ノート
     }
 
     [System.Serializable]
@@ -115,13 +115,13 @@ public class ChartSpawner : MonoBehaviour
         }
     }
 
-    void SpawnNote(NoteData noteData)
+        void SpawnNote(NoteData noteData)
     {
         int lane = Mathf.Clamp(noteData.lane, 0, laneX.Length - 1);
 
-        if (noteData.hold > 0)
+        if (noteData.duration > 0)
         {
-            SpawnHoldNote(lane, noteData.hold);
+            SpawnHoldNote(lane, noteData.duration);
         }
         else
         {
@@ -142,7 +142,7 @@ public class ChartSpawner : MonoBehaviour
         note.Init(scrollSpeed, judgeZ, lingerDistance, lane, prefab.Type);
     }
 
-    void SpawnHoldNote(int lane, float durationBeats)
+void SpawnHoldNote(int lane, float durationBeats)
     {
         if (linkedHoldNotePrefabs == null || linkedHoldNotePrefabs.Length == 0) return;
 
@@ -159,17 +159,11 @@ public class ChartSpawner : MonoBehaviour
         
         var holdObj = Instantiate(holdPrefab, holdPos, Quaternion.identity, spawnRoot);
 
-        // StartNote と EndNote の位置を設定
+        // StartNote の位置を設定
         Transform startNote = holdObj.transform.Find("StartNote");
-        Transform endNote = holdObj.transform.Find("EndNote");
-
         if (startNote != null)
         {
             startNote.localPosition = new Vector3(0, 0, 0);
-        }
-        if (endNote != null)
-        {
-            endNote.localPosition = new Vector3(0, 0, distanceZ);
         }
 
         // コンポーネント設定
@@ -179,6 +173,9 @@ public class ChartSpawner : MonoBehaviour
         if (linkedHoldNoteComponent != null)
         {
             linkedHoldNoteComponent.scrollSpeed = scrollSpeed;
+            linkedHoldNoteComponent.laneIndex = lane;
+            // 新しいメソッドでEndNoteの位置を設定
+            linkedHoldNoteComponent.SetEndNoteDistance(distanceZ);
         }
         
         if (holdTickPulseComponent != null)
@@ -198,27 +195,7 @@ public class ChartSpawner : MonoBehaviour
             }
         }
 
-        // HoldTickPulse の Events を設定
-        if (holdTickPulseComponent != null)
-        {
-            var hudCounterBinder = FindObjectOfType<HudCounterBinder>();
-            if (hudCounterBinder != null)
-            {
-                holdTickPulseComponent.OnTick.AddListener(hudCounterBinder.OnHoldTick);
-                holdTickPulseComponent.OnEnter.AddListener(hudCounterBinder.OnHoldEnter);
-                holdTickPulseComponent.OnExit.AddListener(hudCounterBinder.OnHoldExit);
-            }
-
-            var comboProbe = FindObjectOfType<ComboProbe>();
-            if (comboProbe != null)
-            {
-                holdTickPulseComponent.OnTick.AddListener(comboProbe.OnHoldTick);
-                holdTickPulseComponent.OnEnter.AddListener(comboProbe.OnHoldEnter);
-                holdTickPulseComponent.OnExit.AddListener(comboProbe.OnHoldExit);
-            }
-        }
-
-        Debug.Log($"[ChartSpawner] Spawned HoldNote at lane {lane}, duration {durationBeats} beats");
+        Debug.Log($"[ChartSpawner] Spawned HoldNote at lane {lane}, duration {durationBeats} beats, distanceZ={distanceZ:F2}, durationSec={durationSec:F2}");
     }
 
     void TryAutoMatchJudgeZToPlayer()
@@ -238,8 +215,7 @@ public class ChartSpawner : MonoBehaviour
         nextNoteIndex = 0;
     }
 
-
-/// <summary>
+    /// <summary>
     /// ゲーム開始時点でのBGMオフセット（拍数）
     /// プロローグ動画中にBGMが先行開始するため
     /// </summary>
