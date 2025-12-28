@@ -41,9 +41,9 @@ public class ChartSpawner : MonoBehaviour
     [System.Serializable]
     public class NoteData
     {
-        public float beat;      // 何拍目に出現するか
-        public int lane;        // 0=Milk(左), 1=Flour(中), 2=Egg(右)
-        public float duration;      // ホールドノートの長さ（拍数）、0なら通常ノート
+        public float beat;
+        public int lane;
+        public float duration;
     }
 
     [System.Serializable]
@@ -72,7 +72,6 @@ public class ChartSpawner : MonoBehaviour
         float currentBeat = conductor.songPositionBeats;
         float spawnBeat = currentBeat + spawnAheadBeats;
 
-        // 次に生成すべきノーツをチェック
         while (nextNoteIndex < chartData.notes.Length)
         {
             NoteData note = chartData.notes[nextNoteIndex];
@@ -103,7 +102,6 @@ public class ChartSpawner : MonoBehaviour
             
             if (chartData != null && chartData.notes != null)
             {
-                // 拍数でソート
                 System.Array.Sort(chartData.notes, (a, b) => a.beat.CompareTo(b.beat));
                 chartLoaded = true;
                 Debug.Log($"[ChartSpawner] 譜面読み込み完了: {chartData.notes.Length}ノーツ, BPM={chartData.bpm}");
@@ -115,7 +113,7 @@ public class ChartSpawner : MonoBehaviour
         }
     }
 
-        void SpawnNote(NoteData noteData)
+    void SpawnNote(NoteData noteData)
     {
         int lane = Mathf.Clamp(noteData.lane, 0, laneX.Length - 1);
 
@@ -142,7 +140,7 @@ public class ChartSpawner : MonoBehaviour
         note.Init(scrollSpeed, judgeZ, lingerDistance, lane, prefab.Type);
     }
 
-void SpawnHoldNote(int lane, float durationBeats)
+    void SpawnHoldNote(int lane, float durationBeats)
     {
         if (linkedHoldNotePrefabs == null || linkedHoldNotePrefabs.Length == 0) return;
 
@@ -150,23 +148,43 @@ void SpawnHoldNote(int lane, float durationBeats)
         var holdPrefab = linkedHoldNotePrefabs[prefabIndex];
         if (holdPrefab == null) return;
 
-        // BPMから拍数を秒に変換
         float bps = conductor.bpm / 60f;
         float durationSec = durationBeats / bps;
         float distanceZ = durationSec * scrollSpeed;
 
         Vector3 holdPos = new Vector3(laneX[lane], laneY, spawnZ);
-        
         var holdObj = Instantiate(holdPrefab, holdPos, Quaternion.identity, spawnRoot);
 
-        // StartNote の位置を設定
         Transform startNote = holdObj.transform.Find("StartNote");
         if (startNote != null)
         {
             startNote.localPosition = new Vector3(0, 0, 0);
         }
 
-        // コンポーネント設定
+        Transform endNote = holdObj.transform.Find("EndNote");
+        if (endNote != null)
+        {
+            var holdEnd = endNote.gameObject.AddComponent<HoldNoteEnd>();
+            
+            BoxCollider endCollider = endNote.GetComponent<BoxCollider>();
+            if (endCollider == null)
+            {
+                endCollider = endNote.gameObject.AddComponent<BoxCollider>();
+                endCollider.size = new Vector3(1f, 1f, 1f);
+            }
+            endCollider.isTrigger = true;
+            
+            Rigidbody endRb = endNote.GetComponent<Rigidbody>();
+            if (endRb == null)
+            {
+                endRb = endNote.gameObject.AddComponent<Rigidbody>();
+            }
+            endRb.isKinematic = true;
+            endRb.useGravity = false;
+            
+            Debug.Log($"[ChartSpawner] EndNote setup - HoldNoteEnd attached, Collider={endCollider.size}, Trigger={endCollider.isTrigger}");
+        }
+
         var linkedHoldNoteComponent = holdObj.GetComponent<LinkedHoldNote>();
         var holdTickPulseComponent = holdObj.GetComponent<HoldTickPulse>();
         
@@ -174,7 +192,6 @@ void SpawnHoldNote(int lane, float durationBeats)
         {
             linkedHoldNoteComponent.scrollSpeed = scrollSpeed;
             linkedHoldNoteComponent.laneIndex = lane;
-            // 新しいメソッドでEndNoteの位置を設定
             linkedHoldNoteComponent.SetEndNoteDistance(distanceZ);
         }
         
@@ -184,7 +201,6 @@ void SpawnHoldNote(int lane, float durationBeats)
         }
         
         var player = GameObject.Find("Player");
-        
         if (player != null)
         {
             var pickup = player.GetComponent<Pickup>();
@@ -209,20 +225,13 @@ void SpawnHoldNote(int lane, float durationBeats)
         judgeZ = playerZ;
     }
 
-    // 外部からリセット用
     public void ResetChart()
     {
         nextNoteIndex = 0;
     }
 
-    /// <summary>
-    /// ゲーム開始時点でのBGMオフセット（拍数）
-    /// プロローグ動画中にBGMが先行開始するため
-    /// </summary>
     public float GetBgmOffsetBeats()
     {
-        // bgmLeadTime = 3.9秒、BPM = 163
-        // 3.9秒 × (163/60) = 約10.6拍
         float bps = conductor != null ? conductor.bpm / 60f : 163f / 60f;
         return 3.9f * bps;
     }

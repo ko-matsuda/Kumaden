@@ -68,6 +68,9 @@ public void OnHoldTick()
         UpdateUI();
     }
 
+public void OnNoteMiss() { Debug.Log("[ComboProbe] OnNoteMiss - Miss detected"); ResetCombo(); }
+
+
     private void UpdateUI()
     {
         if (comboText != null)

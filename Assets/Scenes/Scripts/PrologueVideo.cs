@@ -21,13 +21,12 @@ public class PrologueVideo : MonoBehaviour
         vp = GetComponent<VideoPlayer>();
         audioSource = GetComponent<AudioSource>();
         
-        // AudioSource の設定
         audioSource.playOnAwake = false;
         audioSource.spatialBlend = 0f;
         audioSource.volume = 1f;
     }
 
-void Start()
+    void Start()
     {
         if (videoClip == null)
         {
@@ -39,7 +38,6 @@ void Start()
         var audioSource = GetComponent<AudioSource>();
         
         vp.source = VideoSource.VideoClip;
-        vp.clip = videoClip;
         
         if (audioSource != null)
         {
@@ -63,13 +61,25 @@ void Start()
         vp.prepareCompleted += OnPrepared;
         vp.loopPointReached += OnVideoEnd;
         
-        vp.Prepare();
+        var cleaner = GetComponent<VideoPlayerCleaner>();
+        if (cleaner != null)
+        {
+            cleaner.PlayClean(videoClip);
+        }
+        else
+        {
+            vp.clip = videoClip;
+            vp.Prepare();
+        }
     }
 
     void OnPrepared(VideoPlayer source)
     {
         Debug.Log($"[PrologueVideo] Prepared. Duration: {vp.length} sec");
-        vp.Play();
+        if (GetComponent<VideoPlayerCleaner>() == null)
+        {
+            vp.Play();
+        }
     }
 
     void Update()

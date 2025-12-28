@@ -62,95 +62,9 @@ public class LinkedHoldNote : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (!hasEnded)
-        {
-            transform.position += Vector3.back * scrollSpeed * Time.deltaTime;
-        }
+void Update() { if (!hasEnded) { transform.position += Vector3.back * scrollSpeed * Time.deltaTime; } if (player == null || ribbonLine == null) return; if (isHolding) { tickTimer += Time.deltaTime; if (tickTimer >= tickInterval) { tickTimer = 0f; AddTickScore(); } } if (hasEnded) { ribbonLine.enabled = false; return; } Vector3 start; if (startNote != null && startNote.gameObject.activeInHierarchy) { start = startNote.position; cachedStartPos = start; } else { startNoteDestroyed = true; start = cachedStartPos; } Vector3 end; if (endNote != null && endNote.gameObject.activeInHierarchy) { end = endNote.position; } else { HideRibbon(); return; } float playerZ = player.position.z; if (startNoteDestroyed && !isHolding) { isHolding = true; tickTimer = 0f; if (debugLog) Debug.Log("[Ribbon] Hold started"); } if (startNoteDestroyed && !hasStarted) { hasStarted = true; if (debugLog) Debug.Log("[Ribbon] StartNote destroyed - shrinking started"); } else if (!startNoteDestroyed && start.z <= playerZ && !hasStarted) { hasStarted = true; if (!isHolding) { if (debugLog) Debug.Log("[LinkedHoldNote] MISS - StartNote passed without holding"); var comboProbe = FindObjectOfType<ComboProbe>(); if (comboProbe != null) { comboProbe.OnNoteMiss(); } var scoreMgr = ScoreManagerLite.Instance; if (scoreMgr != null) { scoreMgr.OnPick(IngredientType.Milk, "MISS"); } if (startNote != null) Destroy(startNote.gameObject); if (endNote != null) Destroy(endNote.gameObject); hasEnded = true; HideRibbon(); Destroy(gameObject, 0.1f); return; } if (debugLog) Debug.Log("[Ribbon] StartNote passed player"); } if (end.z <= playerZ) { HideRibbon(); return; } if (!hasStarted) { ribbonLine.SetPosition(0, start); ribbonLine.SetPosition(1, end); } else { Vector3 head = new Vector3(cachedStartPos.x, cachedStartPos.y, playerZ); ribbonLine.SetPosition(0, head); ribbonLine.SetPosition(1, end); } }
 
-        if (player == null || ribbonLine == null) return;
-        
-        if (isHolding)
-        {
-            tickTimer += Time.deltaTime;
-            if (tickTimer >= tickInterval)
-            {
-                tickTimer = 0f;
-                AddTickScore();
-            }
-        }
-
-        if (hasEnded)
-        {
-            ribbonLine.enabled = false;
-            return;
-        }
-
-        Vector3 start;
-        if (startNote != null && startNote.gameObject.activeInHierarchy)
-        {
-            start = startNote.position;
-            cachedStartPos = start;
-        }
-        else
-        {
-            startNoteDestroyed = true;
-            start = cachedStartPos;
-        }
-
-        Vector3 end;
-        if (endNote != null && endNote.gameObject.activeInHierarchy)
-        {
-            end = endNote.position;
-        }
-        else
-        {
-            HideRibbon();
-            return;
-        }
-
-        float playerZ = player.position.z;
-
-        if (startNoteDestroyed && !isHolding)
-        {
-            isHolding = true;
-            tickTimer = 0f;
-            if (debugLog) Debug.Log("[Ribbon] Hold started");
-        }
-
-        if (startNoteDestroyed && !hasStarted)
-        {
-            hasStarted = true;
-            if (debugLog) Debug.Log("[Ribbon] StartNote destroyed - shrinking started");
-        }
-        else if (!startNoteDestroyed && start.z <= playerZ && !hasStarted)
-        {
-            hasStarted = true;
-            if (debugLog) Debug.Log("[Ribbon] StartNote passed player");
-        }
-
-        if (debugLog) Debug.Log($"[Ribbon] Check end.z={end.z:F2}, playerZ={playerZ:F2}, distance={(end.z - playerZ):F2}");
-        if (end.z <= playerZ)
-        {
-            HideRibbon();
-            return;
-        }
-
-        if (!hasStarted)
-        {
-            ribbonLine.SetPosition(0, start);
-            ribbonLine.SetPosition(1, end);
-        }
-        else
-        {
-            Vector3 head = new Vector3(cachedStartPos.x, cachedStartPos.y, playerZ);
-            ribbonLine.SetPosition(0, head);
-            ribbonLine.SetPosition(1, end);
-        }
-    }
-
-    public void HideRibbon()
+        public void HideRibbon()
     {
         if (debugLog) Debug.Log($"[Ribbon] HideRibbon called - isHolding was: {isHolding}");
         hasEnded = true;
@@ -160,6 +74,9 @@ public class LinkedHoldNote : MonoBehaviour
             ribbonLine.enabled = false;
         }
     }
+
+public bool IsHolding() { return isHolding; }
+
 
     void OnDisable()
     {
