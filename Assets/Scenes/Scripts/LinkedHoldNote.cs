@@ -59,13 +59,41 @@ public class LinkedHoldNote : MonoBehaviour
     [SerializeField, Range(2, 8), Tooltip("何拍に1回強調するか（4=小節頭のみ）")]
     private int beatAccentInterval = 4;
 
+    [Header("End締まり表現（完了感の演出）")]
+    [SerializeField, Range(0.25f, 0.4f), Tooltip("締まり演出の持続時間（秒・推奨0.3）")]
+    private float endCloseDuration = 0.3f;
+    
+    [SerializeField, Range(0.85f, 0.95f), Tooltip("締まり時の太さ倍率（85〜90%推奨）")]
+    private float endCloseWidthMultiplier = 0.87f;
+    
+    [SerializeField, Range(0.0f, 0.08f), Tooltip("締まり時の明度上乗せ（+5%推奨・なしも可）")]
+    private float endCloseBrightness = 0.05f;
+
+    [Header("成功SE（3種類・音量調整済み）")]
+    [SerializeField, Tooltip("Start成功時の確認音（短く軽い）")]
+    private AudioClip startSuccessSE;
+    
+    [SerializeField, Range(0.0f, 1.0f), Tooltip("Start SE音量（変更不要）")]
+    private float startSuccessVolume = 0.6f;
+    
+    [SerializeField, Tooltip("Hold継続中の維持確認音（主張しない）")]
+    private AudioClip holdTickSE;
+    
+    [SerializeField, Range(0.0f, 1.0f), Tooltip("Hold SE音量（0.4→0.5 = +2dB相当）")]
+    private float holdTickVolume = 0.5f;
+    
+    [SerializeField, Tooltip("End成功時の完結音（短く明確）")]
+    private AudioClip endSuccessSE;
+    
+    [SerializeField, Range(0.0f, 1.0f), Tooltip("End SE音量（0.7→1.0 = +3dB相当）")]
+    private float endSuccessVolume = 1.0f;
+
     [Header("レーン情報")]
     public int laneIndex = 0;
 
     [Header("ホールド中のスコア")]
     public float tickInterval = 0.2f;
     public int tickScore = 10;
-    public AudioClip tickSound;
     private AudioSource audioSource;
     private float tickTimer = 0f;
     private bool isHolding = false;
@@ -86,10 +114,14 @@ public class LinkedHoldNote : MonoBehaviour
     private float baseWidth;
     private bool inputActiveThisFrame = false;
     
-    // ★ 拍頭微強調用（新規追加）
-    private float beatAccentTimer = 0f;     // 拍頭強調の持続タイマー
-    private bool beatAccentActive = false;  // 拍頭強調中フラグ
-    private int lastBeatIndex = -1;         // 前回処理した拍インデックス
+    private float beatAccentTimer = 0f;
+    private bool beatAccentActive = false;
+    private int lastBeatIndex = -1;
+    
+    // End締まり表現用
+    private bool endCloseActive = false;
+    private float endCloseTimer = 0f;
+    private float endCloseStartWidth = 0f;
 
     void Awake()
     {
@@ -97,11 +129,7 @@ public class LinkedHoldNote : MonoBehaviour
         CreateOwnLineRenderer();
         
         audioSource = gameObject.AddComponent<AudioSource>();
-        if (tickSound != null)
-        {
-            audioSource.clip = tickSound;
-            audioSource.playOnAwake = false;
-        }
+        audioSource.playOnAwake = false;
         
         baseColor = ribbonColor;
         baseWidth = lineWidth * baseWidthMultiplier;
@@ -119,6 +147,8 @@ public class LinkedHoldNote : MonoBehaviour
         beatAccentTimer = 0f;
         beatAccentActive = false;
         lastBeatIndex = -1;
+        endCloseActive = false;
+        endCloseTimer = 0f;
         
         if (ribbonLine != null)
         {
@@ -129,6 +159,25 @@ public class LinkedHoldNote : MonoBehaviour
     void Update()
     {
         inputActiveThisFrame = false;
+
+        // ★ End締まり演出中は移動を停止（描画演出のみ実行）
+        if (endCloseActive)
+        {
+            endCloseTimer += Time.deltaTime;
+            
+            if (endCloseTimer >= endCloseDuration)
+            {
+                if (ribbonLine != null)
+                {
+                    ribbonLine.enabled = false;
+                }
+                Destroy(gameObject);
+                return;
+            }
+            
+            UpdateVisualEffects();
+            return;
+        }
 
         if (!hasEnded)
         {
@@ -147,7 +196,6 @@ public class LinkedHoldNote : MonoBehaviour
                 AddTickScore();
             }
             
-            // ★ 拍頭検出（Hold中のみ）
             CheckBeatAccent();
         }
 
@@ -185,6 +233,14 @@ public class LinkedHoldNote : MonoBehaviour
         if (startNoteDestroyed && !isHolding)
         {
             isHolding = true;
+            
+            // Start成功SE再生
+            if (audioSource != null && startSuccessSE != null)
+            {
+                audioSource.PlayOneShot(startSuccessSE, startSuccessVolume);
+                if (debugLog) Debug.Log("[LinkedHoldNote] Start success SE played");
+            }
+            
             holdTimer = 0f;
             startFlashActive = true;
             startFlashTimer = 0f;
@@ -244,28 +300,21 @@ public class LinkedHoldNote : MonoBehaviour
         UpdateVisualEffects();
     }
 
-    // ★ 拍頭検出メソッド（新規追加・Hold中のみ呼ばれる）
     private void CheckBeatAccent()
     {
-        // Conductorから現在の拍位置を取得
         var conductor = FindObjectOfType<Conductor>();
         if (conductor == null) return;
 
-        // 現在の拍インデックス（整数部分）
         int currentBeatIndex = Mathf.FloorToInt(conductor.songPositionBeats);
-
-        // 拍頭判定：指定間隔の倍数 かつ 前回と違う拍
         bool isBeatHead = (currentBeatIndex % beatAccentInterval == 0) && (currentBeatIndex != lastBeatIndex);
 
         if (isBeatHead)
         {
-            // 拍頭強調開始
             beatAccentActive = true;
             beatAccentTimer = 0f;
             lastBeatIndex = currentBeatIndex;
         }
 
-        // 拍頭強調の持続時間管理
         if (beatAccentActive)
         {
             beatAccentTimer += Time.deltaTime;
@@ -280,6 +329,27 @@ public class LinkedHoldNote : MonoBehaviour
     {
         float currentWidth = baseWidth;
         Color currentColor = baseColor;
+
+        // ★ End締まり演出中（最優先処理）
+        if (endCloseActive)
+        {
+            // EaseOut補間（t^3カーブで自然な減速）
+            float t = endCloseTimer / endCloseDuration;
+            float easeOut = 1f - Mathf.Pow(1f - t, 3f);
+            
+            // 太さ：開始時の太さ → 87%に収束
+            float targetWidth = endCloseStartWidth * endCloseWidthMultiplier;
+            currentWidth = Mathf.Lerp(endCloseStartWidth, targetWidth, easeOut);
+            
+            // 明度：+5%上乗せ（完了感の強調）
+            currentColor = BrightenColor(baseColor, endCloseBrightness * (1f - easeOut));
+            
+            ribbonLine.startWidth = currentWidth;
+            ribbonLine.endWidth = currentWidth;
+            ribbonLine.startColor = currentColor;
+            ribbonLine.endColor = currentColor;
+            return;
+        }
 
         if (startFlashActive)
         {
@@ -296,7 +366,6 @@ public class LinkedHoldNote : MonoBehaviour
             }
         }
 
-        // Hold中の演出
         if (isHolding && !hasEnded)
         {
             float holdWidthMult = holdPeakMultiplier;
@@ -306,25 +375,19 @@ public class LinkedHoldNote : MonoBehaviour
             float brightFlicker = Mathf.Sin(holdTimer / holdFlickerCycle * Mathf.PI * 2f) * holdFlickerAmount;
             currentColor = BrightenColor(baseColor, brightFlicker);
             
-            // 入力成立時の強調（既存・維持）
             if (inputActiveThisFrame)
             {
                 currentColor = BrightenColor(currentColor, inputActiveBrightness);
                 currentWidth *= inputActiveWidthMultiplier;
             }
             
-            // ★ 拍頭微強調（新規追加・入力成立中のみ有効）
-            // inputActiveThisFrame が true = 判定OK の瞬間のみ
-            // 判定が途切れたら即座に無効化される
             if (beatAccentActive)
             {
-                // 明度のみ +2〜3% 上乗せ（太さは変えない）
                 currentColor = BrightenColor(currentColor, beatAccentBrightness);
             }
         }
         else
         {
-            // 触れる前は細くする
             currentWidth = baseWidth * holdPeakMultiplier * beforeHoldWidthMultiplier;
         }
 
@@ -346,13 +409,35 @@ public class LinkedHoldNote : MonoBehaviour
     public void HideRibbon()
     {
         if (debugLog) Debug.Log($"[Ribbon] HideRibbon called - isHolding was: {isHolding}");
+        
+        // ★ Hold成功時のみEnd締まり演出を開始
+        if (isHolding)
+        {
+            // End成功SE再生
+            if (audioSource != null && endSuccessSE != null)
+            {
+                audioSource.PlayOneShot(endSuccessSE, endSuccessVolume);
+                if (debugLog) Debug.Log("[LinkedHoldNote] End success SE played");
+            }
+            
+            endCloseActive = true;
+            endCloseTimer = 0f;
+            endCloseStartWidth = ribbonLine.startWidth;
+            if (debugLog) Debug.Log($"[Ribbon] End close animation started - startWidth={endCloseStartWidth}");
+        }
+        else
+        {
+            // Miss時は即座に消去（締まり演出なし）
+            if (ribbonLine != null)
+            {
+                ribbonLine.enabled = false;
+            }
+            Destroy(gameObject, 0.1f);
+        }
+        
         hasEnded = true;
         isHolding = false;
-        beatAccentActive = false; // 拍頭強調も停止
-        if (ribbonLine != null)
-        {
-            ribbonLine.enabled = false;
-        }
+        beatAccentActive = false;
     }
 
     public bool IsHolding()
@@ -481,9 +566,10 @@ public class LinkedHoldNote : MonoBehaviour
             if (debugLog) Debug.LogWarning("[LinkedHoldNote] ComboProbe not found!");
         }
         
-        if (audioSource != null && tickSound != null)
+        // Hold継続SE再生（0.2秒ごと・控えめ）
+        if (audioSource != null && holdTickSE != null)
         {
-            audioSource.PlayOneShot(tickSound);
+            audioSource.PlayOneShot(holdTickSE, holdTickVolume);
         }
 
         if (debugLog) Debug.Log($"[LinkedHoldNote] Tick! lane={laneIndex}, interval={tickInterval}s");

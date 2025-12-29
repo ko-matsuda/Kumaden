@@ -55,10 +55,31 @@ MonoBehaviour:
   ribbonMaterial: {fileID: 2100000, guid: 63eb428d55e6c2543899ff25267462e0, type: 2}
   sourceLineRenderer: {fileID: 0}
   ribbonColor: {r: 1, g: 0.9490196, b: 0.8509804, a: 1}
-  laneIndex: 0
+  baseWidthMultiplier: 1.4
+  holdPeakMultiplier: 1.2
+  startFlashDuration: 0.1
+  startFlashBrightness: 0.18
+  holdFlickerAmount: 0.05
+  holdFlickerCycle: 0.5
+  inputActiveBrightness: 0.07
+  inputActiveWidthMultiplier: 1.05
+  widthFlickerAmount: 0.001
+  beforeHoldWidthMultiplier: 0.85
+  beatAccentBrightness: 0.025
+  beatAccentDuration: 0.04
+  beatAccentInterval: 4
+  endCloseDuration: 0.3
+  endCloseWidthMultiplier: 0.87
+  endCloseBrightness: 0.05
+  startSuccessSE: {fileID: 8300000, guid: 419ac77019cc0744f8ed8293200952b2, type: 3}
+  startSuccessVolume: 0.6
+  holdTickSE: {fileID: 8300000, guid: 419ac77019cc0744f8ed8293200952b2, type: 3}
+  holdTickVolume: 0.4
+  endSuccessSE: {fileID: 8300000, guid: 419ac77019cc0744f8ed8293200952b2, type: 3}
+  endSuccessVolume: 0.7
+  laneIndex: 2
   tickInterval: 0.2
   tickScore: 10
-  tickSound: {fileID: 8300000, guid: 419ac77019cc0744f8ed8293200952b2, type: 3}
   debugLog: 1
 --- !u!114 &7421127826966523186
 MonoBehaviour:
