@@ -11,19 +11,15 @@ public class PrologueOverlay : MonoBehaviour
 
     private Conductor _conductor;
     private AutoChartSpawner _autoChartSpawner;
-    private CookingResultSequence _cookingResult;
     private bool _bgmStarted = false;
 
     void Awake()
     {
-        // プロローグ中に動いてほしくないスクリプトを自動検出して無効化
         _conductor = FindObjectOfType<Conductor>();
         _autoChartSpawner = FindObjectOfType<AutoChartSpawner>();
-        _cookingResult = FindObjectOfType<CookingResultSequence>();
         
         if (_conductor != null) _conductor.enabled = false;
         if (_autoChartSpawner != null) _autoChartSpawner.enabled = false;
-        if (_cookingResult != null) _cookingResult.enabled = false;
     }
 
     void OnEnable()
@@ -42,13 +38,11 @@ public class PrologueOverlay : MonoBehaviour
             if (b != null) b.enabled = false;
     }
 
-    // 動画終了の bgmLeadTime 秒前に呼ばれる
     public void StartBgmFadeIn(float duration)
     {
         if (_bgmStarted) return;
         _bgmStarted = true;
         
-        // Conductor を有効化して BGM 開始
         if (_conductor != null)
         {
             _conductor.enabled = true;
@@ -57,18 +51,15 @@ public class PrologueOverlay : MonoBehaviour
         Debug.Log("[PrologueOverlay] BGM started");
     }
 
-    // 動画終了時に呼ばれる
     public void OnVideoEnded()
     {
         StartCoroutine(FadeOutAndStartGame());
     }
 
-    // スキップボタン用
     public void Skip()
     {
         StopAllCoroutines();
         
-        // BGMがまだなら開始
         if (!_bgmStarted && _conductor != null)
         {
             _conductor.enabled = true;
@@ -105,10 +96,17 @@ public class PrologueOverlay : MonoBehaviour
         foreach (var b in componentsToDisable)
             if (b != null) b.enabled = true;
 
-        // ゲーム開始に必要なスクリプトを有効化
         if (_autoChartSpawner != null) _autoChartSpawner.enabled = true;
-        if (_cookingResult != null) _cookingResult.enabled = true;
 
-        gameObject.SetActive(false);
+        var prologueCanvas = GameObject.Find("PrologueCanvas");
+        if (prologueCanvas != null)
+        {
+            prologueCanvas.SetActive(false);
+            Debug.Log("[PrologueOverlay] PrologueCanvas hidden");
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
 }

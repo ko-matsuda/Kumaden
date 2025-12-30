@@ -566,6 +566,13 @@ public class LinkedHoldNote : MonoBehaviour
             if (debugLog) Debug.LogWarning("[LinkedHoldNote] ComboProbe not found!");
         }
         
+        
+        // Perfect判定表示（Hold tick時）
+        var scoreMgr = ScoreManagerLite.Instance;
+        if (scoreMgr != null)
+        {
+            scoreMgr.OnPick(IngredientType.Milk, "PERFECT");
+        }
         // Hold継続SE再生（0.2秒ごと・控えめ）
         if (audioSource != null && holdTickSE != null)
         {

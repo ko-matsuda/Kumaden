@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
-/// 曲終了で発火 → 黒 → 料理動画 → 黒の上にリザルト(+ジングル再生)
 [DisallowMultipleComponent]
 public class CookingResultSequence : MonoBehaviour
 {
@@ -11,33 +10,25 @@ public class CookingResultSequence : MonoBehaviour
 
     [Header("Trigger")]
     public TriggerMode trigger = TriggerMode.ByAudioSource;
-
-    [Tooltip("TriggerMode=ByFixedSeconds のとき：曲の総尺（秒）")]
     public float totalSongSeconds = 120f;
-
-    [Tooltip("発火オフセット（秒）。終端ぴったり=0、少し後=+, 少し前=-")]
     public float fireOffsetSeconds = 0f;
-
-    [Tooltip("TriggerMode=ByAudioSource のとき：インゲームBGMの AudioSource（ループOFF想定）")]
     public AudioSource gameMusic;
 
-    [Header("Refs (必ずアサイン)")]
+    [Header("Refs")]
     public CanvasGroup fadeGroup;
     public CanvasGroup interstitialGroup;
-    public RawImage    videoImage;
+    public RawImage videoImage;
     public VideoPlayer videoPlayer;
     public AudioSource videoAudio;
-    public GameObject  resultRoot;
-
-    [Header("Result Jingle")]
+    public GameObject resultRoot;
     public AudioSource jingleSource;
 
-    [Header("Timings / Guards")]
+    [Header("Timings")]
     public float prepareTimeout = 1.0f;
     public float settleWait = 0.05f;
 
-    bool running;
-    bool armed;
+    bool isRunning;
+    bool isArmed;
 
     void Awake()
     {
@@ -45,7 +36,7 @@ public class CookingResultSequence : MonoBehaviour
         {
             fadeGroup.alpha = 0f;
             fadeGroup.blocksRaycasts = false;
-            fadeGroup.interactable   = false;
+            fadeGroup.interactable = false;
             var cv = fadeGroup.GetComponent<Canvas>();
             if (cv) { cv.overrideSorting = true; cv.sortingOrder = 9000; }
         }
@@ -53,7 +44,7 @@ public class CookingResultSequence : MonoBehaviour
         {
             interstitialGroup.alpha = 0f;
             interstitialGroup.blocksRaycasts = false;
-            interstitialGroup.interactable   = false;
+            interstitialGroup.interactable = false;
             var cv = interstitialGroup.GetComponent<Canvas>();
             if (cv) { cv.overrideSorting = true; cv.sortingOrder = 10000; }
         }
@@ -68,13 +59,15 @@ public class CookingResultSequence : MonoBehaviour
 
         if (videoPlayer)
         {
-            videoPlayer.isLooping   = false;
+            videoPlayer.isLooping = false;
             videoPlayer.playOnAwake = false;
             if (videoAudio)
             {
                 videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
                 try { videoPlayer.SetTargetAudioSource(0, videoAudio); } catch {}
-                videoAudio.mute = false; videoAudio.volume = 1f; videoAudio.spatialBlend = 0f;
+                videoAudio.mute = false;
+                videoAudio.volume = 1f;
+                videoAudio.spatialBlend = 0f;
             }
         }
 
@@ -84,71 +77,72 @@ public class CookingResultSequence : MonoBehaviour
 
     void OnEnable()
     {
-        armed = true;
-        running = false;
+        isArmed = true;
+        isRunning = false;
     }
 
     void Update()
     {
-        if (!armed || running) return;
+        if (!isArmed || isRunning) return;
 
         if (trigger == TriggerMode.ByAudioSource)
         {
-            // 音楽が再生中で、終了間近かチェック
             if (gameMusic != null && gameMusic.clip != null)
             {
-                // 音楽が再生されていて、終端に達した
                 if (gameMusic.isPlaying)
                 {
                     float remaining = gameMusic.clip.length - gameMusic.time;
                     if (remaining <= fireOffsetSeconds + 0.1f)
                     {
-                        armed = false;
-                        Run();
+                        isArmed = false;
+                        TriggerResultSequence();
                     }
                 }
-                // 音楽が終了した（isPlaying = false で time が終端付近）
                 else if (gameMusic.time > 0 && gameMusic.time >= gameMusic.clip.length - 0.5f)
                 {
-                    armed = false;
-                    Run();
+                    isArmed = false;
+                    TriggerResultSequence();
                 }
             }
         }
-        else if (trigger == TriggerMode.ByFixedSeconds)
-        {
-            // OnEnable からの経過時間で判定
-            // （この方式は使わない方がいいので ByAudioSource 推奨）
-        }
     }
 
-    public void NotifyGameEnded() { if (!running) Run(); }
-
-    public void Run() { if (Application.isPlaying && !running) StartCoroutine(RunCo()); }
-    public void Play() => Run();
-    public void StartSequence() => Run();
-
-IEnumerator RunCo()
+    public void NotifyGameEnded()
     {
-        running = true;
-        Debug.Log("[CookingResultSequence] Starting result sequence");
+        if (!isRunning) TriggerResultSequence();
+    }
 
-        // ★ ScoreManagerLite からデータを取得して ResultStore に保存
-        SaveResultData();
+    public void TriggerResultSequence()
+    {
+        if (Application.isPlaying && !isRunning)
+            StartCoroutine(ResultSequenceCoroutine());
+    }
 
-        // 1) 黒にする
+    IEnumerator ResultSequenceCoroutine()
+    {
+        isRunning = true;
+        Debug.Log("[CookingResultSequence] Starting");
+
+        StoreResultData();
+
         if (fadeGroup)
         {
             if (!fadeGroup.gameObject.activeSelf) fadeGroup.gameObject.SetActive(true);
             fadeGroup.blocksRaycasts = true;
-            fadeGroup.interactable   = false;
-            fadeGroup.alpha          = 1f;
+            fadeGroup.interactable = false;
+            fadeGroup.alpha = 1f;
         }
         yield return new WaitForSecondsRealtime(settleWait);
 
-        // 2) 動画
         if (resultRoot) resultRoot.SetActive(false);
-        if (interstitialGroup) { interstitialGroup.alpha = 1f; interstitialGroup.blocksRaycasts = false; }
+        
+        if (interstitialGroup)
+        {
+            if (!interstitialGroup.gameObject.activeSelf)
+                interstitialGroup.gameObject.SetActive(true);
+            interstitialGroup.alpha = 1f;
+            interstitialGroup.blocksRaycasts = false;
+        }
         if (videoImage) videoImage.enabled = true;
 
         if (videoPlayer)
@@ -157,11 +151,13 @@ IEnumerator RunCo()
             {
                 videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
                 try { videoPlayer.SetTargetAudioSource(0, videoAudio); } catch {}
-                videoAudio.mute = false; videoAudio.volume = 1f; videoAudio.spatialBlend = 0f;
+                videoAudio.mute = false;
+                videoAudio.volume = 1f;
+                videoAudio.spatialBlend = 0f;
             }
             videoPlayer.playOnAwake = false;
-            videoPlayer.isLooping   = false;
-            videoPlayer.skipOnDrop  = true;
+            videoPlayer.isLooping = false;
+            videoPlayer.skipOnDrop = true;
             videoPlayer.playbackSpeed = 1f;
 
             if (videoPlayer.isPlaying) videoPlayer.Stop();
@@ -175,7 +171,11 @@ IEnumerator RunCo()
             {
                 videoPlayer.Prepare();
                 float t = 0f, timeout = Mathf.Max(0.5f, prepareTimeout);
-                while (!prepared && t < timeout) { t += Time.unscaledDeltaTime; yield return null; }
+                while (!prepared && t < timeout)
+                {
+                    t += Time.unscaledDeltaTime;
+                    yield return null;
+                }
             }
             videoPlayer.prepareCompleted -= onPrep;
 
@@ -187,7 +187,10 @@ IEnumerator RunCo()
 
                 float guard = 0.3f;
                 while (guard > 0f && videoPlayer.isPrepared && videoPlayer.frame <= 0)
-                { guard -= Time.unscaledDeltaTime; yield return null; }
+                {
+                    guard -= Time.unscaledDeltaTime;
+                    yield return null;
+                }
 
                 if (!videoPlayer.isPlaying)
                 {
@@ -198,7 +201,10 @@ IEnumerator RunCo()
 
                 float minPlay = 0.2f;
                 while (videoPlayer.isPlaying || (minPlay > 0f))
-                { minPlay -= Time.unscaledDeltaTime; yield return null; }
+                {
+                    minPlay -= Time.unscaledDeltaTime;
+                    yield return null;
+                }
             }
             else
             {
@@ -212,9 +218,12 @@ IEnumerator RunCo()
 
         yield return new WaitForSecondsRealtime(settleWait);
 
-        // 3) リザルト表示
         if (videoImage) videoImage.enabled = false;
-        if (interstitialGroup) interstitialGroup.alpha = 0f;
+        if (interstitialGroup)
+        {
+            interstitialGroup.alpha = 0f;
+            interstitialGroup.gameObject.SetActive(false);
+        }
 
         if (videoAudio && videoAudio.isPlaying) videoAudio.Stop();
 
@@ -231,11 +240,10 @@ IEnumerator RunCo()
             jingleSource.Play();
         }
 
-        running = false;
+        isRunning = false;
     }
 
-
-void SaveResultData()
+    void StoreResultData()
     {
         var score = ScoreManagerLite.Instance;
         if (score == null)
@@ -253,7 +261,6 @@ void SaveResultData()
         int egg = score.EggCount;
         float playTime = Time.timeSinceLevelLoad;
 
-        // ランク計算
         string rank;
         if (miss == 0 && good <= 5) rank = "S";
         else if (miss <= 3) rank = "A";
@@ -261,6 +268,6 @@ void SaveResultData()
         else rank = "C";
 
         ResultStore.Save(maxCombo, perfect, good, miss, egg, flour, milk, rank, playTime);
-        Debug.Log($"[CookingResultSequence] Saved result: P={perfect} G={good} M={miss} Combo={maxCombo} Rank={rank}");
+        Debug.Log($"[CookingResultSequence] Saved: P={perfect} G={good} M={miss} Combo={maxCombo} Rank={rank}");
     }
 }

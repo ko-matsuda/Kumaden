@@ -165,9 +165,8 @@ public class ResultHUD : MonoBehaviour
     {
         var canvas = GetComponent<Canvas>();
         if (!canvas) canvas = gameObject.AddComponent<Canvas>();
-        // 既存の設定尊重（Overlayが無難）
-        if (canvas.renderMode == RenderMode.WorldSpace)
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        // World Space設定を尊重（3D背景を透過表示するため）
+        // renderModeは変更しない
 
         if (!TryGetComponent<UnityEngine.UI.GraphicRaycaster>(out _))
             gameObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
