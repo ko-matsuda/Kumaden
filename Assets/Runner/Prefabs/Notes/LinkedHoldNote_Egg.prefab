@@ -77,6 +77,7 @@ MonoBehaviour:
   holdTickVolume: 0.4
   endSuccessSE: {fileID: 8300000, guid: 419ac77019cc0744f8ed8293200952b2, type: 3}
   endSuccessVolume: 0.7
+  ingredientType: 2
   laneIndex: 2
   tickInterval: 0.2
   tickScore: 10

@@ -16,7 +16,11 @@ public class ResultHUD : MonoBehaviour
     [SerializeField] private Button retryButton;
     [SerializeField] private Button titleButton;
 
-    [Header("FX (Optional)")]
+        [Header("リザルト音")]
+    [Tooltip("リザルト表示時の音")]
+    [SerializeField] private AudioClip resultSE;
+    [SerializeField, Range(0f, 1f)] private float resultVolume = 0.7f;
+[Header("FX (Optional)")]
     [Tooltip("クリック音（任意）")]
     [SerializeField] private AudioSource clickSE;
     [Tooltip("フェード秒数")]
@@ -71,10 +75,25 @@ public class ResultHUD : MonoBehaviour
     }
 
     /// <summary>結果UIを表示（料理動画のあと等で1回呼ぶ）</summary>
-    public void ShowResult()
+public void ShowResult()
     {
         if (isShowing || isBusy) return;
         isShowing = true;
+        
+        // ボタンのonClickを再設定（Awakeが呼ばれていない場合のため）
+        if (retryButton != null)
+        {
+            retryButton.onClick.RemoveAllListeners();
+            retryButton.onClick.AddListener(OnRetry);
+        }
+        if (titleButton != null)
+        {
+            titleButton.onClick.RemoveAllListeners();
+            titleButton.onClick.AddListener(OnTitle);
+        }
+        
+        // SafeAreaは最初は表示したまま（ResultCallerが3秒後に消す）
+        
         StartCoroutine(FadeInRoutine());
     }
 

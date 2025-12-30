@@ -88,7 +88,10 @@ public class LinkedHoldNote : MonoBehaviour
     [SerializeField, Range(0.0f, 1.0f), Tooltip("End SE音量（0.7→1.0 = +3dB相当）")]
     private float endSuccessVolume = 1.0f;
 
-    [Header("レーン情報")]
+        [Header("食材タイプ")]
+    [Tooltip("この帯ノーツが対応する食材（Milk/Egg/Flour）")]
+    public IngredientType ingredientType = IngredientType.Milk;
+[Header("レーン情報")]
     public int laneIndex = 0;
 
     [Header("ホールド中のスコア")]
@@ -118,7 +121,6 @@ public class LinkedHoldNote : MonoBehaviour
     private bool beatAccentActive = false;
     private int lastBeatIndex = -1;
     
-    // End締まり表現用
     private bool endCloseActive = false;
     private float endCloseTimer = 0f;
     private float endCloseStartWidth = 0f;
@@ -160,7 +162,6 @@ public class LinkedHoldNote : MonoBehaviour
     {
         inputActiveThisFrame = false;
 
-        // ★ End締まり演出中は移動を停止（描画演出のみ実行）
         if (endCloseActive)
         {
             endCloseTimer += Time.deltaTime;
@@ -234,7 +235,6 @@ public class LinkedHoldNote : MonoBehaviour
         {
             isHolding = true;
             
-            // Start成功SE再生
             if (audioSource != null && startSuccessSE != null)
             {
                 audioSource.PlayOneShot(startSuccessSE, startSuccessVolume);
@@ -267,7 +267,7 @@ public class LinkedHoldNote : MonoBehaviour
                 var scoreMgr = ScoreManagerLite.Instance;
                 if (scoreMgr != null)
                 {
-                    scoreMgr.OnPick(IngredientType.Milk, "MISS");
+                    scoreMgr.OnPick(ingredientType, "MISS");
                 }
                 if (startNote != null) Destroy(startNote.gameObject);
                 if (endNote != null) Destroy(endNote.gameObject);
@@ -330,18 +330,14 @@ public class LinkedHoldNote : MonoBehaviour
         float currentWidth = baseWidth;
         Color currentColor = baseColor;
 
-        // ★ End締まり演出中（最優先処理）
         if (endCloseActive)
         {
-            // EaseOut補間（t^3カーブで自然な減速）
             float t = endCloseTimer / endCloseDuration;
             float easeOut = 1f - Mathf.Pow(1f - t, 3f);
             
-            // 太さ：開始時の太さ → 87%に収束
             float targetWidth = endCloseStartWidth * endCloseWidthMultiplier;
             currentWidth = Mathf.Lerp(endCloseStartWidth, targetWidth, easeOut);
             
-            // 明度：+5%上乗せ（完了感の強調）
             currentColor = BrightenColor(baseColor, endCloseBrightness * (1f - easeOut));
             
             ribbonLine.startWidth = currentWidth;
@@ -410,10 +406,15 @@ public class LinkedHoldNote : MonoBehaviour
     {
         if (debugLog) Debug.Log($"[Ribbon] HideRibbon called - isHolding was: {isHolding}");
         
-        // ★ Hold成功時のみEnd締まり演出を開始
+        // Hold終了時にPERFECT明滅を停止
+        var scoreMgr = ScoreManagerLite.Instance;
+        if (scoreMgr != null)
+        {
+            scoreMgr.StopHoldPerfect();
+        }
+        
         if (isHolding)
         {
-            // End成功SE再生
             if (audioSource != null && endSuccessSE != null)
             {
                 audioSource.PlayOneShot(endSuccessSE, endSuccessVolume);
@@ -427,7 +428,6 @@ public class LinkedHoldNote : MonoBehaviour
         }
         else
         {
-            // Miss時は即座に消去（締まり演出なし）
             if (ribbonLine != null)
             {
                 ribbonLine.enabled = false;
@@ -538,48 +538,32 @@ public class LinkedHoldNote : MonoBehaviour
         }
     }
 
-    private void AddTickScore()
+private void AddTickScore()
     {
         inputActiveThisFrame = true;
         
-        if (debugLog) Debug.Log($"[LinkedHoldNote] AddTickScore called - lane={laneIndex}");
+        if (debugLog) Debug.Log($"[LinkedHoldNote] AddTickScore called - lane={laneIndex}, ingredient={ingredientType}");
         
-        var hudCounter = FindObjectOfType<HudCounterBinder>();
-        if (hudCounter != null)
-        {
-            hudCounter.OnHoldTick(laneIndex);
-            if (debugLog) Debug.Log($"[LinkedHoldNote] Called HudCounterBinder.OnHoldTick({laneIndex})");
-        }
-        else
-        {
-            if (debugLog) Debug.LogWarning("[LinkedHoldNote] HudCounterBinder not found!");
-        }
-        
-        var comboProbe = FindObjectOfType<ComboProbe>();
-        if (comboProbe != null)
-        {
-            comboProbe.OnHoldTick();
-            if (debugLog) Debug.Log("[LinkedHoldNote] Called ComboProbe.OnHoldTick()");
-        }
-        else
-        {
-            if (debugLog) Debug.LogWarning("[LinkedHoldNote] ComboProbe not found!");
-        }
-        
-        
-        // Perfect判定表示（Hold tick時）
+        // 食材カウントをScoreManagerLiteに通知
         var scoreMgr = ScoreManagerLite.Instance;
         if (scoreMgr != null)
         {
-            scoreMgr.OnPick(IngredientType.Milk, "PERFECT");
+            scoreMgr.OnPick(ingredientType, "PERFECT");
+            if (debugLog) Debug.Log($"[LinkedHoldNote] Called ScoreManagerLite.OnPick({ingredientType}, PERFECT)");
         }
-        // Hold継続SE再生（0.2秒ごと・控えめ）
+        else
+        {
+            if (debugLog) Debug.LogWarning("[LinkedHoldNote] ScoreManagerLite not found!");
+        }
+        
+        // HudCounterBinderを削除（ScoreManagerLiteが食材を管理するため）
+        
         if (audioSource != null && holdTickSE != null)
         {
             audioSource.PlayOneShot(holdTickSE, holdTickVolume);
         }
 
-        if (debugLog) Debug.Log($"[LinkedHoldNote] Tick! lane={laneIndex}, interval={tickInterval}s");
+        if (debugLog) Debug.Log($"[LinkedHoldNote] Tick! lane={laneIndex}, ingredient={ingredientType}, interval={tickInterval}s");
     }
 
     public void SetEndNoteDistance(float distanceZ)

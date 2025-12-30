@@ -4,21 +4,25 @@ using UnityEngine.Video;
 public class ResultCaller : MonoBehaviour
 {
     [Header("動画プレイヤー(料理動画)")]
-    public VideoPlayer videoPlayer;          // 料理シーンの VideoPlayer を入れる
+    public VideoPlayer videoPlayer;
+    
     [Header("結果UI")]
-    public ResultHUD resultHUD;              // ResultCanvas に付けた ResultHUD を入れる
+    public ResultHUD resultHUD;
+    public QuickRankingDisplay quickRanking;
+    
     [Header("表示までの遅延(秒)")]
-    public float delayAfterVideo = 0.35f;    // 黒フェード等の見栄え用
+    public float delayAfterVideo = 0.35f;
+    
     [Header("バックアップ(動画が無い/失敗時)")]
-    public float fallbackSeconds = 8f;       // 動画が無い時の保険タイマー
+    public float fallbackSeconds = 8f;
 
     bool fired;
 
     void Reset()
     {
-        // 楽する自動参照（見つかれば勝手に入ります）
         if (!videoPlayer) videoPlayer = FindObjectOfType<VideoPlayer>(true);
-        if (!resultHUD)   resultHUD   = FindObjectOfType<ResultHUD>(true);
+        if (!resultHUD) resultHUD = FindObjectOfType<ResultHUD>(true);
+        if (!quickRanking) quickRanking = FindObjectOfType<QuickRankingDisplay>(true);
     }
 
     void OnEnable()
@@ -39,7 +43,6 @@ public class ResultCaller : MonoBehaviour
         }
         else
         {
-            // 動画が無い場合の保険：一定時間後に結果を出す
             Invoke(nameof(FallbackShow), fallbackSeconds);
         }
     }
@@ -69,7 +72,6 @@ public class ResultCaller : MonoBehaviour
 
     void ShowResult()
     {
-        // 念のため停止やタイムスケールを正常化
         Time.timeScale = 1f;
 
         if (resultHUD == null)
@@ -79,13 +81,73 @@ public class ResultCaller : MonoBehaviour
 
         if (resultHUD != null)
         {
-            // 非表示でも ShowResult が内部で CanvasGroup を有効化します
             resultHUD.gameObject.SetActive(true);
             resultHUD.ShowResult();
+            
+            // 3秒後にランキング表示
+            Invoke(nameof(ShowRanking), 3.0f);
         }
         else
         {
             Debug.LogError("[ResultCaller] ResultHUD が見つかりません。ResultCanvas に ResultHUD を付けてください。");
         }
     }
+    
+    void ShowRanking()
+    {
+        // SafeAreaを非表示（CanvasGroupのアルファで制御）
+        var safeArea = GameObject.Find("SafeArea");
+        if (safeArea != null)
+        {
+            var safeAreaCanvas = safeArea.GetComponent<CanvasGroup>();
+            if (safeAreaCanvas == null)
+            {
+                safeAreaCanvas = safeArea.AddComponent<CanvasGroup>();
+            }
+            safeAreaCanvas.alpha = 0f;
+            safeAreaCanvas.interactable = false;
+            safeAreaCanvas.blocksRaycasts = false;
+            
+            Debug.Log("[ResultCaller] SafeArea hidden via CanvasGroup");
+        }
+        
+        // ResultCanvasのalphaは消さない（QuickRankingが表示されるため）
+        
+        // ランキングを表示（ずっと表示）
+        if (quickRanking != null)
+        {
+            var score = ScoreManagerLite.Instance;
+            if (score != null)
+            {
+                int myScore = score.PerfectCount * 100 + score.GoodCount * 50;
+                int myRank = Random.Range(3, 8);
+                
+                var topPlayer = new RankingEntry("Player_" + (char)('A' + Random.Range(0, 26)), myScore + Random.Range(100, 500));
+                var bottomPlayer = new RankingEntry("Player_" + (char)('A' + Random.Range(0, 26)), myScore - Random.Range(100, 500));
+                
+                quickRanking.ShowRanking(myRank, myScore, topPlayer, bottomPlayer);
+                Debug.Log("[ResultCaller] QuickRanking.ShowRanking() called");
+            }
+            else
+            {
+                Debug.LogError("[ResultCaller] ScoreManagerLite.Instance is null!");
+            }
+        }
+        else
+        {
+            Debug.LogError("[ResultCaller] quickRanking is null!");
+        }
+    }
+    
+    private void OnRetry()
+    {
+        Debug.Log("[ResultCaller] OnRetry called - skipping prologue");
+        
+        // Retry時はプロローグをスキップ
+        GameFlags.SkipPrologueOnce = true;
+        
+        Time.timeScale = 1f;
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Main");
+    }
 }
+

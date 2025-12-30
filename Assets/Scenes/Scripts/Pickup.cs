@@ -27,7 +27,7 @@ public class Pickup : MonoBehaviour
 
     private BoxCollider playerBox;
 
-    void Awake()
+void Awake()
     {
         playerBox = GetComponent<BoxCollider>();
         if (playerBox == null)
@@ -36,6 +36,7 @@ public class Pickup : MonoBehaviour
         }
         if (seSource != null)
         {
+            seSource.enabled = true; // 有効化
             seSource.playOnAwake  = false;
             seSource.loop         = false;
             seSource.spatialBlend = 0f;
@@ -43,8 +44,15 @@ public class Pickup : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+private void OnTriggerEnter(Collider other)
     {
+        // AudioSourceを強制的に有効化（Retry対応）
+        if (seSource != null && !seSource.enabled)
+        {
+            seSource.enabled = true;
+            Debug.Log("[Pickup] seSource force enabled");
+        }
+        
         // ホールド開始
         if (other.CompareTag("LinkedHoldStart"))
         {
@@ -122,8 +130,9 @@ public class Pickup : MonoBehaviour
         ScoreManagerLite.Instance?.OnPick(note.Type, judge);
 
         if (judge == "PERFECT" || judge == "GOOD")
+        if (judge == "PERFECT" || judge == "GOOD")
         {
-            if (hudCounterBinder != null) hudCounterBinder.OnNormalNote(note.laneIndex);
+            // HudCounterBinder削除: ScoreManagerLiteが食材を管理
             if (comboProbe != null) comboProbe.OnNormalNote();
             LaneController.Instance?.HighlightLane(note.laneIndex, 0.2f);
         }

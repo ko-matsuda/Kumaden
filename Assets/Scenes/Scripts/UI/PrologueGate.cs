@@ -12,24 +12,25 @@ public class PrologueGate : MonoBehaviour
     public GameObject gameStartTarget;      // GameFlow 等、開始メソッドを持つオブジェクト
     public string startMethodName = "StartGame"; // 公開メソッド名（SendMessage用）
 
-    void Awake()
+void Awake()
     {
-        // 1) 念のため初期化（待ちが残っても動くように）
-        Time.timeScale = 1f;
-        AudioListener.pause = false;
-        if (fadeCanvas)
+        Debug.Log("[PrologueGate] Awake called");
+        
+        // Retry時はプロローグをスキップ（Startより早く実行）
+        bool hasSeenPrologue = PlayerPrefs.GetInt("HasSeenPrologue", 0) == 1;
+        
+        if (hasSeenPrologue || GameFlags.SkipPrologueOnce)
         {
-            fadeCanvas.alpha = 0f;
-            fadeCanvas.blocksRaycasts = false;
-            fadeCanvas.interactable = false;
-        }
-    }
-
-    void Start()
-    {
-        if (GameFlags.SkipPrologueOnce)
-        {
-            // 2) プロローグ要素は完全停止&非表示
+            Debug.Log($"[PrologueGate] Awake - Skipping prologue (hasSeenPrologue={hasSeenPrologue}, SkipPrologueOnce={GameFlags.SkipPrologueOnce})");
+            
+            // プロローグCanvasを完全に非アクティブ化
+            if (prologueCanvasRoot != null)
+            {
+                prologueCanvasRoot.SetActive(false);
+                Debug.Log("[PrologueGate] PrologueCanvas deactivated");
+            }
+            
+            // プロローグ動画も停止
             if (prologueVideo)
             {
                 try
@@ -40,38 +41,114 @@ public class PrologueGate : MonoBehaviour
                 }
                 catch { }
             }
-            if (prologueCanvasRoot) prologueCanvasRoot.SetActive(false);
 
-            // 3) すぐゲーム開始
-            BootGameNow();
-
-            // 4) このフラグは1回きり
-            GameFlags.SkipPrologueOnce = false;
+            // フラグはリセットしない（Startでリセット）
         }
-        else
+        
+        // 従来の初期化
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+        if (fadeCanvas)
         {
-            // 普通にプロローグから始めたい時は何もしない
+            fadeCanvas.alpha = 0f;
+            fadeCanvas.blocksRaycasts = false;
+            fadeCanvas.interactable = false;
         }
     }
 
-    void BootGameNow()
+void Start()
     {
+        Debug.Log("[PrologueGate] Start called");
+        
+        bool hasSeenPrologue = PlayerPrefs.GetInt("HasSeenPrologue", 0) == 1;
+        bool skipFlag = GameFlags.SkipPrologueOnce;
+        
+        Debug.Log($"[PrologueGate] Start - hasSeenPrologue={hasSeenPrologue}, SkipPrologueOnce={skipFlag}");
+        
+        // フラグをリセット（Awakeではリセットしない）
+        if (GameFlags.SkipPrologueOnce)
+        {
+            GameFlags.SkipPrologueOnce = false;
+            Debug.Log("[PrologueGate] SkipPrologueOnce flag reset");
+        }
+        
+        if (hasSeenPrologue || skipFlag)
+        {
+            Debug.Log("[PrologueGate] Calling BootGameNow()");
+            BootGameNow();
+        }
+        else
+        {
+            Debug.Log("[PrologueGate] Waiting for prologue to finish");
+        }
+    }
+
+void BootGameNow()
+    {
+        Debug.Log("[PrologueGate] BootGameNow called");
+        
         // Animatorや自前のステートが止まっていると嫌なので、最低限の解除
         foreach (var anim in FindObjectsOfType<Animator>())
         {
             anim.updateMode = AnimatorUpdateMode.Normal;
             anim.speed = 1f;
         }
+        
+        // AudioSourceを全て有効化
+        foreach (var audioSource in FindObjectsOfType<AudioSource>())
+        {
+            audioSource.enabled = true;
+        }
+        
+        // WorldScrollerを後でリセット（1フレーム待機）
+        StartCoroutine(ResetWorldScrollerDelayed());
+        
+        Debug.Log($"[PrologueGate] gameStartTarget={gameStartTarget}, startMethodName={startMethodName}");
 
-        // 代表的な“開始メソッド”を順に叩く（存在するものだけ）
+        // 代表的な"開始メソッド"を順に叩く（存在するものだけ）
         if (gameStartTarget)
         {
-            // SendMessage は相手にメソッドが無くても落ちないのが利点
+            Debug.Log($"[PrologueGate] Sending message '{startMethodName}' to {gameStartTarget.name}");
             gameStartTarget.SendMessage(startMethodName, SendMessageOptions.DontRequireReceiver);
-            gameStartTarget.SendMessage("OnRetryBoot", SendMessageOptions.DontRequireReceiver); // 予備フック
+            gameStartTarget.SendMessage("OnRetryBoot", SendMessageOptions.DontRequireReceiver);
+            Debug.Log($"[PrologueGate] Messages sent to {gameStartTarget.name}");
+        }
+        else
+        {
+            Debug.LogWarning("[PrologueGate] gameStartTarget is null!");
         }
 
-        // “Conductor”“GameFlow”“LaneManager”などの初期化メソッドがあれば、名前で併せて叩く
+        // ChartSpawnerを再開
+        var chartSpawner = FindObjectOfType<ChartSpawner>();
+        if (chartSpawner != null)
+        {
+            Debug.Log("[PrologueGate] Restarting ChartSpawner");
+            chartSpawner.enabled = false;
+            chartSpawner.enabled = true;
+        }
+
+        // "Conductor""GameFlow""LaneManager"などの初期化メソッドがあれば、名前で併せて叩く
+        Debug.Log("[PrologueGate] Broadcasting ResetStateForRetry");
         BroadcastMessage("ResetStateForRetry", SendMessageOptions.DontRequireReceiver);
+        
+        Debug.Log("[PrologueGate] BootGameNow completed");
     }
+
+System.Collections.IEnumerator ResetWorldScrollerDelayed()
+    {
+        yield return null; // 1フレーム待機
+        
+        var worldScroller = FindObjectOfType<WorldScroller>();
+        if (worldScroller != null)
+        {
+            Debug.Log($"[PrologueGate] Resetting WorldScroller position from {worldScroller.transform.position} to (0,0,0)");
+            worldScroller.transform.position = Vector3.zero;
+            worldScroller.enabled = true;
+        }
+        else
+        {
+            Debug.LogWarning("[PrologueGate] WorldScroller not found!");
+        }
+    }
+
 }

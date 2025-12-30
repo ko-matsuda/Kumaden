@@ -19,10 +19,16 @@ public class Conductor : MonoBehaviour
     public float songPositionBeats { get; private set; }
     public float secPerBeat => 60f / Mathf.Max(1f, bpm);
 
-    private void Awake()
+private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        // シングルトン：既存のインスタンスがあれば古い方を破棄
+        if (Instance != null && Instance != this)
+        {
+            Debug.Log("[Conductor] Destroying old Conductor instance");
+            Destroy(Instance.gameObject);
+        }
         Instance = this;
+        
         musicSource = GetComponent<AudioSource>();
         
         // 初期状態では再生しない
@@ -31,6 +37,8 @@ public class Conductor : MonoBehaviour
             musicSource.playOnAwake = false;
             musicSource.Stop();
         }
+        
+        Debug.Log($"[Conductor] Awake completed - Instance set, musicSource={musicSource}");
     }
 
     private void OnEnable()
@@ -55,16 +63,39 @@ public class Conductor : MonoBehaviour
         StartMusic();
     }
 
-    private void StartMusic()
+public void StartMusic()
     {
-        if (scheduled) return;
-        if (!musicSource || musicSource.clip == null) return;
+        Debug.Log("[Conductor] StartMusic called");
+        Debug.Log($"[Conductor] scheduled={scheduled}, musicSource={musicSource}, clip={musicSource?.clip}");
+        Debug.Log($"[Conductor] enabled={enabled}, gameObject.activeInHierarchy={gameObject.activeInHierarchy}");
+        
+        // コンポーネントを有効化
+        enabled = true;
+        
+        if (!musicSource || musicSource.clip == null)
+        {
+            Debug.LogError("[Conductor] musicSource or clip is null!");
+            return;
+        }
 
+        // ChartSpawnerをリセット
+        var chartSpawner = FindObjectOfType<ChartSpawner>();
+        if (chartSpawner != null)
+        {
+            Debug.Log("[Conductor] Resetting ChartSpawner");
+            chartSpawner.ResetChart();
+        }
+
+        // scheduledフラグをリセット（Retry時に2回目の再生を許可）
+        scheduled = false;
+        
         _dspSongStartTime = AudioSettings.dspTime + startDelaySec;
         musicSource.Stop();
         musicSource.time = 0f;
         musicSource.PlayScheduled(_dspSongStartTime);
         scheduled = true;
+        
+        Debug.Log($"[Conductor] Music scheduled at DSP time: {_dspSongStartTime}, scheduled={scheduled}, enabled={enabled}");
     }
 
     private void OnDisable()
@@ -79,12 +110,21 @@ public class Conductor : MonoBehaviour
         songPositionBeats = -preRollBeats;
     }
 
-    private void Update()
+private void Update()
     {
-        if (!scheduled) return;
+        if (!scheduled)
+        {
+            return;
+        }
 
         songPositionSec = (float)(AudioSettings.dspTime - _dspSongStartTime);
         songPositionBeats = songPositionSec / secPerBeat - preRollBeats;
+        
+        // デバッグ：初回のみログ出力
+        if (songPositionSec > 0 && songPositionSec < 0.1f)
+        {
+            Debug.Log($"[Conductor] Update - isPlaying={musicSource.isPlaying}, songPositionSec={songPositionSec:F2}, songPositionBeats={songPositionBeats:F2}");
+        }
     }
 
     public AudioSource GetMusicSource() => musicSource;

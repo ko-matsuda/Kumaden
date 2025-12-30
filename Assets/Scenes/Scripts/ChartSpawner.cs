@@ -64,10 +64,29 @@ public class ChartSpawner : MonoBehaviour
         TryAutoMatchJudgeZToPlayer();
     }
 
-    void Update()
+void Update()
     {
-        if (!chartLoaded || conductor == null) return;
-        if (musicSource == null || !musicSource.isPlaying) return;
+        if (!chartLoaded)
+        {
+            return;
+        }
+        
+        if (conductor == null)
+        {
+            Debug.LogWarning("[ChartSpawner] conductor is null");
+            return;
+        }
+        
+        if (musicSource == null)
+        {
+            Debug.LogWarning("[ChartSpawner] musicSource is null");
+            return;
+        }
+        
+        if (!musicSource.isPlaying)
+        {
+            return;
+        }
 
         float currentBeat = conductor.songPositionBeats;
         float spawnBeat = currentBeat + spawnAheadBeats;
@@ -78,6 +97,7 @@ public class ChartSpawner : MonoBehaviour
             
             if (note.beat <= spawnBeat)
             {
+                Debug.Log($"[ChartSpawner] Spawning note {nextNoteIndex}: beat={note.beat}, lane={note.lane}");
                 SpawnNote(note);
                 nextNoteIndex++;
             }

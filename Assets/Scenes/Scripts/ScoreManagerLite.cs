@@ -6,50 +6,64 @@ public class ScoreManagerLite : MonoBehaviour
 {
     public static ScoreManagerLite Instance { get; private set; }
 
+    [Header("Judge Animation Settings")]
+    [SerializeField, Range(0f, 0.1f)] private float judgeDisplayDelay = 0f;
+    [SerializeField, Range(0.05f, 0.2f)] private float judgeFullOpaqueDuration = 0.1f;
+    [SerializeField, Range(0.15f, 0.3f)] private float perfectHoldDuration = 0.20f;
+    [SerializeField, Range(0.1f, 0.3f)] private float perfectFadeDuration = 0.18f;
+    [SerializeField, Range(0.7f, 1.0f)] private float perfectAlpha = 1.0f;
+    [SerializeField, Range(0.1f, 0.25f)] private float goodHoldDuration = 0.16f;
+    [SerializeField, Range(0.1f, 0.25f)] private float goodFadeDuration = 0.16f;
+    [SerializeField, Range(0.6f, 1.0f)] private float goodAlpha = 0.85f;
+    [SerializeField, Range(0.08f, 0.2f)] private float missHoldDuration = 0.12f;
+    [SerializeField, Range(0.08f, 0.2f)] private float missFadeDuration = 0.12f;
+    [SerializeField, Range(0.5f, 1.0f)] private float missAlpha = 0.7f;
+
+    [Header("Hold Note Perfect Blink Settings")]
+    [SerializeField, Range(0.05f, 0.15f)] private float holdPerfectBlinkInterval = 0.08f;
+    [SerializeField, Range(1, 3)] private int holdPerfectBlinkCount = 1;
+
     [Header("UI（必ず割当て）")]
     public TextMeshProUGUI flourText;
     public TextMeshProUGUI milkText;
     public TextMeshProUGUI eggText;
-    public TextMeshProUGUI comboText;   // 画面上部の COMBO 表示
-    public TextMeshProUGUI judgeText;   // 画面上部の PERFECT/GOOD/MISS 表示
+    public TextMeshProUGUI comboText;
+    public TextMeshProUGUI judgeText;
 
     [Header("色テーマの参照（ResultCanvas 側のラベルをドラッグ）")]
-    public TextMeshProUGUI refMaxComboLabel; // ResultCanvas → JudgeBox/MaxCombo/Label
-    public TextMeshProUGUI refPerfectLabel;  // ResultCanvas → JudgeBox/Row-Perfect/Label
-    public TextMeshProUGUI refGoodLabel;     // ResultCanvas → JudgeBox/Row-Good/Label
-    public TextMeshProUGUI refMissLabel;     // ResultCanvas → JudgeBox/Row-Miss/Label
+    public TextMeshProUGUI refMaxComboLabel;
+    public TextMeshProUGUI refPerfectLabel;
+    public TextMeshProUGUI refGoodLabel;
+    public TextMeshProUGUI refMissLabel;
 
-    // 内部カウンタ
     private int flour, milk, egg, combo;
 
-    // Result用
     [SerializeField] private int perfectCount;
     [SerializeField] private int goodCount;
     [SerializeField] private int missCount;
     [SerializeField] private int maxChain;
 
-    // 公開（ResultCaller が読む）
+    private bool isHoldNotePerfect = false;
+
     public int FlourCount => flour;
-    public int MilkCount  => milk;
-    public int EggCount   => egg;
+    public int MilkCount => milk;
+    public int EggCount => egg;
     public int PerfectCount => perfectCount;
-    public int GoodCount    => goodCount;
-    public int MissCount    => missCount;
-    public int MaxChain     => maxChain;
+    public int GoodCount => goodCount;
+    public int MissCount => missCount;
+    public int MaxChain => maxChain;
 
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
 
-        // 起動時に COMBO の見た目を Result の "MAX COMBO" と揃える
         if (comboText && refMaxComboLabel)
             CopyTMPStyle(refMaxComboLabel, comboText);
 
         UpdateUI();
     }
 
-    /// <summary>ノーツ取得・判定結果の通知</summary>
     public void OnPick(IngredientType type, string judge)
     {
         if (judge == "PERFECT")
@@ -57,71 +71,163 @@ public class ScoreManagerLite : MonoBehaviour
             perfectCount++;
             GainItemAndCombo(type);
             if (judgeText && refPerfectLabel) CopyTMPStyle(refPerfectLabel, judgeText);
+            isHoldNotePerfect = false;
         }
         else if (judge == "GOOD")
         {
             goodCount++;
             GainItemAndCombo(type);
             if (judgeText && refGoodLabel) CopyTMPStyle(refGoodLabel, judgeText);
+            isHoldNotePerfect = false;
         }
-        else // MISS
+        else
         {
             missCount++;
             combo = 0;
             if (judgeText && refMissLabel) CopyTMPStyle(refMissLabel, judgeText);
+            isHoldNotePerfect = false;
         }
 
-        if (judgeText) judgeText.text = judge;
-        StopAllCoroutines();
-        StartCoroutine(ClearJudgeAfter(0.5f));
+        if (judgeText)
+        {
+            StopAllCoroutines();
+            StartCoroutine(ShowJudgeText(judge, false));
+        }
 
         UpdateUI();
     }
 
-    /// <summary>ホールドノート用：直接スコアを加算（判定なし）</summary>
-    /// <summary>ホールドノート用：直接スコアを加算（判定なし）</summary>
-    /// <summary>ホールドノート用：直接スコアを加算（判定なし）</summary>
-    public void AddScore(int amount)
+public void AddScore(int amount)
     {
-        // ホールド中もコンボを継続（PERFECTと同じ扱い）
         perfectCount++;
         combo++;
         if (combo > maxChain) maxChain = combo;
         
+        if (judgeText && refPerfectLabel)
+        {
+            CopyTMPStyle(refPerfectLabel, judgeText);
+            judgeText.text = "PERFECT";
+            
+            if (!isHoldNotePerfect)
+            {
+                isHoldNotePerfect = true;
+                StopAllCoroutines();
+                StartCoroutine(ShowJudgeText("PERFECT", false));
+            }
+            else
+            {
+                StopAllCoroutines();
+                StartCoroutine(ShowJudgeText("PERFECT", true));
+            }
+        }
+        
         UpdateUI();
     }
-
+    
+    public void StopHoldPerfect()
+    {
+        isHoldNotePerfect = false;
+        StopAllCoroutines();
+        if (judgeText != null)
+        {
+            judgeText.text = "";
+            judgeText.alpha = 1f;
+        }
+    }
 
     private void GainItemAndCombo(IngredientType type)
     {
         switch (type)
         {
             case IngredientType.Flour: flour++; break;
-            case IngredientType.Milk:  milk++;  break;
-            case IngredientType.Egg:   egg++;   break;
+            case IngredientType.Milk: milk++; break;
+            case IngredientType.Egg: egg++; break;
         }
         combo++;
         if (combo > maxChain) maxChain = combo;
     }
 
-    private IEnumerator ClearJudgeAfter(float sec)
+private IEnumerator ShowJudgeText(string judge, bool isHoldContinuous)
     {
-        yield return new WaitForSeconds(sec);
-        if (judgeText) judgeText.text = "";
+        if (judgeText == null) yield break;
+
+        if (judgeDisplayDelay > 0f && !isHoldContinuous)
+        {
+            yield return new WaitForSeconds(judgeDisplayDelay);
+        }
+
+        float holdDuration;
+        float fadeDuration;
+        float targetAlpha;
+
+        if (judge == "PERFECT")
+        {
+            holdDuration = perfectHoldDuration;
+            fadeDuration = perfectFadeDuration;
+            targetAlpha = perfectAlpha;
+        }
+        else if (judge == "GOOD")
+        {
+            holdDuration = goodHoldDuration;
+            fadeDuration = goodFadeDuration;
+            targetAlpha = goodAlpha;
+        }
+        else
+        {
+            holdDuration = missHoldDuration;
+            fadeDuration = missFadeDuration;
+            targetAlpha = missAlpha;
+        }
+
+        judgeText.text = judge;
+
+        // ホールドノート連続PERFECT時のみ明滅
+        if (judge == "PERFECT" && isHoldContinuous)
+        {
+            for (int i = 0; i < holdPerfectBlinkCount; i++)
+            {
+                judgeText.alpha = 0f;
+                yield return new WaitForSeconds(holdPerfectBlinkInterval);
+                judgeText.alpha = 1.0f;
+                yield return new WaitForSeconds(holdPerfectBlinkInterval);
+            }
+        }
+        else
+        {
+            judgeText.alpha = 1.0f;
+            yield return new WaitForSeconds(judgeFullOpaqueDuration);
+        }
+
+        judgeText.alpha = targetAlpha;
+
+        yield return new WaitForSeconds(holdDuration);
+
+        float elapsed = 0f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / fadeDuration;
+            judgeText.alpha = Mathf.Lerp(targetAlpha, 0f, t);
+            yield return null;
+        }
+
+        if (!isHoldNotePerfect)
+        {
+            judgeText.text = "";
+        }
+        judgeText.alpha = 1f;
     }
 
     private void UpdateUI()
     {
         if (flourText) flourText.text = flour.ToString("00");
-        if (milkText)  milkText.text  = milk.ToString("00");
-        if (eggText)   eggText.text   = egg.ToString("00");
+        if (milkText) milkText.text = milk.ToString("00");
+        if (eggText) eggText.text = egg.ToString("00");
 
-        // ✅ ここを変更：「コンボが0のときは非表示」
         if (comboText)
             comboText.text = combo > 0 ? $"COMBO {combo:00}" : "";
     }
 
-    // 色・グラデ・（フォント一致時のみ）マテリアルをコピー
     private static void CopyTMPStyle(TextMeshProUGUI src, TextMeshProUGUI dst)
     {
         if (!src || !dst) return;
@@ -133,7 +239,6 @@ public class ScoreManagerLite : MonoBehaviour
         if (src.enableVertexGradient)
             dst.colorGradient = src.colorGradient;
 
-        // フォントが同じときだけマテリアルをコピー（文字化け防止）
         if (src.font == dst.font && src.fontSharedMaterial != null)
             dst.fontSharedMaterial = src.fontSharedMaterial;
         else if (dst.font != null)

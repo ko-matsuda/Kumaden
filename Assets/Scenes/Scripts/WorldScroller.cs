@@ -2,14 +2,18 @@ using UnityEngine;
 
 public class WorldScroller : MonoBehaviour
 {
-    [SerializeField] float speed = 8f;   // 1•b‚É‰½ƒ†ƒjƒbƒgi‚Ş‚©i“¹˜H‚Ì‘¬‚³j
-    [SerializeField] Vector3 direction = new Vector3(0, 0, -1); // è‘O‚Ö—¬‚·
+    [SerializeField] float speed = 8f;   // 1ï¿½bï¿½É‰ï¿½ï¿½ï¿½ï¿½jï¿½bï¿½gï¿½iï¿½Ş‚ï¿½ï¿½iï¿½ï¿½ï¿½Hï¿½Ì‘ï¿½ï¿½ï¿½ï¿½j
+    [SerializeField] Vector3 direction = new Vector3(0, 0, -1); // ï¿½ï¿½Oï¿½Ö—ï¿½ï¿½ï¿½
 
-    void Update()
+void Update()
     {
+        if (Time.frameCount % 60 == 0) // 1ç§’ã«1å›ãƒ­ã‚°
+        {
+            Debug.Log($"[WorldScroller] pos={transform.position}, speed={speed}, deltaTime={Time.deltaTime}, timeScale={Time.timeScale}");
+        }
         transform.position += direction.normalized * speed * Time.deltaTime;
     }
 
-    // ‘¬“x‚ğ‘¼‚ÌƒXƒNƒŠƒvƒg‚©‚ç•Ï‚¦‚½‚¢—pi”CˆÓj
+    // ï¿½ï¿½ï¿½xï¿½ğ‘¼‚ÌƒXï¿½Nï¿½ï¿½ï¿½vï¿½gï¿½ï¿½ï¿½ï¿½Ï‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pï¿½iï¿½Cï¿½Ój
     public void SetSpeed(float s) => speed = s;
 }
