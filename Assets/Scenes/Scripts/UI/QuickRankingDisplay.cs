@@ -151,11 +151,58 @@ private void OnRetry()
     {
         Debug.Log("[QuickRankingDisplay] OnRetry called - skipping prologue");
         
+        // ボタンの拡縮アニメーション
+        if (retryButton != null)
+        {
+            StartCoroutine(RetryButtonScaleAnimation());
+        }
+        else
+        {
+            // ボタンがない場合は即座にシーンロード
+            LoadMainScene();
+        }
+    }
+
+private void LoadMainScene()
+    {
         // Retry時はプロローグをスキップ
         GameFlags.SkipPrologueOnce = true;
-        
         UnityEngine.SceneManagement.SceneManager.LoadScene(mainSceneName);
     }
+
+
+private IEnumerator RetryButtonScaleAnimation()
+    {
+        Transform buttonTransform = retryButton.transform;
+        Vector3 originalScale = buttonTransform.localScale;
+        
+        // 拡大 (0.1秒)
+        float duration = 0.1f;
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            buttonTransform.localScale = Vector3.Lerp(originalScale, originalScale * 1.2f, t);
+            yield return null;
+        }
+        
+        // 縮小 (0.1秒)
+        elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            buttonTransform.localScale = Vector3.Lerp(originalScale * 1.2f, originalScale, t);
+            yield return null;
+        }
+        
+        buttonTransform.localScale = originalScale;
+        
+        // シーンロード
+        LoadMainScene();
+    }
+
 public void ForceHide()
     {
         StopAllCoroutines();

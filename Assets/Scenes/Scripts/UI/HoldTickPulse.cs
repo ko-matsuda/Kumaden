@@ -34,7 +34,11 @@ public sealed class HoldTickPulse : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private bool debugLog = true;
 
-    private bool _active = false;                    // 内部状態（常に false で初期化）
+    
+    
+    private ComboProbe comboProbe;
+private JudgeTextBlinker judgeTextBlinker;
+private bool _active = false;                    // 内部状態（常に false で初期化）
     private float _accum;
 
     // ───────────────────────────────────────
@@ -44,8 +48,18 @@ public sealed class HoldTickPulse : MonoBehaviour
     /// <summary>
     /// Tick 発火を開始する（Pickup.cs から呼ばれる）
     /// </summary>
-    public void StartTick()
+public void StartTick()
     {
+        // 自動検索
+        if (judgeTextBlinker == null)
+        {
+            judgeTextBlinker = FindObjectOfType<JudgeTextBlinker>();
+        }
+        if (comboProbe == null)
+        {
+            comboProbe = FindObjectOfType<ComboProbe>();
+        }
+        
         _active = true;
         _accum = 0f;
         isGated = false;  // Inspector 表示用
@@ -118,9 +132,22 @@ public sealed class HoldTickPulse : MonoBehaviour
         }
     }
 
-    private void FireTick()
+private void FireTick()
     {
         OnTick?.Invoke();
+        
+        // ComboProbeにCOMBOカウントを依頼
+        if (comboProbe != null)
+        {
+            comboProbe.OnHoldTick();
+        }
+        
+        // JudgeTextBlinkerに明滅を依頼
+        if (judgeTextBlinker != null)
+        {
+            judgeTextBlinker.OnHoldTick();
+        }
+        
         // Tick ログは大量に出るのでコメントアウト
         // if (debugLog) Debug.Log("[HoldTickPulse] TICK");
     }
