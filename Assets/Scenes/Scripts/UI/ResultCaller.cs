@@ -13,6 +13,9 @@ public class ResultCaller : MonoBehaviour
     [Header("表示までの遅延(秒)")]
     public float delayAfterVideo = 0.35f;
     
+    [Header("リザルト動画コントローラー")]
+    public ResultVideoController resultVideoController;
+    
     [Header("バックアップ(動画が無い/失敗時)")]
     public float fallbackSeconds = 8f;
 
@@ -23,11 +26,44 @@ public class ResultCaller : MonoBehaviour
         if (!videoPlayer) videoPlayer = FindObjectOfType<VideoPlayer>(true);
         if (!resultHUD) resultHUD = FindObjectOfType<ResultHUD>(true);
         if (!quickRanking) quickRanking = FindObjectOfType<QuickRankingDisplay>(true);
+        if (!resultVideoController) resultVideoController = FindObjectOfType<ResultVideoController>(true);
     }
 
     void OnEnable()
     {
-        Hook();
+        // ResultVideoControllerがあればそちらを使用
+        if (resultVideoController != null)
+        {
+            // Rankを計算して設定
+            string rank = CalculateRank();
+            resultVideoController.rank = rank;
+            
+            Debug.Log($"[ResultCaller] OnEnable - rank={rank}, playing result video");
+            
+            // リザルト動画再生
+            resultVideoController.PlayResultVideo();
+        }
+        else
+        {
+            // 従来のフロー
+            Hook();
+        }
+    }
+
+    string CalculateRank()
+    {
+        var score = ScoreManagerLite.Instance;
+        if (score == null) return "C";
+        
+        int totalNotes = score.PerfectCount + score.GoodCount + score.MissCount;
+        if (totalNotes == 0) return "C";
+        
+        float perfectRate = (float)score.PerfectCount / totalNotes;
+        
+        if (perfectRate >= 0.95f) return "S";
+        if (perfectRate >= 0.85f) return "A";
+        if (perfectRate >= 0.70f) return "B";
+        return "C";
     }
 
     void OnDisable()
@@ -150,4 +186,3 @@ public class ResultCaller : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene("Main");
     }
 }
-

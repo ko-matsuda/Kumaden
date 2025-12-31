@@ -1454,6 +1454,7 @@ MonoBehaviour:
   resultHUD: {fileID: 942037572}
   quickRanking: {fileID: 330125190}
   delayAfterVideo: 0.35
+  resultVideoController: {fileID: 0}
   fallbackSeconds: 8
 --- !u!114 &186652063
 MonoBehaviour:
@@ -10028,6 +10029,7 @@ GameObject:
   - component: {fileID: 942037572}
   - component: {fileID: 942037574}
   - component: {fileID: 942037573}
+  - component: {fileID: 942037575}
   m_Layer: 5
   m_Name: ResultCanvas
   m_TagString: Untagged
@@ -10376,6 +10378,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 942037559}
   m_CullTransparentMesh: 1
+--- !u!114 &942037575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 942037559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3723eb88a4de59f4fa6e14e46f9a8dca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::ResultCaller
+  videoPlayer: {fileID: 1859113767}
+  resultHUD: {fileID: 942037572}
+  quickRanking: {fileID: 330125190}
+  delayAfterVideo: 0.35
+  resultVideoController: {fileID: 1859113772}
+  fallbackSeconds: 8
 --- !u!1 &958515708
 GameObject:
   m_ObjectHideFlags: 0
@@ -20876,6 +20896,7 @@ GameObject:
   - component: {fileID: 1859113767}
   - component: {fileID: 1859113770}
   - component: {fileID: 1859113771}
+  - component: {fileID: 1859113772}
   m_Layer: 0
   m_Name: VideoPlayerObject
   m_TagString: Untagged
@@ -21045,6 +21066,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Hypercasual::PrologueVideo
   videoClip: {fileID: 32900000, guid: 4e439673c6d7f19449f519da1d103437, type: 3}
   bgmLeadTime: 3.9
+--- !u!114 &1859113772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859113766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eace767b0609aa04da1a6b2fd2f5017c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::ResultVideoController
+  videoPlayer: {fileID: 1859113767}
+  resultSuccess: {fileID: 32900000, guid: 3f4d6ac8875975940913b97859fe2c25, type: 3}
+  resultFail: {fileID: 32900000, guid: f5f2e325cf403164ea16c265ac87391c, type: 3}
+  resultCanvas: {fileID: 942037559}
+  rank: 
 --- !u!1 &1860592125
 GameObject:
   m_ObjectHideFlags: 0
