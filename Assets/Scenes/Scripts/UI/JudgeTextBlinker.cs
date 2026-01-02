@@ -53,24 +53,16 @@ public class JudgeTextBlinker : MonoBehaviour
     /// </summary>
 public void StopBlink()
     {
-        Debug.LogError("[JudgeTextBlinker] ========== StopBlink START ==========");
-        Debug.LogError("[JudgeTextBlinker] blinkCoroutine = " + (blinkCoroutine != null ? "ACTIVE" : "NULL"));
-        
         if (blinkCoroutine != null)
         {
             StopCoroutine(blinkCoroutine);
             blinkCoroutine = null;
-            Debug.LogError("[JudgeTextBlinker] Coroutine stopped");
         }
         
         if (judgeText != null)
         {
-            Debug.LogError("[JudgeTextBlinker] Setting alpha to 1.0, current alpha = " + judgeText.alpha);
             judgeText.alpha = 1.0f;
-            Debug.LogError("[JudgeTextBlinker] Alpha set to 1.0");
         }
-        
-        Debug.LogError("[JudgeTextBlinker] ========== StopBlink END ==========");
     }
 
 

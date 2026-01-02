@@ -66,11 +66,10 @@ public class ScoreManagerLite : MonoBehaviour
 
 public void OnPick(IngredientType type, string judge)
     {
-        // ★★★ 最初に必ず停止（PERFECT明滅中にMISSが来ても安全）
         if (judgeText)
         {
             StopAllCoroutines();
-            judgeText.alpha = 1.0f;  // alphaをリセット
+            judgeText.alpha = 1.0f;
         }
         
         if (judge == "PERFECT")
@@ -94,20 +93,14 @@ public void OnPick(IngredientType type, string judge)
             
             if (judgeText)
             {
-                // ★★★ MISSの色を強制的に設定
                 if (refMissLabel)
                 {
                     CopyTMPStyle(refMissLabel, judgeText);
-                    Debug.Log("[ScoreManagerLite] MISS color set from refMissLabel");
                 }
                 else
                 {
                     judgeText.color = new Color(1f, 0.2f, 0.2f, 1f);
-                    Debug.LogWarning("[ScoreManagerLite] refMissLabel is NULL - using default red color");
                 }
-                
-                // 色が確実に設定されたか確認
-                Debug.Log("[ScoreManagerLite] MISS judgeText.color = " + judgeText.color);
             }
             
             isHoldNotePerfect = false;
@@ -175,8 +168,6 @@ private IEnumerator ShowJudgeText(string judge, bool isHoldContinuous)
     {
         if (judgeText == null) yield break;
 
-        Debug.Log("[ScoreManagerLite] ShowJudgeText - judge=" + judge + ", isHoldContinuous=" + isHoldContinuous);
-
         if (judgeDisplayDelay > 0f && !isHoldContinuous)
         {
             yield return new WaitForSeconds(judgeDisplayDelay);
@@ -204,7 +195,7 @@ private IEnumerator ShowJudgeText(string judge, bool isHoldContinuous)
             fadeDuration = missFadeDuration;
             targetAlpha = missAlpha;
             
-            // ★★★ MISSの場合、ここでも色を設定（二重保険）
+            // MISSの場合、ここでも色を設定
             if (refMissLabel)
             {
                 CopyTMPStyle(refMissLabel, judgeText);
@@ -217,10 +208,9 @@ private IEnumerator ShowJudgeText(string judge, bool isHoldContinuous)
 
         judgeText.text = judge;
 
-        // ホールドノート連続PERFECT時のみ明滅（MISSは絶対に明滅させない）
+        // ホールドノート連続PERFECT時のみ明滅
         if (judge == "PERFECT" && isHoldContinuous)
         {
-            Debug.Log("[ScoreManagerLite] Blinking PERFECT");
             for (int i = 0; i < holdPerfectBlinkCount; i++)
             {
                 judgeText.alpha = 0f;
@@ -231,8 +221,6 @@ private IEnumerator ShowJudgeText(string judge, bool isHoldContinuous)
         }
         else
         {
-            // PERFECT(初回)/GOOD/MISSすべてこちら - 明滅なし
-            Debug.Log("[ScoreManagerLite] No blink - setting alpha to 1.0");
             judgeText.alpha = 1.0f;
             yield return new WaitForSeconds(judgeFullOpaqueDuration);
         }
