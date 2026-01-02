@@ -271,10 +271,11 @@ void Update()
                 }
                 if (startNote != null) Destroy(startNote.gameObject);
                 if (endNote != null) Destroy(endNote.gameObject);
-                hasEnded = true;
                 HideRibbon();
+                hasEnded = true;
                 Destroy(gameObject, 0.1f);
                 return;
+
             }
             if (debugLog) Debug.Log("[Ribbon] StartNote passed player");
         }
@@ -294,11 +295,11 @@ void Update()
                 {
                     scoreMgr.OnPick(ingredientType, "MISS");
                 }
-                hasEnded = true;
             }
             HideRibbon();
             return;
         }
+
 
         if (!hasStarted)
         {
