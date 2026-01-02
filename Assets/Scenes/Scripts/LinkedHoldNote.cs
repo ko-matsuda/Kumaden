@@ -187,19 +187,6 @@ void Update()
 
         if (player == null || ribbonLine == null) return;
 
-        if (isHolding)
-        {
-            holdTimer += Time.deltaTime;
-            tickTimer += Time.deltaTime;
-            if (tickTimer >= tickInterval)
-            {
-                tickTimer = 0f;
-                AddTickScore();
-            }
-            
-            CheckBeatAccent();
-        }
-
         if (hasEnded)
         {
             ribbonLine.enabled = false;
@@ -275,7 +262,6 @@ void Update()
                 hasEnded = true;
                 Destroy(gameObject, 0.1f);
                 return;
-
             }
             if (debugLog) Debug.Log("[Ribbon] StartNote passed player");
         }
@@ -300,6 +286,34 @@ void Update()
             return;
         }
 
+        // ★★★ Hold中の処理（isHolding=trueになった後）
+        if (isHolding)
+        {
+            holdTimer += Time.deltaTime;
+            tickTimer += Time.deltaTime;
+            if (tickTimer >= tickInterval)
+            {
+                tickTimer = 0f;
+                AddTickScore();
+            }
+            
+            CheckBeatAccent();
+            
+            // ★ Hold中にPlayerから離れたかチェック
+            float distanceX = Mathf.Abs(player.position.x - transform.position.x);
+            
+            if (debugLog && Time.frameCount % 60 == 0)
+            {
+                Debug.Log("[LinkedHoldNote] Hold active - distanceX=" + distanceX);
+            }
+            
+            if (distanceX > 1.5f)
+            {
+                Debug.LogError("[LinkedHoldNote] Player moved away! distanceX=" + distanceX);
+                StopHold();
+                return;
+            }
+        }
 
         if (!hasStarted)
         {
@@ -485,6 +499,74 @@ public void HideRibbon()
     {
         return isHolding;
     }
+
+public void StopHold()
+    {
+        if (debugLog) Debug.LogError("[LinkedHoldNote] ========== StopHold START ==========");
+        
+        if (hasEnded)
+        {
+            if (debugLog) Debug.LogError("[LinkedHoldNote] StopHold - Already ended, returning");
+            return;
+        }
+        
+        hasEnded = true;
+        isHolding = false;
+        
+        // ★★★ HoldTickPulseを停止
+        var holdTickPulse = GetComponentInChildren<HoldTickPulse>();
+        if (holdTickPulse != null)
+        {
+            holdTickPulse.StopTick();
+            Debug.LogError("[LinkedHoldNote] StopHold - HoldTickPulse.StopTick() called");
+        }
+        else
+        {
+            Debug.LogError("[LinkedHoldNote] StopHold - HoldTickPulse NOT FOUND");
+        }
+        
+        // ★★★ JudgeTextBlinkerを停止
+        var judgeTextBlinker = FindObjectOfType<JudgeTextBlinker>();
+        if (judgeTextBlinker != null)
+        {
+            judgeTextBlinker.StopBlink();
+            Debug.LogError("[LinkedHoldNote] StopHold - JudgeTextBlinker.StopBlink() called");
+        }
+        else
+        {
+            Debug.LogError("[LinkedHoldNote] StopHold - JudgeTextBlinker NOT FOUND");
+        }
+        
+        // MISS処理
+        Debug.LogError("[LinkedHoldNote] StopHold - Triggering MISS");
+        
+        var comboProbe = FindObjectOfType<ComboProbe>();
+        if (comboProbe != null)
+        {
+            comboProbe.OnNoteMiss();
+        }
+        
+        var scoreMgr = ScoreManagerLite.Instance;
+        if (scoreMgr != null)
+        {
+            Debug.LogError("[LinkedHoldNote] StopHold - Calling ScoreManagerLite.OnPick(MISS)");
+            scoreMgr.OnPick(ingredientType, "MISS");
+            Debug.LogError("[LinkedHoldNote] StopHold - ScoreManagerLite.OnPick(MISS) COMPLETED");
+        }
+        
+        if (ribbonLine != null)
+        {
+            ribbonLine.enabled = false;
+        }
+        
+        if (startNote != null) Destroy(startNote.gameObject);
+        if (endNote != null) Destroy(endNote.gameObject);
+        
+        Destroy(gameObject, 0.1f);
+        
+        Debug.LogError("[LinkedHoldNote] ========== StopHold END ==========");
+    }
+
 
     void OnDisable()
     {

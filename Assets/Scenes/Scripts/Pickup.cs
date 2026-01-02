@@ -146,6 +146,33 @@ private void OnTriggerEnter(Collider other)
         Destroy(note.gameObject);
     }
 
+private void OnTriggerExit(Collider other)
+    {
+        Debug.LogError("[Pickup] OnTriggerExit called - Tag=" + other.tag);
+        
+        // ホールド中に外れた場合
+        if (other.CompareTag("LinkedHoldStart") || other.CompareTag("LinkedHoldEnd"))
+        {
+            Debug.LogError("[Pickup] OnTriggerExit - Hold tag detected!");
+            
+            if (holdTickPulse != null)
+            {
+                Debug.LogError("[Pickup] holdTickPulse found, IsActive=" + holdTickPulse.IsActive);
+                
+                if (holdTickPulse.IsActive)
+                {
+                    Debug.LogError("[Pickup] OnTriggerExit - Hold interrupted! Calling StopTick");
+                    holdTickPulse.StopTick();
+                }
+            }
+            else
+            {
+                Debug.LogError("[Pickup] holdTickPulse is NULL!");
+            }
+        }
+    }
+
+
     private void PlaySEOnly(Collider other)
     {
         if (playerBox == null || seSource == null) return;

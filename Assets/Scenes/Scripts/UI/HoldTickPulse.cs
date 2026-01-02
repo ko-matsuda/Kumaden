@@ -70,12 +70,30 @@ public void StartTick()
     /// <summary>
     /// Tick 発火を停止する（Pickup.cs から呼ばれる）
     /// </summary>
-    public void StopTick()
+public void StopTick()
     {
+        Debug.LogError("[HoldTickPulse] ========== StopTick START ==========");
+        Debug.LogError("[HoldTickPulse] _active before = " + _active);
+        
         _active = false;
-        isGated = true;  // Inspector 表示用
+        isGated = true;
+        
+        // LinkedHoldNoteに通知してisHolding=falseにする
+        var linkedHoldNote = GetComponentInParent<LinkedHoldNote>();
+        if (linkedHoldNote != null)
+        {
+            linkedHoldNote.StopHold();
+            Debug.LogError("[HoldTickPulse] StopTick - Notified LinkedHoldNote");
+        }
+        else
+        {
+            Debug.LogError("[HoldTickPulse] StopTick - LinkedHoldNote NOT FOUND");
+        }
+        
         OnExit?.Invoke();
-        if (debugLog) Debug.Log("[HoldTickPulse] StopTick - Stopped (_active = false)");
+        Debug.LogError("[HoldTickPulse] StopTick - OnExit invoked");
+        
+        Debug.LogError("[HoldTickPulse] ========== StopTick END ==========");
     }
 
     // ───────────────────────────────────────
