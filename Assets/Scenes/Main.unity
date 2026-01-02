@@ -19676,6 +19676,8 @@ MonoBehaviour:
   videoAudio: {fileID: 1763401055}
   resultRoot: {fileID: 942037559}
   jingleSource: {fileID: 942037565}
+  resultSuccessClip: {fileID: 32900000, guid: 3f4d6ac8875975940913b97859fe2c25, type: 3}
+  resultFailClip: {fileID: 32900000, guid: f5f2e325cf403164ea16c265ac87391c, type: 3}
   prepareTimeout: 1
   settleWait: 0.05
 --- !u!43 &1764202289

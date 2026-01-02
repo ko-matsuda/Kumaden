@@ -22,6 +22,10 @@ public class CookingResultSequence : MonoBehaviour
     public AudioSource videoAudio;
     public GameObject resultRoot;
     public AudioSource jingleSource;
+    
+    [Header("Result Videos")]
+    public VideoClip resultSuccessClip;
+    public VideoClip resultFailClip;
 
     [Header("Timings")]
     public float prepareTimeout = 1.0f;
@@ -124,6 +128,30 @@ public class CookingResultSequence : MonoBehaviour
         Debug.Log("[CookingResultSequence] Starting");
 
         StoreResultData();
+        
+        // ★★★ ランクに応じて動画を設定 ★★★
+        if (videoPlayer != null)
+        {
+            string rank = PlayerPrefs.GetString("CookingResult_Rank", "C");
+            Debug.Log($"[CookingResultSequence] Setting video for rank: {rank}");
+            
+            if (rank == "S" || rank == "A" || rank == "B")
+            {
+                if (resultSuccessClip != null)
+                {
+                    videoPlayer.clip = resultSuccessClip;
+                    Debug.Log("[CookingResultSequence] Set SUCCESS video");
+                }
+            }
+            else
+            {
+                if (resultFailClip != null)
+                {
+                    videoPlayer.clip = resultFailClip;
+                    Debug.Log("[CookingResultSequence] Set FAIL video");
+                }
+            }
+        }
 
         if (fadeGroup)
         {
