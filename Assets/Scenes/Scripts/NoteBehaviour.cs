@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -179,9 +179,22 @@ public class NoteBehaviour : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void Miss()
+public void Miss()
     {
         if (state == State.Finished) return;
+        
+        Debug.LogWarning($"[NoteBehaviour] MISS TRIGGERED! Lane={laneIndex}, Type={Type}");
+        
+        // Miss表示を強制的に呼び出す
+        if (ScoreManagerLite.Instance != null)
+        {
+            Debug.LogWarning("[NoteBehaviour] Calling ScoreManagerLite.OnPick with MISS");
+        }
+        else
+        {
+            Debug.LogError("[NoteBehaviour] ScoreManagerLite.Instance is NULL!");
+        }
+        
         onMiss?.Invoke();
         Release();
     }

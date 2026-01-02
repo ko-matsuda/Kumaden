@@ -158,7 +158,7 @@ public class LinkedHoldNote : MonoBehaviour
         }
     }
 
-    void Update()
+void Update()
     {
         inputActiveThisFrame = false;
 
@@ -281,6 +281,21 @@ public class LinkedHoldNote : MonoBehaviour
 
         if (end.z <= playerZ)
         {
+            if (!isHolding && !hasEnded)
+            {
+                if (debugLog) Debug.Log("[LinkedHoldNote] MISS - EndNote passed without holding");
+                var comboProbe = FindObjectOfType<ComboProbe>();
+                if (comboProbe != null)
+                {
+                    comboProbe.OnNoteMiss();
+                }
+                var scoreMgr = ScoreManagerLite.Instance;
+                if (scoreMgr != null)
+                {
+                    scoreMgr.OnPick(ingredientType, "MISS");
+                }
+                hasEnded = true;
+            }
             HideRibbon();
             return;
         }
@@ -402,15 +417,40 @@ public class LinkedHoldNote : MonoBehaviour
         return result;
     }
 
-    public void HideRibbon()
+public void HideRibbon()
     {
-        if (debugLog) Debug.Log($"[Ribbon] HideRibbon called - isHolding was: {isHolding}");
+        if (debugLog) Debug.Log("[Ribbon] HideRibbon called - isHolding was: " + isHolding);
         
         // Hold終了時にPERFECT明滅を停止
         var scoreMgr = ScoreManagerLite.Instance;
         if (scoreMgr != null)
         {
             scoreMgr.StopHoldPerfect();
+        }
+        
+        // isHolding=falseでHideRibbonが呼ばれた場合はMISS
+        if (!isHolding && !hasEnded)
+        {
+            if (debugLog) Debug.LogWarning("[LinkedHoldNote] HideRibbon - MISS detected (not holding)");
+            
+            // Comboリセット
+            var comboProbe = FindObjectOfType<ComboProbe>();
+            if (comboProbe != null)
+            {
+                comboProbe.OnNoteMiss();
+            }
+            
+            // MISS表示
+            if (scoreMgr != null)
+            {
+                if (debugLog) Debug.LogWarning("[LinkedHoldNote] Calling ScoreManagerLite.OnPick(MISS)");
+                scoreMgr.OnPick(ingredientType, "MISS");
+                if (debugLog) Debug.LogWarning("[LinkedHoldNote] ScoreManagerLite.OnPick(MISS) completed");
+            }
+            else
+            {
+                if (debugLog) Debug.LogError("[LinkedHoldNote] ScoreManagerLite.Instance is NULL!");
+            }
         }
         
         if (isHolding)
@@ -424,7 +464,7 @@ public class LinkedHoldNote : MonoBehaviour
             endCloseActive = true;
             endCloseTimer = 0f;
             endCloseStartWidth = ribbonLine.startWidth;
-            if (debugLog) Debug.Log($"[Ribbon] End close animation started - startWidth={endCloseStartWidth}");
+            if (debugLog) Debug.Log("[Ribbon] End close animation started - startWidth=" + endCloseStartWidth);
         }
         else
         {

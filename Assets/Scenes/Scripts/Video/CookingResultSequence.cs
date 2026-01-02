@@ -129,29 +129,7 @@ public class CookingResultSequence : MonoBehaviour
 
         StoreResultData();
         
-        // ★★★ ランクに応じて動画を設定 ★★★
-        if (videoPlayer != null)
-        {
-            string rank = PlayerPrefs.GetString("CookingResult_Rank", "C");
-            Debug.Log($"[CookingResultSequence] Setting video for rank: {rank}");
-            
-            if (rank == "S" || rank == "A" || rank == "B")
-            {
-                if (resultSuccessClip != null)
-                {
-                    videoPlayer.clip = resultSuccessClip;
-                    Debug.Log("[CookingResultSequence] Set SUCCESS video");
-                }
-            }
-            else
-            {
-                if (resultFailClip != null)
-                {
-                    videoPlayer.clip = resultFailClip;
-                    Debug.Log("[CookingResultSequence] Set FAIL video");
-                }
-            }
-        }
+        
 
         if (fadeGroup)
         {
@@ -175,6 +153,16 @@ public class CookingResultSequence : MonoBehaviour
 
         if (videoPlayer)
         {
+            // ★★★ RenderTextureをクリア ★★★
+            if (videoPlayer.targetTexture != null)
+            {
+                RenderTexture rt = videoPlayer.targetTexture;
+                RenderTexture.active = rt;
+                GL.Clear(true, true, Color.black);
+                RenderTexture.active = null;
+                Debug.Log("[CookingResultSequence] RenderTexture cleared");
+            }
+            
             if (videoAudio)
             {
                 videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
@@ -271,7 +259,7 @@ public class CookingResultSequence : MonoBehaviour
         isRunning = false;
     }
 
-    void StoreResultData()
+void StoreResultData()
     {
         var score = ScoreManagerLite.Instance;
         if (score == null)
@@ -290,12 +278,35 @@ public class CookingResultSequence : MonoBehaviour
         float playTime = Time.timeSinceLevelLoad;
 
         string rank;
-        if (miss == 0 && good <= 5) rank = "S";
-        else if (miss <= 3) rank = "A";
-        else if (miss <= 10) rank = "B";
+        if (miss == 0) rank = "S";
+        else if (miss <= 1) rank = "A";
+        else if (miss <= 2) rank = "B";
         else rank = "C";
 
         ResultStore.Save(maxCombo, perfect, good, miss, egg, flour, milk, rank, playTime);
         Debug.Log($"[CookingResultSequence] Saved: P={perfect} G={good} M={miss} Combo={maxCombo} Rank={rank}");
+        
+        // ★★★ ここで動画を設定（PlayerPrefs保存の前）★★★
+        if (videoPlayer != null)
+        {
+            Debug.Log($"[CookingResultSequence] Setting video for rank: {rank}");
+            
+            if (rank == "S" || rank == "A" || rank == "B")
+            {
+                if (resultSuccessClip != null)
+                {
+                    videoPlayer.clip = resultSuccessClip;
+                    Debug.Log($"[CookingResultSequence] Set SUCCESS video: {resultSuccessClip.name}");
+                }
+            }
+            else
+            {
+                if (resultFailClip != null)
+                {
+                    videoPlayer.clip = resultFailClip;
+                    Debug.Log($"[CookingResultSequence] Set FAIL video: {resultFailClip.name}");
+                }
+            }
+        }
     }
 }
