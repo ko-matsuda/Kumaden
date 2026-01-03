@@ -31,9 +31,27 @@ public class ResultCaller : MonoBehaviour
 
 void OnEnable()
     {
-        Debug.Log("[ResultCaller] OnEnable called - DISABLED for 2-song loop");
-        // 2曲ループ中はリザルトを表示しない
-        return;
+        Debug.Log("[ResultCaller] OnEnable called");
+        
+        // ResultVideoControllerがあればそちらを使用
+        if (resultVideoController != null)
+        {
+            // Rankを計算して設定
+            string rank = CalculateRank();
+            resultVideoController.rank = rank;
+            
+            Debug.Log($"[ResultCaller] OnEnable - rank={rank}, playing result video");
+            
+            // リザルト動画再生
+            Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoController}");
+            
+            resultVideoController.PlayResultVideo();
+        }
+        else
+        {
+            // 従来のフロー
+            Hook();
+        }
     }
 
     string CalculateRank()

@@ -85,7 +85,16 @@ void Start()
 
 void BootGameNow()
     {
-        Debug.Log("[PrologueGate] BootGameNow called");
+        
+        
+        // ResultCanvasを非表示（ゲーム開始時）
+        var resultCanvas = GameObject.Find("ResultCanvas");
+        if (resultCanvas != null)
+        {
+            resultCanvas.SetActive(false);
+            Debug.Log("[PrologueGate] ResultCanvas hidden");
+        }
+Debug.Log("[PrologueGate] BootGameNow called");
         
         // Animatorや自前のステートが止まっていると嫌なので、最低限の解除
         foreach (var anim in FindObjectsOfType<Animator>())

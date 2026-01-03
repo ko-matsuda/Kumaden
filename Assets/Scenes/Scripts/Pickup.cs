@@ -148,12 +148,12 @@ private void OnTriggerEnter(Collider other)
 
 private void OnTriggerExit(Collider other)
     {
-        Debug.LogError("[Pickup] OnTriggerExit called - Tag=" + other.tag);
+        Debug.Log("[Pickup] OnTriggerExit called - Tag=" + other.tag);
         
         // ホールド中に外れた場合
         if (other.CompareTag("LinkedHoldStart") || other.CompareTag("LinkedHoldEnd"))
         {
-            Debug.LogError("[Pickup] OnTriggerExit - Hold tag detected!");
+        Debug.Log("[Pickup] OnTriggerExit - Hold tag detected!");
             
             if (holdTickPulse != null)
             {
@@ -161,13 +161,14 @@ private void OnTriggerExit(Collider other)
                 
                 if (holdTickPulse.IsActive)
                 {
-                    Debug.LogError("[Pickup] OnTriggerExit - Hold interrupted! Calling StopTick");
+        Debug.Log("[Pickup] OnTriggerExit - Hold interrupted! Calling StopTick");
                     holdTickPulse.StopTick();
                 }
             }
             else
             {
-                Debug.LogError("[Pickup] holdTickPulse is NULL!");
+                Debug.LogWarning("[Pickup] holdTickPulse is NULL - skipping hold end processing");
+                return;
             }
         }
     }

@@ -18268,6 +18268,7 @@ MonoBehaviour:
     chartJson: {fileID: 4900000, guid: 604b211bec8c00d4e8e6e281bf9238c0, type: 3}
   chartSpawner: {fileID: 1350261113}
   conductor: {fileID: 538003176}
+  enableLooping: 0
 --- !u!1 &1655579930
 GameObject:
   m_ObjectHideFlags: 0
@@ -21580,8 +21581,10 @@ MonoBehaviour:
   videoPlayer: {fileID: 1859113767}
   resultSuccess: {fileID: 32900000, guid: 3f4d6ac8875975940913b97859fe2c25, type: 3}
   resultFail: {fileID: 32900000, guid: f5f2e325cf403164ea16c265ac87391c, type: 3}
-  resultCanvas: {fileID: 942037559}
+  resultHUD: {fileID: 0}
+  quickRanking: {fileID: 0}
   rank: 
+  delayAfterVideo: 0.35
 --- !u!1 &1860592125
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,7 +3,8 @@ using UnityEngine.Video;
 
 /// <summary>
 /// リザルト動画を Rank に応じて出し分けるコントローラー
-/// S なら Result.mp4、それ以外なら Result_Fail.mp4
+/// S/A/B: Result.mp4（成功）
+/// C: Result_Fail.mp4（失敗）
 /// </summary>
 public class ResultVideoController : MonoBehaviour
 {
@@ -11,33 +12,26 @@ public class ResultVideoController : MonoBehaviour
     public VideoPlayer videoPlayer;
     
     [Header("Video Clips")]
-    public VideoClip resultSuccess;  // Result.mp4
-    public VideoClip resultFail;     // Result_Fail.mp4
+    public VideoClip resultSuccess;  // S/A/B用
+    public VideoClip resultFail;     // C用
     
     [Header("Result UI")]
-    public GameObject resultCanvas;
+    public ResultHUD resultHUD;
+    public QuickRankingDisplay quickRanking;
     
     [Header("Rank (外部から設定される)")]
     public string rank = "";
     
+    [Header("表示までの遅延(秒)")]
+    public float delayAfterVideo = 0.35f;
+    
     private bool videoPlayed = false;
 
-void Start()
+    void Awake()
     {
-        // 自動検索と設定
         if (videoPlayer == null)
         {
             videoPlayer = GetComponent<VideoPlayer>();
-        }
-        
-        if (resultCanvas == null)
-        {
-            resultCanvas = GameObject.Find("ResultCanvas");
-        }
-        
-        if (resultCanvas != null)
-        {
-            resultCanvas.SetActive(false);
         }
         
         if (videoPlayer != null)
@@ -45,39 +39,114 @@ void Start()
             videoPlayer.loopPointReached += OnVideoFinished;
         }
         
-        Debug.Log($"[ResultVideoController] Initialized - videoPlayer={videoPlayer}, resultCanvas={resultCanvas}, resultSuccess={resultSuccess}, resultFail={resultFail}");
+        Debug.Log($"[ResultVideoController] Awake - videoPlayer={videoPlayer}, resultSuccess={resultSuccess}, resultFail={resultFail}");
     }
 
-    /// <summary>
-    /// 外部から呼ばれる想定のメソッド
-    /// </summary>
+    void Start()
+    {
+        if (resultHUD == null)
+        {
+            resultHUD = FindObjectOfType<ResultHUD>(true);
+        }
+        
+        if (quickRanking == null)
+        {
+            quickRanking = FindObjectOfType<QuickRankingDisplay>(true);
+        }
+        
+        Debug.Log($"[ResultVideoController] Start - resultHUD={resultHUD}, quickRanking={quickRanking}");
+    }
+
     public void PlayResultVideo()
     {
-        if (videoPlayed) return;
-        if (videoPlayer == null) return;
+        Debug.Log($"[ResultVideoController] PlayResultVideo called - rank={rank}");
         
-        // Rank が S なら Result.mp4、それ以外なら Result_Fail.mp4
-        if (rank == "S")
+        if (videoPlayed) return;
+        if (videoPlayer == null || resultSuccess == null || resultFail == null)
+        {
+            Debug.LogError("[ResultVideoController] Not initialized!");
+            return;
+        }
+        
+        // Rankに応じて動画を選択
+        if (rank == "S" || rank == "A" || rank == "B")
         {
             videoPlayer.clip = resultSuccess;
+            Debug.Log("[ResultVideoController] Playing SUCCESS video");
         }
         else
         {
             videoPlayer.clip = resultFail;
+            Debug.Log("[ResultVideoController] Playing FAIL video");
         }
         
         videoPlayer.Play();
         videoPlayed = true;
     }
 
-    /// <summary>
-    /// 動画再生完了時のコールバック
-    /// </summary>
     private void OnVideoFinished(VideoPlayer vp)
     {
-        if (resultCanvas != null)
+        Debug.Log("[ResultVideoController] OnVideoFinished - showing result UI");
+        Invoke(nameof(ShowResult), delayAfterVideo);
+    }
+
+    void ShowResult()
+    {
+        Time.timeScale = 1f;
+
+        if (resultHUD != null)
         {
-            resultCanvas.SetActive(true);
+            resultHUD.gameObject.SetActive(true);
+            resultHUD.ShowResult();
+            
+            Debug.Log("[ResultVideoController] ResultHUD shown");
+            
+            // 3秒後にランキング表示
+            Invoke(nameof(ShowRanking), 3.0f);
+        }
+        else
+        {
+            Debug.LogError("[ResultVideoController] ResultHUD is null!");
+        }
+    }
+    
+    void ShowRanking()
+    {
+        // SafeAreaを非表示
+        var safeArea = GameObject.Find("SafeArea");
+        if (safeArea != null)
+        {
+            var canvasGroup = safeArea.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                canvasGroup = safeArea.AddComponent<CanvasGroup>();
+            }
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+            
+            Debug.Log("[ResultVideoController] SafeArea hidden");
+        }
+        
+        // ランキングを表示
+        if (quickRanking != null)
+        {
+            var score = ScoreManagerLite.Instance;
+            if (score != null)
+            {
+                int myScore = score.PerfectCount * 100 + score.GoodCount * 50;
+                int myRank = Random.Range(3, 8);
+                
+                var topPlayer = new RankingEntry("Player_" + (char)('A' + Random.Range(0, 26)), myScore + Random.Range(100, 500));
+                var bottomPlayer = new RankingEntry("Player_" + (char)('A' + Random.Range(0, 26)), myScore - Random.Range(100, 500));
+                
+                quickRanking.ShowRanking(myRank, myScore, topPlayer, bottomPlayer);
+                Debug.Log("[ResultVideoController] QuickRanking shown");
+            }
+        }
+        else
+        {
+            Debug.LogError("[ResultVideoController] QuickRanking is null!");
         }
     }
 

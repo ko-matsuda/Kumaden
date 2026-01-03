@@ -98,7 +98,7 @@ MonoBehaviour:
   tickRateHz: 2.5
   useGating: 1
   isGated: 1
-  laneIndex: 0
+  laneIndex: 1
   OnTick:
     m_PersistentCalls:
       m_Calls: []

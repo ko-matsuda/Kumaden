@@ -17,45 +17,130 @@ public class SongLoopController : MonoBehaviour
     [SerializeField] private Conductor conductor;
 
     
-    private bool isTransitioning = false;
+    
+    [Header("Loop Settings")]
+    public bool enableLooping = false;
+private bool isTransitioning = false;
 private int currentSongIndex = 0;
     private AudioSource musicSource;
 
-    void Awake()
+void Awake()
     {
-        Debug.Log("[SongLoopController] Awake");
-
+        Debug.Log("[SongLoopController] Awake called");
+        
         if (conductor == null)
             conductor = FindObjectOfType<Conductor>();
-
-        if (conductor == null)
+        
+        if (conductor != null)
+            musicSource = conductor.GetComponent<AudioSource>();
+        
+        // ResultCanvasを強制的に非表示（ゲーム開始時のみ）
+        var resultCanvas = GameObject.Find("ResultCanvas");
+        if (resultCanvas != null)
         {
-            Debug.LogError("[SongLoopController] Conductor not found");
-            return;
+            resultCanvas.SetActive(false);
+            Debug.Log("[SongLoopController] ResultCanvas hidden in Awake");
         }
-
-        musicSource = conductor.GetComponent<AudioSource>();
-        if (musicSource == null)
+        
+        // SafeAreaを再表示
+        var safeArea = GameObject.Find("SafeArea");
+        if (safeArea != null)
         {
-            Debug.LogError("[SongLoopController] AudioSource not found on Conductor");
-            return;
+            var canvasGroup = safeArea.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+            }
+            Debug.Log("[SongLoopController] SafeArea shown in Awake");
         }
-
-        PlayCurrentSong();
+        
+        Debug.Log($"[SongLoopController] Setting up song {currentSongIndex}");
+        musicSource.clip = songs[currentSongIndex].audioClip;
+        LoadChart();
+        
+        Debug.Log($"[SongLoopController] Setup complete - clip={musicSource.clip.name}");
     }
 
 void Update()
     {
-        if (musicSource == null || conductor == null || isTransitioning)
+        if (musicSource == null || conductor == null)
             return;
         
-        // 音楽が再生中で、終了間近になったら次の曲へ
-        if (musicSource.isPlaying && musicSource.time >= musicSource.clip.length - 0.2f)
+        // ループが有効な場合：曲切り替えを続ける
+        if (enableLooping)
         {
-            Debug.Log($"[SongLoopController] Song {currentSongIndex} about to end - time={musicSource.time}, length={musicSource.clip.length}");
-            StartCoroutine(TransitionToNextSong());
+            if (!isTransitioning && musicSource.isPlaying && musicSource.time >= musicSource.clip.length - 0.5f)
+            {
+                Debug.Log($"[SongLoopController] Song {currentSongIndex} about to end - preloading next song");
+                StartCoroutine(TransitionToNextSong());
+            }
+        }
+        // ループが無効な場合：2曲目終了時にリザルト表示
+        else
+        {
+            if (!isTransitioning && musicSource.isPlaying && musicSource.time >= musicSource.clip.length - 0.5f)
+            {
+                // 1曲目終了：次の曲へ
+                if (currentSongIndex == 0)
+                {
+                    Debug.Log($"[SongLoopController] Song 0 finished - transitioning to song 1");
+                    StartCoroutine(TransitionToNextSong());
+                }
+                // 2曲目終了：リザルト表示
+                else if (currentSongIndex == 1)
+                {
+                    Debug.Log($"[SongLoopController] Song 1 finished - showing result");
+                    isTransitioning = true;
+                    ShowResult();
+                }
+            }
         }
     }
+
+void ShowResult()
+    {
+        Debug.Log("[SongLoopController] ShowResult called");
+        
+        // SafeAreaを非表示
+        var safeArea = GameObject.Find("SafeArea");
+        if (safeArea != null)
+        {
+            var canvasGroup = safeArea.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                canvasGroup = safeArea.AddComponent<CanvasGroup>();
+            }
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+            Debug.Log("[SongLoopController] SafeArea hidden");
+        }
+        
+        // ResultCanvasを有効化
+        var resultCanvas = GameObject.Find("ResultCanvas");
+        if (resultCanvas != null)
+        {
+            resultCanvas.SetActive(true);
+            
+            // ResultCanvasのCanvasGroupを確実に表示
+            var canvasGroup = resultCanvas.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+            }
+            
+            Debug.Log("[SongLoopController] ResultCanvas activated");
+        }
+        else
+        {
+            Debug.LogError("[SongLoopController] ResultCanvas not found!");
+        }
+    }
+
 
 private System.Collections.IEnumerator TransitionToNextSong()
     {
@@ -64,16 +149,26 @@ private System.Collections.IEnumerator TransitionToNextSong()
         Debug.Log("[SongLoopController] TransitionToNextSong started");
         
         // 次の曲インデックス
-        int nextIndex = (currentSongIndex + 1) % songs.Length;
+        int nextIndex;
+        if (enableLooping)
+        {
+            // ループ有効：循環
+            nextIndex = (currentSongIndex + 1) % songs.Length;
+        }
+        else
+        {
+            // ループ無効：0→１のみ
+            nextIndex = currentSongIndex + 1;
+            if (nextIndex >= songs.Length)
+            {
+                Debug.LogWarning("[SongLoopController] No more songs to play");
+                isTransitioning = false;
+                yield break;
+            }
+        }
         
         // 現在の音楽が終わる正確な時刻を計算
         double endTime = AudioSettings.dspTime + (musicSource.clip.length - musicSource.time);
-        
-        // Conductorのタイミングを調整（曲切り替え前）
-        if (conductor != null)
-        {
-            conductor.ResetTiming();
-        }
         
         // 前の曲のノーツをクリア
         if (chartSpawner != null)
@@ -81,13 +176,25 @@ private System.Collections.IEnumerator TransitionToNextSong()
             chartSpawner.ResetForNewSong();
         }
         
-        yield return null;
-        
         // 曲を切り替え
         currentSongIndex = nextIndex;
         musicSource.clip = songs[currentSongIndex].audioClip;
         
-        // 次の曲のチャートを読み込み
+        // Conductorのタイミングを調整
+        if (conductor != null)
+        {
+            conductor.ResetTiming();
+        }
+        
+        // 正確なタイミングで音楽開始
+        musicSource.PlayScheduled(endTime);
+        
+        Debug.Log($"[SongLoopController] Song {currentSongIndex} scheduled at {endTime}");
+        
+        // 1フレーム待つ（音楽は間に合う）
+        yield return null;
+        
+        // 次のフレームでチャート読み込み（重い処理）
         if (chartSpawner != null && songs[nextIndex].chartJson != null)
         {
             chartSpawner.LoadChartFromJson(songs[nextIndex].chartJson.text);
@@ -100,11 +207,6 @@ private System.Collections.IEnumerator TransitionToNextSong()
             conductor.bpm = chartSpawner.currentChart.bpm;
             Debug.Log($"[SongLoopController] BPM updated to {conductor.bpm}");
         }
-        
-        // 正確なタイミングで音楽開始
-        musicSource.PlayScheduled(endTime);
-        
-        Debug.Log($"[SongLoopController] Song {currentSongIndex} scheduled at {endTime}");
         
         isTransitioning = false;
     }
