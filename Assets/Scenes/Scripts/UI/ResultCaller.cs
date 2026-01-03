@@ -129,7 +129,7 @@ public class ResultCaller : MonoBehaviour
         }
     }
     
-    void ShowRanking()
+void ShowRanking()
     {
         // SafeAreaを非表示（CanvasGroupのアルファで制御）
         var safeArea = GameObject.Find("SafeArea");
@@ -155,14 +155,15 @@ public class ResultCaller : MonoBehaviour
             var score = ScoreManagerLite.Instance;
             if (score != null)
             {
-                int myScore = score.PerfectCount * 100 + score.GoodCount * 50;
+                // スコア計算（コンボボーナス含む）
+                int myScore = score.CalculateTotalScore();
                 int myRank = Random.Range(3, 8);
                 
                 var topPlayer = new RankingEntry("Player_" + (char)('A' + Random.Range(0, 26)), myScore + Random.Range(100, 500));
                 var bottomPlayer = new RankingEntry("Player_" + (char)('A' + Random.Range(0, 26)), myScore - Random.Range(100, 500));
                 
                 quickRanking.ShowRanking(myRank, myScore, topPlayer, bottomPlayer);
-                Debug.Log("[ResultCaller] QuickRanking.ShowRanking() called");
+                Debug.Log($"[ResultCaller] QuickRanking.ShowRanking() called - myScore={myScore}");
             }
             else
             {

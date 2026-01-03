@@ -1,0 +1,64 @@
+{
+  "songName": "Kuma Odyssey",
+  "bpm": 121,
+  "offset": 0.0,
+  "notes": [
+    {"beat": 12.2, "lane": 1, "type": "Milk"},
+    {"beat": 16.2, "lane": 0, "type": "Flour"},
+    {"beat": 20.2, "lane": 2, "type": "Egg"},
+    {"beat": 24.2, "lane": 1, "type": "Milk"},
+    
+    {"beat": 28.2, "lane": 2, "type": "Egg"},
+    {"beat": 32.2, "lane": 0, "type": "Flour"},
+    {"beat": 36.2, "lane": 1, "type": "Milk"},
+    {"beat": 40.2, "lane": 2, "type": "Egg"},
+    {"beat": 40.2, "lane": 0, "type": "Flour"},
+    
+    {"beat": 44.2, "lane": 1, "type": "Milk"},
+    {"beat": 48.2, "lane": 0, "type": "Flour"},
+    {"beat": 52.2, "lane": 2, "type": "Egg"},
+    {"beat": 56.2, "lane": 1, "type": "Milk"},
+    
+    {"beat": 60.2, "lane": 0, "type": "Flour"},
+    {"beat": 64.2, "lane": 2, "type": "Egg"},
+    {"beat": 68.2, "lane": 1, "type": "Milk"},
+    {"beat": 72.2, "lane": 0, "type": "Flour"},
+    
+    {"beat": 76.2, "lane": 2, "type": "Egg"},
+    {"beat": 76.2, "lane": 1, "type": "Milk"},
+    {"beat": 80.2, "lane": 0, "type": "Flour"},
+    
+    {"beat": 84.2, "lane": 2, "type": "Egg"},
+    {"beat": 88.2, "lane": 1, "type": "Milk", "linkedHold": true, "holdDuration": 4.0},
+    
+    {"beat": 92.2, "lane": 0, "type": "Flour"},
+    {"beat": 96.2, "lane": 2, "type": "Egg"},
+    {"beat": 100.2, "lane": 1, "type": "Milk"},
+    
+    {"beat": 104.2, "lane": 0, "type": "Flour", "linkedHold": true, "holdDuration": 8.0},
+    
+    {"beat": 112.2, "lane": 2, "type": "Egg", "linkedHold": true, "holdDuration": 8.0},
+    
+    {"beat": 120.2, "lane": 1, "type": "Milk", "linkedHold": true, "holdDuration": 8.0},
+    
+    {"beat": 128.2, "lane": 0, "type": "Flour", "linkedHold": true, "holdDuration": 8.0},
+    
+    {"beat": 136.2, "lane": 2, "type": "Egg", "linkedHold": true, "holdDuration": 8.0},
+    
+    {"beat": 144.2, "lane": 1, "type": "Milk", "linkedHold": true, "holdDuration": 8.0},
+    
+    {"beat": 152.2, "lane": 0, "type": "Flour", "linkedHold": true, "holdDuration": 8.0},
+    
+    {"beat": 160.2, "lane": 2, "type": "Egg"},
+    {"beat": 164.2, "lane": 1, "type": "Milk"},
+    {"beat": 168.2, "lane": 0, "type": "Flour"},
+    
+    {"beat": 172.2, "lane": 2, "type": "Egg"},
+    {"beat": 176.2, "lane": 1, "type": "Milk"},
+    {"beat": 180.2, "lane": 0, "type": "Flour"},
+    
+    {"beat": 184.2, "lane": 2, "type": "Egg"},
+    {"beat": 184.2, "lane": 1, "type": "Milk"},
+    {"beat": 188.2, "lane": 0, "type": "Flour"}
+  ]
+}

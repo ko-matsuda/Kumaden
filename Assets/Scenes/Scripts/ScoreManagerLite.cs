@@ -272,4 +272,23 @@ private IEnumerator ShowJudgeText(string judge, bool isHoldContinuous)
         else if (dst.font != null)
             dst.fontSharedMaterial = dst.font.material;
     }
+
+
+public int CalculateTotalScore()
+    {
+        // スコア計算式:
+        // PERFECT: 100点
+        // GOOD: 50点
+        // MISS: 0点
+        // コンボボーナス: 最大コンボ × 10点
+        
+        int score = (perfectCount * 100) + (goodCount * 50);
+        
+        // ComboProbeから最大コンボを取得
+        var comboProbe = FindObjectOfType<ComboProbe>();
+        int maxCombo = comboProbe != null ? comboProbe.GetMaxCombo() : 0;
+        
+        int comboBonus = maxCombo * 10;
+        return score + comboBonus;
+    }
 }

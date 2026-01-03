@@ -59,7 +59,9 @@ public class ResultUI : MonoBehaviour
     public Color RankColorC = new Color(1f, 0.9f, 0.6f);
 
     [Header("Others")]
-    public TMP_Text ComboValue;
+    
+    public TMP_Text TotalScoreValue;
+public TMP_Text ComboValue;
     public TMP_Text PerfectValue;
     public TMP_Text GoodValue;
     public TMP_Text MissValue;
@@ -153,7 +155,19 @@ public class ResultUI : MonoBehaviour
         if (Title) Title.text = "RESULT";
         if (Sub)   Sub.text   = s.playTimeSec > 0f ? FormatTime(s.playTimeSec) : "—";
 
-        if (ComboValue)   ComboValue.text   = s.maxCombo.ToString();
+        
+        
+        // 総合スコア表示
+        if (TotalScoreValue)
+        {
+            var scoreMgr = ScoreManagerLite.Instance;
+            if (scoreMgr != null)
+            {
+                int totalScore = scoreMgr.CalculateTotalScore();
+                TotalScoreValue.text = totalScore.ToString("N0");
+            }
+        }
+if (ComboValue)   ComboValue.text   = s.maxCombo.ToString();
         if (PerfectValue) PerfectValue.text = s.perfect.ToString();
         if (GoodValue)    GoodValue.text    = s.good.ToString();
         if (MissValue)    MissValue.text    = s.miss.ToString();

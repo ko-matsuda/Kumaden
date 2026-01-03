@@ -16,7 +16,9 @@ public class ComboProbe : MonoBehaviour
     [SerializeField, Range(0.05f, 0.3f)] private float colorFadeDuration = 0.2f;
 
     [Header("Debug")]
-    [SerializeField] private int currentComboCount = 0;
+    [SerializeField] 
+    private int maxComboCount = 0;
+private int currentComboCount = 0;
 
     private Vector3 originalScale = Vector3.one;
     private Coroutine punchCoroutine;
@@ -41,10 +43,14 @@ public class ComboProbe : MonoBehaviour
         }
     }
 
-    public void OnNormalNote()
+public void OnNormalNote()
     {
         currentComboCount++;
-        Debug.Log($"[ComboProbe] Normal note - COMBO count: {currentComboCount}");
+        if (currentComboCount > maxComboCount)
+        {
+            maxComboCount = currentComboCount;
+        }
+        Debug.Log($"[ComboProbe] Normal note - COMBO count: {currentComboCount}, MAX: {maxComboCount}");
         PlayPunchAnimation();
     }
 
@@ -53,10 +59,14 @@ public class ComboProbe : MonoBehaviour
         Debug.Log($"[ComboProbe] OnHoldEnter - Starting COMBO count");
     }
 
-    public void OnHoldTick()
+public void OnHoldTick()
     {
         currentComboCount++;
-        Debug.Log($"[ComboProbe] COMBO count increased: {currentComboCount}");
+        if (currentComboCount > maxComboCount)
+        {
+            maxComboCount = currentComboCount;
+        }
+        Debug.Log($"[ComboProbe] COMBO count increased: {currentComboCount}, MAX: {maxComboCount}");
         PlayPunchAnimation();
     }
 
@@ -147,5 +157,11 @@ public class ComboProbe : MonoBehaviour
 
         comboText.color = normalColor;
         colorCoroutine = null;
+    }
+
+
+public int GetMaxCombo()
+    {
+        return maxComboCount;
     }
 }

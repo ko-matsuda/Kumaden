@@ -12,15 +12,20 @@ public class ResultHUD : MonoBehaviour
     [Tooltip("（任意）ボタンだけ別にフェードしたいなら、ボタン用の CanvasGroup")]
     [SerializeField] private CanvasGroup buttonsGroup;
 
+    [Header("Score Display")]
+    [SerializeField] private TMPro.TMP_Text scoreText;
+    [SerializeField] private TMPro.TMP_Text rankingText;
+
     [Header("Buttons")]
     [SerializeField] private Button retryButton;
     [SerializeField] private Button titleButton;
 
-        [Header("リザルト音")]
+    [Header("リザルト音")]
     [Tooltip("リザルト表示時の音")]
     [SerializeField] private AudioClip resultSE;
     [SerializeField, Range(0f, 1f)] private float resultVolume = 0.7f;
-[Header("FX (Optional)")]
+    
+    [Header("FX (Optional)")]
     [Tooltip("クリック音（任意）")]
     [SerializeField] private AudioSource clickSE;
     [Tooltip("フェード秒数")]
@@ -75,7 +80,7 @@ public class ResultHUD : MonoBehaviour
     }
 
     /// <summary>結果UIを表示（料理動画のあと等で1回呼ぶ）</summary>
-public void ShowResult()
+    public void ShowResult()
     {
         if (isShowing || isBusy) return;
         isShowing = true;
@@ -91,6 +96,9 @@ public void ShowResult()
             titleButton.onClick.RemoveAllListeners();
             titleButton.onClick.AddListener(OnTitle);
         }
+        
+        // スコアとランキングを表示
+        UpdateScoreDisplay();
         
         // SafeAreaは最初は表示したまま（ResultCallerが3秒後に消す）
         
@@ -189,5 +197,43 @@ public void ShowResult()
 
         if (!TryGetComponent<UnityEngine.UI.GraphicRaycaster>(out _))
             gameObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+    }
+
+    private void UpdateScoreDisplay()
+    {
+        var scoreMgr = ScoreManagerLite.Instance;
+        if (scoreMgr == null)
+        {
+            Debug.LogWarning("[ResultHUD] ScoreManagerLite not found.");
+            return;
+        }
+        
+        // スコア計算
+        int totalScore = scoreMgr.CalculateTotalScore();
+        
+        // スコア表示
+        if (scoreText != null)
+        {
+            scoreText.text = totalScore.ToString("N0"); // カンマ区切り
+        }
+        
+        // ランキング判定
+        string ranking = DetermineRanking(totalScore);
+        if (rankingText != null)
+        {
+            rankingText.text = "RANK: " + ranking;
+        }
+        
+        Debug.Log($"[ResultHUD] Total Score: {totalScore}, Ranking: {ranking}");
+    }
+
+    private string DetermineRanking(int score)
+    {
+        // ランキング基準（調整可能）
+        if (score >= 10000) return "S";
+        if (score >= 7500) return "A";
+        if (score >= 5000) return "B";
+        if (score >= 2500) return "C";
+        return "D";
     }
 }
