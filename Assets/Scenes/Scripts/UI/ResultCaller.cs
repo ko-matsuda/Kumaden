@@ -29,25 +29,11 @@ public class ResultCaller : MonoBehaviour
         if (!resultVideoController) resultVideoController = FindObjectOfType<ResultVideoController>(true);
     }
 
-    void OnEnable()
+void OnEnable()
     {
-        // ResultVideoControllerがあればそちらを使用
-        if (resultVideoController != null)
-        {
-            // Rankを計算して設定
-            string rank = CalculateRank();
-            resultVideoController.rank = rank;
-            
-            Debug.Log($"[ResultCaller] OnEnable - rank={rank}, playing result video");
-            
-            // リザルト動画再生
-            resultVideoController.PlayResultVideo();
-        }
-        else
-        {
-            // 従来のフロー
-            Hook();
-        }
+        Debug.Log("[ResultCaller] OnEnable called - DISABLED for 2-song loop");
+        // 2曲ループ中はリザルトを表示しない
+        return;
     }
 
     string CalculateRank()

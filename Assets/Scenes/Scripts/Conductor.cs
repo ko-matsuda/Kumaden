@@ -69,7 +69,6 @@ public void StartMusic()
         Debug.Log($"[Conductor] scheduled={scheduled}, musicSource={musicSource}, clip={musicSource?.clip}");
         Debug.Log($"[Conductor] enabled={enabled}, gameObject.activeInHierarchy={gameObject.activeInHierarchy}");
         
-        // コンポーネントを有効化
         enabled = true;
         
         if (!musicSource || musicSource.clip == null)
@@ -78,15 +77,12 @@ public void StartMusic()
             return;
         }
 
-        // ChartSpawnerをリセット
         var chartSpawner = FindObjectOfType<ChartSpawner>();
         if (chartSpawner != null)
         {
-            Debug.Log("[Conductor] Resetting ChartSpawner");
-            chartSpawner.ResetChart();
+            Debug.Log("[Conductor] ChartSpawner found");
         }
 
-        // scheduledフラグをリセット（Retry時に2回目の再生を許可）
         scheduled = false;
         
         _dspSongStartTime = AudioSettings.dspTime + startDelaySec;
@@ -114,16 +110,19 @@ private void Update()
     {
         if (!scheduled)
         {
+            if (Time.frameCount % 60 == 0)
+            {
+                Debug.LogWarning($"[Conductor] Update - scheduled=false, not updating beats");
+            }
             return;
         }
 
         songPositionSec = (float)(AudioSettings.dspTime - _dspSongStartTime);
         songPositionBeats = songPositionSec / secPerBeat - preRollBeats;
         
-        // デバッグ：初回のみログ出力
-        if (songPositionSec > 0 && songPositionSec < 0.1f)
+        if (Time.frameCount % 60 == 0)
         {
-            Debug.Log($"[Conductor] Update - isPlaying={musicSource.isPlaying}, songPositionSec={songPositionSec:F2}, songPositionBeats={songPositionBeats:F2}");
+            Debug.Log($"[Conductor] Update - songPositionBeats={songPositionBeats:F2}, isPlaying={musicSource.isPlaying}");
         }
     }
 

@@ -1,104 +1,123 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// JSON譜面ファイルからノーツを生成するスポナー
-/// </summary>
+[System.Serializable]
+public class NoteData
+{
+    public float beat;
+    public int lane;
+    public string type;
+    public bool linkedHold;
+    
+    public float duration;
+public float holdDuration;
+}
+
+[System.Serializable]
+public class ChartData
+{
+    public string songName;
+    public int bpm;
+    public float offset;
+    public NoteData[] notes;
+}
+
 public class ChartSpawner : MonoBehaviour
 {
-    [Header("参照")]
-    public Conductor conductor;
-    public Transform spawnRoot;
-    public AudioSource musicSource;
-
-    [Header("ノーツプレハブ（Milk/Flour/Egg の順）")]
-    public NoteBehaviour[] notePrefabs;
-
-    [Header("ホールドノート（Milk/Flour/Egg の順）")]
-    public GameObject[] linkedHoldNotePrefabs;
-
-    [Header("譜面データ")]
-    public TextAsset chartFile;
-
-    [Header("レーン位置")]
-    public float[] laneX = new float[] { -1.6f, 0f, +1.6f };
-    public float laneY = 1.0f;
-
-    [Header("生成/移動")]
-    public float spawnZ = 30f;
-    public float judgeZ = 1.5f;
-    public float scrollSpeed = 12f;
-    public float lingerDistance = 3f;
-
-    [Header("先行生成（拍数）")]
-    public float spawnAheadBeats = 4f;
-
-    // 譜面データ
-    private ChartData chartData;
+    [Header("Chart")]
+    [SerializeField] private TextAsset chartJson;
+    
+    [Header("Note Prefabs")]
+    [SerializeField] private GameObject flourNotePrefab;
+    [SerializeField] private GameObject milkNotePrefab;
+    
+    [SerializeField] private GameObject linkedHoldFlourPrefab;
+    [SerializeField] private GameObject linkedHoldMilkPrefab;
+    [SerializeField] private GameObject linkedHoldEggPrefab;
+[SerializeField] private GameObject eggNotePrefab;
+    
+    [Header("Lane Positions")]
+    [SerializeField] private Transform[] laneTransforms = new Transform[3];
+    
+    [Header("Spawn Settings")]
+    [SerializeField] private float spawnAheadBeats = 8f;
+    
+    [Header("References")]
+    [SerializeField] private Conductor conductor;
+    
+    public ChartData currentChart;
     private int nextNoteIndex = 0;
-    private bool chartLoaded = false;
-
-    [System.Serializable]
-    public class NoteData
+    private List<GameObject> spawnedNotes = new List<GameObject>();
+    
+void Start()
     {
-        public float beat;
-        public int lane;
-        public float duration;
+        Debug.Log("[ChartSpawner] Start called");
+        
+        if (chartJson != null)
+        {
+            Debug.Log($"[ChartSpawner] Loading chart from chartJson: {chartJson.name}");
+            LoadChartFromJson(chartJson.text);
+        }
+        else
+        {
+            Debug.LogWarning("[ChartSpawner] chartJson is null! Attempting to load default chart...");
+            
+            TextAsset defaultChart = Resources.Load<TextAsset>("Charts/kuma_odyssey_chart_kumaden");
+            if (defaultChart != null)
+            {
+                Debug.Log("[ChartSpawner] Loading default chart from Resources");
+                LoadChartFromJson(defaultChart.text);
+            }
+            else
+            {
+                Debug.LogError("[ChartSpawner] No chart available! Please assign chartJson in Inspector.");
+            }
+        }
     }
 
-    [System.Serializable]
-    public class ChartData
+public void ResetForNewSong()
     {
-        public float bpm;
-        public NoteData[] notes;
+        Debug.Log("[ChartSpawner] ResetForNewSong called");
+        
+        // 次のノーツインデックスをリセット
+        nextNoteIndex = 0;
+        
+        // 生成済みノーツを削除
+        foreach (var note in spawnedNotes)
+        {
+            if (note != null)
+                Destroy(note);
+        }
+        spawnedNotes.Clear();
+        
+        Debug.Log($"[ChartSpawner] Reset complete - nextNoteIndex={nextNoteIndex}, spawnedNotes cleared");
     }
 
-    void Awake()
-    {
-        if (spawnRoot == null) spawnRoot = transform;
-    }
-
-    void Start()
-    {
-        LoadChart();
-        TryAutoMatchJudgeZToPlayer();
-    }
-
+    
 void Update()
     {
-        if (!chartLoaded)
+        if (currentChart == null || conductor == null) 
         {
             return;
         }
         
-        if (conductor == null)
-        {
-            Debug.LogWarning("[ChartSpawner] conductor is null");
-            return;
-        }
-        
-        if (musicSource == null)
-        {
-            Debug.LogWarning("[ChartSpawner] musicSource is null");
-            return;
-        }
-        
-        if (!musicSource.isPlaying)
-        {
-            return;
-        }
-
         float currentBeat = conductor.songPositionBeats;
-        float spawnBeat = currentBeat + spawnAheadBeats;
-
-        while (nextNoteIndex < chartData.notes.Length)
+        
+        if (Time.frameCount % 120 == 0 && nextNoteIndex < currentChart.notes.Length)
         {
-            NoteData note = chartData.notes[nextNoteIndex];
+            var nextNote = currentChart.notes[nextNoteIndex];
+            float threshold = currentBeat + spawnAheadBeats;
+            Debug.Log($"[ChartSpawner] beat={currentBeat:F2}, next={nextNoteIndex}, noteBeat={nextNote.beat}, threshold={threshold:F2}, willSpawn={nextNote.beat <= threshold}");
+        }
+        
+        while (nextNoteIndex < currentChart.notes.Length)
+        {
+            var noteData = currentChart.notes[nextNoteIndex];
             
-            if (note.beat <= spawnBeat)
+            if (noteData.beat <= currentBeat + spawnAheadBeats)
             {
-                Debug.Log($"[ChartSpawner] Spawning note {nextNoteIndex}: beat={note.beat}, lane={note.lane}");
-                SpawnNote(note);
+                Debug.Log($"[ChartSpawner] Spawning note {nextNoteIndex}: beat={noteData.beat}, lane={noteData.lane}");
+                SpawnNote(noteData);
                 nextNoteIndex++;
             }
             else
@@ -107,152 +126,169 @@ void Update()
             }
         }
     }
-
-    void LoadChart()
+    
+public void LoadChartFromJson(string jsonText)
     {
-        if (chartFile == null)
+        if (string.IsNullOrEmpty(jsonText))
         {
-            Debug.LogWarning("[ChartSpawner] 譜面ファイルが設定されていません");
+            Debug.LogError("[ChartSpawner] JSON text is empty!");
             return;
         }
-
-        try
+        
+        ChartData chartData = JsonUtility.FromJson<ChartData>(jsonText);
+        
+        if (chartData == null || chartData.notes == null)
         {
-            chartData = JsonUtility.FromJson<ChartData>(chartFile.text);
-            
-            if (chartData != null && chartData.notes != null)
+            Debug.LogError("[ChartSpawner] Failed to parse chart JSON!");
+            return;
+        }
+        
+        ClearAllNotes();
+        
+        currentChart = chartData;
+        nextNoteIndex = 0;
+        
+        if (conductor != null)
+        {
+            conductor.bpm = chartData.bpm;
+        }
+        
+        Debug.Log($"[ChartSpawner] Loaded chart: {chartData.songName}, BPM: {chartData.bpm}, Notes: {chartData.notes.Length}");
+        
+        if (chartData.notes.Length > 0)
+        {
+            Debug.Log($"[ChartSpawner] First 15 notes:");
+            for (int i = 0; i < Mathf.Min(15, chartData.notes.Length); i++)
             {
-                System.Array.Sort(chartData.notes, (a, b) => a.beat.CompareTo(b.beat));
-                chartLoaded = true;
-                Debug.Log($"[ChartSpawner] 譜面読み込み完了: {chartData.notes.Length}ノーツ, BPM={chartData.bpm}");
+                var note = chartData.notes[i];
+                Debug.Log($"  Note {i}: beat={note.beat}, lane={note.lane}, type={note.type}");
             }
         }
-        catch (System.Exception e)
+    }
+    
+    private void ClearAllNotes()
+    {
+        foreach (var note in spawnedNotes)
         {
-            Debug.LogError($"[ChartSpawner] 譜面の読み込みに失敗: {e.Message}");
+            if (note != null)
+            {
+                Destroy(note);
+            }
+        }
+        spawnedNotes.Clear();
+        
+        var holdNotes = FindObjectsOfType<LinkedHoldNote>();
+        foreach (var note in holdNotes)
+        {
+            Destroy(note.gameObject);
+        }
+    }
+    
+private void SpawnNote(NoteData noteData)
+    {
+        if (noteData.lane < 0 || noteData.lane >= laneTransforms.Length)
+        {
+            Debug.LogWarning($"[ChartSpawner] Invalid lane: {noteData.lane}");
+            return;
+        }
+        
+        bool isHoldNote = noteData.duration > 0 || (noteData.linkedHold && noteData.holdDuration > 0);
+        
+        if (isHoldNote)
+        {
+            Debug.Log($"[ChartSpawner] Hold note detected - duration={noteData.duration}, linkedHold={noteData.linkedHold}, holdDuration={noteData.holdDuration}");
+        }
+        
+        GameObject notePrefab = GetNotePrefabByLane(noteData.lane, noteData.type, isHoldNote);
+        
+        if (notePrefab == null)
+        {
+            Debug.LogWarning($"[ChartSpawner] Prefab is NULL - lane={noteData.lane}, type={noteData.type}, isHold={isHoldNote}");
+            return;
+        }
+        
+        Transform laneTransform = laneTransforms[noteData.lane];
+        
+        float currentBeat = conductor.songPositionBeats;
+        float beatDifference = noteData.beat - currentBeat;
+        float scrollSpeed = 4.0f;
+        float spawnZ = beatDifference * conductor.secPerBeat * scrollSpeed;
+        
+        Vector3 spawnPos = laneTransform.position;
+        spawnPos.z = spawnZ;
+        
+        GameObject noteObj = Instantiate(notePrefab, spawnPos, Quaternion.identity, laneTransform);
+        
+        if (isHoldNote)
+        {
+            Debug.Log($"[ChartSpawner] Hold note instantiated at {spawnPos}");
+            var linkedHold = noteObj.GetComponent<LinkedHoldNote>();
+            if (linkedHold != null)
+            {
+                float holdDuration = noteData.duration > 0 ? noteData.duration : noteData.holdDuration;
+                float distanceZ = holdDuration * conductor.secPerBeat * linkedHold.scrollSpeed;
+                linkedHold.SetEndNoteDistance(distanceZ);
+                Debug.Log($"[ChartSpawner] Hold note configured - holdDuration={holdDuration}, distanceZ={distanceZ}");
+            }
+            else
+            {
+                Debug.LogWarning($"[ChartSpawner] LinkedHoldNote component not found on instantiated object!");
+            }
+        }
+        
+        spawnedNotes.Add(noteObj);
+    }
+    
+    private GameObject GetNotePrefab(string noteType)
+    {
+        switch (noteType)
+        {
+            case "Flour":
+                return flourNotePrefab;
+            case "Milk":
+                return milkNotePrefab;
+            case "Egg":
+                return eggNotePrefab;
+            default:
+                return null;
         }
     }
 
-    void SpawnNote(NoteData noteData)
+private GameObject GetNotePrefabByLane(int lane, string type, bool isHoldNote = false)
     {
-        int lane = Mathf.Clamp(noteData.lane, 0, laneX.Length - 1);
-
-        if (noteData.duration > 0)
+        if (!string.IsNullOrEmpty(type))
         {
-            SpawnHoldNote(lane, noteData.duration);
+            return GetNotePrefab(type);
+        }
+        
+        if (isHoldNote)
+        {
+            switch (lane)
+            {
+                case 0:
+                    return linkedHoldMilkPrefab;
+                case 1:
+                    return linkedHoldFlourPrefab;
+                case 2:
+                    return linkedHoldEggPrefab;
+                default:
+                    return null;
+            }
         }
         else
         {
-            SpawnNormalNote(lane);
-        }
-    }
-
-    void SpawnNormalNote(int lane)
-    {
-        if (notePrefabs == null || notePrefabs.Length == 0) return;
-
-        int index = Mathf.Clamp(lane, 0, notePrefabs.Length - 1);
-        var prefab = notePrefabs[index];
-        if (prefab == null) return;
-
-        Vector3 pos = new Vector3(laneX[lane], laneY, spawnZ);
-        var note = Instantiate(prefab, pos, Quaternion.identity, spawnRoot);
-        note.Init(scrollSpeed, judgeZ, lingerDistance, lane, prefab.Type);
-    }
-
-    void SpawnHoldNote(int lane, float durationBeats)
-    {
-        if (linkedHoldNotePrefabs == null || linkedHoldNotePrefabs.Length == 0) return;
-
-        int prefabIndex = Mathf.Clamp(lane, 0, linkedHoldNotePrefabs.Length - 1);
-        var holdPrefab = linkedHoldNotePrefabs[prefabIndex];
-        if (holdPrefab == null) return;
-
-        float bps = conductor.bpm / 60f;
-        float durationSec = durationBeats / bps;
-        float distanceZ = durationSec * scrollSpeed;
-
-        Vector3 holdPos = new Vector3(laneX[lane], laneY, spawnZ);
-        var holdObj = Instantiate(holdPrefab, holdPos, Quaternion.identity, spawnRoot);
-
-        Transform startNote = holdObj.transform.Find("StartNote");
-        if (startNote != null)
-        {
-            startNote.localPosition = new Vector3(0, 0, 0);
-        }
-
-        Transform endNote = holdObj.transform.Find("EndNote");
-        if (endNote != null)
-        {
-            var holdEnd = endNote.gameObject.AddComponent<HoldNoteEnd>();
-            
-            BoxCollider endCollider = endNote.GetComponent<BoxCollider>();
-            if (endCollider == null)
+            switch (lane)
             {
-                endCollider = endNote.gameObject.AddComponent<BoxCollider>();
-                endCollider.size = new Vector3(1f, 1f, 1f);
-            }
-            endCollider.isTrigger = true;
-            
-            Rigidbody endRb = endNote.GetComponent<Rigidbody>();
-            if (endRb == null)
-            {
-                endRb = endNote.gameObject.AddComponent<Rigidbody>();
-            }
-            endRb.isKinematic = true;
-            endRb.useGravity = false;
-            
-            Debug.Log($"[ChartSpawner] EndNote setup - HoldNoteEnd attached, Collider={endCollider.size}, Trigger={endCollider.isTrigger}");
-        }
-
-        var linkedHoldNoteComponent = holdObj.GetComponent<LinkedHoldNote>();
-        var holdTickPulseComponent = holdObj.GetComponent<HoldTickPulse>();
-        
-        if (linkedHoldNoteComponent != null)
-        {
-            linkedHoldNoteComponent.scrollSpeed = scrollSpeed;
-            linkedHoldNoteComponent.laneIndex = lane;
-            linkedHoldNoteComponent.SetEndNoteDistance(distanceZ);
-        }
-        
-        if (holdTickPulseComponent != null)
-        {
-            holdTickPulseComponent.laneIndex = lane;
-        }
-        
-        var player = GameObject.Find("Player");
-        if (player != null)
-        {
-            var pickup = player.GetComponent<Pickup>();
-            if (pickup != null)
-            {
-                pickup.linkedHoldNote = linkedHoldNoteComponent;
-                pickup.holdTickPulse = holdTickPulseComponent;
+                case 0:
+                    return milkNotePrefab;
+                case 1:
+                    return flourNotePrefab;
+                case 2:
+                    return eggNotePrefab;
+                default:
+                    return null;
             }
         }
-
-        Debug.Log($"[ChartSpawner] Spawned HoldNote at lane {lane}, duration {durationBeats} beats, distanceZ={distanceZ:F2}, durationSec={durationSec:F2}");
     }
 
-    void TryAutoMatchJudgeZToPlayer()
-    {
-        var player = GameObject.FindWithTag("Player");
-        if (!player) return;
-        var box = player.GetComponent<BoxCollider>();
-        if (!box) return;
-
-        float playerZ = player.transform.TransformPoint(box.center).z;
-        judgeZ = playerZ;
-    }
-
-    public void ResetChart()
-    {
-        nextNoteIndex = 0;
-    }
-
-    public float GetBgmOffsetBeats()
-    {
-        float bps = conductor != null ? conductor.bpm / 60f : 163f / 60f;
-        return 3.9f * bps;
-    }
 }

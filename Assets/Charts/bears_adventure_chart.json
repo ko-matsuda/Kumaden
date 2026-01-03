@@ -1,64 +1,57 @@
 {
-  "songName": "Bear's Adventure Pancakes",
   "bpm": 122,
-  "offset": 0.0,
   "notes": [
-    {"beat": 12.2, "lane": 1, "type": "Milk"},
-    {"beat": 16.2, "lane": 0, "type": "Flour"},
-    {"beat": 20.2, "lane": 2, "type": "Egg"},
-    {"beat": 24.2, "lane": 1, "type": "Milk"},
+    {"beat": 8.0, "lane": 1, "duration": 0},
+    {"beat": 12.0, "lane": 0, "duration": 0},
+    {"beat": 16.0, "lane": 2, "duration": 0},
+    {"beat": 20.0, "lane": 1, "duration": 0},
     
-    {"beat": 28.2, "lane": 0, "type": "Flour"},
-    {"beat": 32.2, "lane": 2, "type": "Egg"},
-    {"beat": 36.2, "lane": 1, "type": "Milk"},
-    {"beat": 40.2, "lane": 0, "type": "Flour"},
-    {"beat": 40.2, "lane": 2, "type": "Egg"},
+    {"beat": 24.0, "lane": 0, "duration": 0},
+    {"beat": 28.0, "lane": 2, "duration": 0},
+    {"beat": 32.0, "lane": 1, "duration": 0},
+    {"beat": 36.0, "lane": 0, "duration": 0},
+    {"beat": 40.0, "lane": 2, "duration": 0},
     
-    {"beat": 44.2, "lane": 1, "type": "Milk"},
-    {"beat": 48.2, "lane": 2, "type": "Egg"},
-    {"beat": 52.2, "lane": 0, "type": "Flour"},
-    {"beat": 56.2, "lane": 1, "type": "Milk"},
+    {"beat": 44.0, "lane": 1, "duration": 0},
+    {"beat": 48.0, "lane": 2, "duration": 0},
+    {"beat": 52.0, "lane": 0, "duration": 0},
+    {"beat": 56.0, "lane": 1, "duration": 0},
     
-    {"beat": 60.2, "lane": 2, "type": "Egg"},
-    {"beat": 64.2, "lane": 0, "type": "Flour"},
-    {"beat": 68.2, "lane": 1, "type": "Milk"},
-    {"beat": 72.2, "lane": 2, "type": "Egg"},
+    {"beat": 60.0, "lane": 2, "duration": 0},
+    {"beat": 63.0, "lane": 0, "duration": 0},
+    {"beat": 66.0, "lane": 1, "duration": 0},
+    {"beat": 69.0, "lane": 2, "duration": 0},
     
-    {"beat": 76.2, "lane": 0, "type": "Flour"},
-    {"beat": 76.2, "lane": 1, "type": "Milk"},
-    {"beat": 80.2, "lane": 2, "type": "Egg"},
+    {"beat": 72.0, "lane": 0, "duration": 0},
+    {"beat": 75.0, "lane": 1, "duration": 0},
+    {"beat": 78.0, "lane": 2, "duration": 0},
     
-    {"beat": 84.2, "lane": 0, "type": "Flour"},
-    {"beat": 88.2, "lane": 1, "type": "Milk", "linkedHold": true, "holdDuration": 4.0},
+    {"beat": 81.0, "lane": 0, "duration": 0},
+    {"beat": 84.0, "lane": 1, "duration": 4},
     
-    {"beat": 92.2, "lane": 2, "type": "Egg"},
-    {"beat": 96.2, "lane": 0, "type": "Flour"},
-    {"beat": 100.2, "lane": 1, "type": "Milk"},
+    {"beat": 88.0, "lane": 2, "duration": 0},
+    {"beat": 92.0, "lane": 0, "duration": 0},
+    {"beat": 96.0, "lane": 1, "duration": 0},
     
-    {"beat": 104.2, "lane": 2, "type": "Egg", "linkedHold": true, "holdDuration": 8.0},
+    {"beat": 100.0, "lane": 2, "duration": 8},
     
-    {"beat": 112.2, "lane": 0, "type": "Flour", "linkedHold": true, "holdDuration": 8.0},
+    {"beat": 108.0, "lane": 0, "duration": 8},
     
-    {"beat": 120.2, "lane": 1, "type": "Milk", "linkedHold": true, "holdDuration": 8.0},
+    {"beat": 116.0, "lane": 1, "duration": 8},
     
-    {"beat": 128.2, "lane": 2, "type": "Egg", "linkedHold": true, "holdDuration": 8.0},
+    {"beat": 124.0, "lane": 2, "duration": 8},
     
-    {"beat": 136.2, "lane": 0, "type": "Flour", "linkedHold": true, "holdDuration": 8.0},
+    {"beat": 132.0, "lane": 0, "duration": 8},
     
-    {"beat": 144.2, "lane": 1, "type": "Milk", "linkedHold": true, "holdDuration": 8.0},
+    {"beat": 140.0, "lane": 1, "duration": 8},
     
-    {"beat": 152.2, "lane": 2, "type": "Egg", "linkedHold": true, "holdDuration": 8.0},
+    {"beat": 148.0, "lane": 2, "duration": 6},
     
-    {"beat": 160.2, "lane": 0, "type": "Flour"},
-    {"beat": 164.2, "lane": 1, "type": "Milk"},
-    {"beat": 168.2, "lane": 2, "type": "Egg"},
+    {"beat": 154.0, "lane": 0, "duration": 0},
+    {"beat": 158.0, "lane": 1, "duration": 0},
+    {"beat": 162.0, "lane": 2, "duration": 0},
     
-    {"beat": 172.2, "lane": 0, "type": "Flour"},
-    {"beat": 176.2, "lane": 1, "type": "Milk"},
-    {"beat": 180.2, "lane": 2, "type": "Egg"},
-    
-    {"beat": 184.2, "lane": 0, "type": "Flour"},
-    {"beat": 184.2, "lane": 1, "type": "Milk"},
-    {"beat": 188.2, "lane": 2, "type": "Egg"}
+    {"beat": 166.0, "lane": 0, "duration": 0},
+    {"beat": 168.0, "lane": 1, "duration": 0}
   ]
 }

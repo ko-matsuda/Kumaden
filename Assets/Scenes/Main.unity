@@ -6502,8 +6502,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f8ba976f53eeb249b11881736d0c442, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bpm: 163
-  preRollBeats: 4
+  bpm: 121
+  preRollBeats: 12
   startDelaySec: 0.27000001072883606
 --- !u!114 &538003177
 MonoBehaviour:
@@ -10210,7 +10210,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &942037560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14568,28 +14568,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24b31b6726070344296d8c9f610af48f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::ChartSpawner
+  chartJson: {fileID: 4900000, guid: 56fa01fd2908bd549a7053ef9e23d69f, type: 3}
+  flourNotePrefab: {fileID: 8384012808243909172, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
+  milkNotePrefab: {fileID: 2894567776146430551, guid: 118e31a6b1531a44da5a00462d606b32, type: 3}
+  linkedHoldFlourPrefab: {fileID: 6694813725552871513, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
+  linkedHoldMilkPrefab: {fileID: 6694813725552871513, guid: 510c7982a6cda6845822aeded1c23fa8, type: 3}
+  linkedHoldEggPrefab: {fileID: 6694813725552871513, guid: 51c4e6d5c3985f3469b8642269cd836d, type: 3}
+  eggNotePrefab: {fileID: 6694813725552871513, guid: 4fa3650ca6181984aba4facbe1705289, type: 3}
+  laneTransforms:
+  - {fileID: 2019363934}
+  - {fileID: 1861804032}
+  - {fileID: 1860592126}
+  spawnAheadBeats: 16
   conductor: {fileID: 538003176}
-  spawnRoot: {fileID: 1190428245}
-  musicSource: {fileID: 538003175}
-  notePrefabs:
-  - {fileID: -5061303110908459532, guid: 118e31a6b1531a44da5a00462d606b32, type: 3}
-  - {fileID: 2260780714683258190, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
-  - {fileID: -9046518638822966828, guid: 4fa3650ca6181984aba4facbe1705289, type: 3}
-  linkedHoldNotePrefabs:
-  - {fileID: 6694813725552871513, guid: 510c7982a6cda6845822aeded1c23fa8, type: 3}
-  - {fileID: 6694813725552871513, guid: 5f0c581bf5e188a469ff118c447d0025, type: 3}
-  - {fileID: 6694813725552871513, guid: 51c4e6d5c3985f3469b8642269cd836d, type: 3}
-  chartFile: {fileID: 4900000, guid: bdbf56f7d9b06be4a9b882b69abf90ff, type: 3}
-  laneX:
-  - -1.6
-  - 0
-  - 1.6
-  laneY: 1
-  spawnZ: 30
-  judgeZ: 1.5
-  scrollSpeed: 12
-  lingerDistance: 3
-  spawnAheadBeats: 8
 --- !u!4 &1350261114
 Transform:
   m_ObjectHideFlags: 0
@@ -18221,6 +18212,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1645593280}
   m_CullTransparentMesh: 1
+--- !u!1 &1648352850
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1648352851}
+  - component: {fileID: 1648352852}
+  m_Layer: 0
+  m_Name: SongLoopController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1648352851
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1648352850}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 485.3631, y: 886.2229, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1648352852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1648352850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a59906cd9ac7ba542af123dd846ba693, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::SongLoopController
+  songs:
+  - audioClip: {fileID: 8300000, guid: 82be84c926c7e6540ae3387bf4cb2cfb, type: 3}
+    chartJson: {fileID: 4900000, guid: 56fa01fd2908bd549a7053ef9e23d69f, type: 3}
+  - audioClip: {fileID: 8300000, guid: 8e18a20714cbfa648baab2a588e766af, type: 3}
+    chartJson: {fileID: 4900000, guid: 604b211bec8c00d4e8e6e281bf9238c0, type: 3}
+  chartSpawner: {fileID: 1350261113}
+  conductor: {fileID: 538003176}
 --- !u!1 &1655579930
 GameObject:
   m_ObjectHideFlags: 0
@@ -26224,3 +26266,4 @@ SceneRoots:
   - {fileID: 1313642958}
   - {fileID: 482702967}
   - {fileID: 1350261114}
+  - {fileID: 1648352851}

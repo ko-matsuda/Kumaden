@@ -118,13 +118,11 @@ void BootGameNow()
             Debug.LogWarning("[PrologueGate] gameStartTarget is null!");
         }
 
-        // ChartSpawnerを再開
+        // ChartSpawnerはリセットしない（SongLoopControllerが管理）
         var chartSpawner = FindObjectOfType<ChartSpawner>();
         if (chartSpawner != null)
         {
-            Debug.Log("[PrologueGate] Restarting ChartSpawner");
-            chartSpawner.enabled = false;
-            chartSpawner.enabled = true;
+            Debug.Log("[PrologueGate] ChartSpawner found - not resetting (managed by SongLoopController)");
         }
 
         // "Conductor""GameFlow""LaneManager"などの初期化メソッドがあれば、名前で併せて叩く
