@@ -14581,6 +14581,11 @@ MonoBehaviour:
   - {fileID: 1860592126}
   spawnAheadBeats: 16
   conductor: {fileID: 538003176}
+  currentChart:
+    songName: 
+    bpm: 0
+    offset: 0
+    notes: []
 --- !u!4 &1350261114
 Transform:
   m_ObjectHideFlags: 0

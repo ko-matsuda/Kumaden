@@ -82,11 +82,11 @@ public void ResetForNewSong()
         // 次のノーツインデックスをリセット
         nextNoteIndex = 0;
         
-        // 生成済みノーツを削除
+        // 生成済みノーツを即座に削除（DestroyImmediateで遅延なし）
         foreach (var note in spawnedNotes)
         {
             if (note != null)
-                Destroy(note);
+                DestroyImmediate(note);
         }
         spawnedNotes.Clear();
         

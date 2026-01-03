@@ -16,7 +16,9 @@ public class SongLoopController : MonoBehaviour
     [SerializeField] private ChartSpawner chartSpawner;
     [SerializeField] private Conductor conductor;
 
-    private int currentSongIndex = 0;
+    
+    private bool isTransitioning = false;
+private int currentSongIndex = 0;
     private AudioSource musicSource;
 
     void Awake()
@@ -42,30 +44,112 @@ public class SongLoopController : MonoBehaviour
         PlayCurrentSong();
     }
 
-    void Update()
+void Update()
     {
-        if (musicSource == null)
+        if (musicSource == null || conductor == null || isTransitioning)
             return;
-
-        if (!musicSource.isPlaying)
-            return;
-
-        // 曲の終了直前で次の曲へ
-        if (musicSource.time >= musicSource.clip.length - 0.1f)
+        
+        // 音楽が再生中で、終了間近になったら次の曲へ
+        if (musicSource.isPlaying && musicSource.time >= musicSource.clip.length - 0.2f)
         {
-            NextSong();
+            Debug.Log($"[SongLoopController] Song {currentSongIndex} about to end - time={musicSource.time}, length={musicSource.clip.length}");
+            StartCoroutine(TransitionToNextSong());
         }
     }
 
-    void NextSong()
+private System.Collections.IEnumerator TransitionToNextSong()
     {
-        Debug.Log("[SongLoopController] NextSong");
+        isTransitioning = true;
+        
+        Debug.Log("[SongLoopController] TransitionToNextSong started");
+        
+        // 次の曲インデックス
+        int nextIndex = (currentSongIndex + 1) % songs.Length;
+        
+        // 現在の音楽が終わる正確な時刻を計算
+        double endTime = AudioSettings.dspTime + (musicSource.clip.length - musicSource.time);
+        
+        // Conductorのタイミングを調整（曲切り替え前）
+        if (conductor != null)
+        {
+            conductor.ResetTiming();
+        }
+        
+        // 前の曲のノーツをクリア
+        if (chartSpawner != null)
+        {
+            chartSpawner.ResetForNewSong();
+        }
+        
+        yield return null;
+        
+        // 曲を切り替え
+        currentSongIndex = nextIndex;
+        musicSource.clip = songs[currentSongIndex].audioClip;
+        
+        // 次の曲のチャートを読み込み
+        if (chartSpawner != null && songs[nextIndex].chartJson != null)
+        {
+            chartSpawner.LoadChartFromJson(songs[nextIndex].chartJson.text);
+            Debug.Log($"[SongLoopController] Chart loaded for song {nextIndex}");
+        }
+        
+        // BPM更新
+        if (conductor != null && chartSpawner != null && chartSpawner.currentChart != null)
+        {
+            conductor.bpm = chartSpawner.currentChart.bpm;
+            Debug.Log($"[SongLoopController] BPM updated to {conductor.bpm}");
+        }
+        
+        // 正確なタイミングで音楽開始
+        musicSource.PlayScheduled(endTime);
+        
+        Debug.Log($"[SongLoopController] Song {currentSongIndex} scheduled at {endTime}");
+        
+        isTransitioning = false;
+    }
 
+
+void NextSong()
+    {
+        Debug.Log("[SongLoopController] NextSong called");
+        
         currentSongIndex = (currentSongIndex + 1) % songs.Length;
-
+        
+        Debug.Log($"[SongLoopController] Switching to song {currentSongIndex}");
+        
+        // 前の曲のノーツをクリア
+        if (chartSpawner != null)
+        {
+            chartSpawner.ResetForNewSong();
+        }
+        
+        // 音楽を即座に切り替え
         musicSource.Stop();
-
-        PlayCurrentSong();
+        musicSource.clip = songs[currentSongIndex].audioClip;
+        musicSource.Play();
+        
+        // チャート読み込み
+        if (chartSpawner != null && songs[currentSongIndex].chartJson != null)
+        {
+            chartSpawner.LoadChartFromJson(songs[currentSongIndex].chartJson.text);
+            Debug.Log($"[SongLoopController] Chart loaded for song {currentSongIndex}");
+        }
+        
+        // BPM更新
+        if (conductor != null && chartSpawner != null && chartSpawner.currentChart != null)
+        {
+            conductor.bpm = chartSpawner.currentChart.bpm;
+            Debug.Log($"[SongLoopController] BPM set to {conductor.bpm}");
+        }
+        
+        // Conductorのタイミングをリセット
+        if (conductor != null)
+        {
+            conductor.ResetTiming();
+        }
+        
+        Debug.Log($"[SongLoopController] Song switched to {musicSource.clip.name}");
     }
 
     void PlayCurrentSong()

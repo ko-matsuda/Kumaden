@@ -94,6 +94,24 @@ public void StartMusic()
         Debug.Log($"[Conductor] Music scheduled at DSP time: {_dspSongStartTime}, scheduled={scheduled}, enabled={enabled}");
     }
 
+public void ResetTiming()
+    {
+        Debug.Log("[Conductor] ResetTiming called");
+        
+        // 前の曲の長さ分だけDSP時間を進める
+        var audioSource = GetComponent<AudioSource>();
+        if (audioSource != null && audioSource.clip != null)
+        {
+            float previousSongLength = audioSource.clip.length;
+            _dspSongStartTime += previousSongLength;
+            
+            Debug.Log($"[Conductor] DSP time adjusted by {previousSongLength}s, new startTime={_dspSongStartTime}");
+        }
+        
+        scheduled = true;
+    }
+
+
     private void OnDisable()
     {
         // 無効化されたら音楽を停止
