@@ -27,19 +27,17 @@ public class ResultVideoController : MonoBehaviour
     
     private bool videoPlayed = false;
 
-    void Awake()
+void Awake()
     {
         if (videoPlayer == null)
         {
             videoPlayer = GetComponent<VideoPlayer>();
         }
+
+        // プロローグ動画に反応しないよう、Awakeではフックしない
+        // PlayResultVideo()が呼ばれた時にフックする
         
-        if (videoPlayer != null)
-        {
-            videoPlayer.loopPointReached += OnVideoFinished;
-        }
-        
-        Debug.Log($"[ResultVideoController] Awake - videoPlayer={videoPlayer}, resultSuccess={resultSuccess}, resultFail={resultFail}");
+        Debug.Log($"[ResultVideoController] Awake - videoPlayer={videoPlayer.name} ({videoPlayer.GetType().Name}), resultSuccess={resultSuccess.name} ({resultSuccess.GetType().Name}), resultFail={resultFail.name} ({resultFail.GetType().Name})");
     }
 
     void Start()
@@ -84,29 +82,30 @@ public class ResultVideoController : MonoBehaviour
         videoPlayed = true;
     }
 
-    private void OnVideoFinished(VideoPlayer vp)
+private void OnVideoFinished(VideoPlayer vp)
     {
+        // プロローグ動画は無視
+        if (vp.clip != resultSuccess && vp.clip != resultFail)
+        {
+            Debug.Log("[ResultVideoController] OnVideoFinished - but not result video, ignoring");
+            return;
+        }
+        
         Debug.Log("[ResultVideoController] OnVideoFinished - showing result UI");
-        Invoke(nameof(ShowResult), delayAfterVideo);
+        ShowResult();
     }
 
-    void ShowResult()
+void ShowResult()
     {
-        Time.timeScale = 1f;
-
-        if (resultHUD != null)
+        // ResultCanvasを先にアクティブ化してからコルーチンを開始
+        if (resultHUD != null && resultHUD.gameObject != null && !resultHUD.gameObject.activeSelf)
         {
             resultHUD.gameObject.SetActive(true);
-            resultHUD.ShowResult();
-            
-            Debug.Log("[ResultVideoController] ResultHUD shown");
-            
-            // 3秒後にランキング表示
-            Invoke(nameof(ShowRanking), 3.0f);
         }
-        else
+        
+        if (resultHUD != null)
         {
-            Debug.LogError("[ResultVideoController] ResultHUD is null!");
+            resultHUD.ShowResult();
         }
     }
     

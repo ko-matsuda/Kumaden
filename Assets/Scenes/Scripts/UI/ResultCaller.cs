@@ -31,26 +31,62 @@ public class ResultCaller : MonoBehaviour
 
 void OnEnable()
     {
-        Debug.Log("[ResultCaller] OnEnable called");
+        // OnEnableでの自動再生を無効化
+        // ゲーム終了時に明示的にTriggerResult()を呼ぶこと
+        Debug.Log("[ResultCaller] OnEnable called - autoplay disabled");
+    }
+    
+    // ゲーム終了時に呼ぶメソッド
+public void TriggerResult()
+    {
+        Debug.Log("[ResultCaller] TriggerResult called");
         
-        // ResultVideoControllerがあればそちらを使用
-        if (resultVideoController != null)
+        // ScoreManagerLiteからランクを取得
+        string rank = "C"; // デフォルト
+        var scoreManager = FindObjectOfType<ScoreManagerLite>();
+        if (scoreManager != null)
         {
-            // Rankを計算して設定
-            string rank = CalculateRank();
-            resultVideoController.rank = rank;
+            // ScoreManagerLiteからスコア情報を取得してランクを計算
+            int perfect = scoreManager.PerfectCount;
+            int good = scoreManager.GoodCount;
+            int miss = scoreManager.MissCount;
+            int total = perfect + good + miss;
             
-            Debug.Log($"[ResultCaller] OnEnable - rank={rank}, playing result video");
+            if (total > 0)
+            {
+                float perfectRate = (float)perfect / total;
+                if (perfectRate >= 0.95f && miss == 0) rank = "S";
+                else if (perfectRate >= 0.85f) rank = "A";
+                else if (perfectRate >= 0.70f) rank = "B";
+                else rank = "C";
+            }
+        }
+        
+        Debug.Log($"[ResultCaller] rank={rank}");
+
+        if (!string.IsNullOrEmpty(rank) && rank != "F")
+        {
+            Debug.Log($"[ResultCaller] rank={rank}, playing result video");
             
-            // リザルト動画再生
-            Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoController}");
-            
-            resultVideoController.PlayResultVideo();
+            if (resultVideoController != null)
+            {
+                Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoController.name} ({resultVideoController.GetType().Name})");
+                
+                // ResultVideoControllerにrankを設定
+                resultVideoController.rank = rank;
+                
+                Hook();
+                resultVideoController.PlayResultVideo();
+            }
         }
         else
         {
-            // 従来のフロー
-            Hook();
+            Debug.Log($"[ResultCaller] rank={rank}, showing result directly");
+            if (resultHUD != null)
+            {
+                Hook();
+                ShowResult();
+            }
         }
     }
 

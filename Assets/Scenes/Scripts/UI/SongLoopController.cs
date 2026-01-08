@@ -17,7 +17,8 @@ public class SongLoopController : MonoBehaviour
     [SerializeField] private Conductor conductor;
 
     [Header("Result UI")]
-    [SerializeField] private GameObject resultCanvas;   // ★ 追加：ResultCanvas参照
+    [SerializeField] private GameObject resultCanvas;
+    [SerializeField] private ResultCaller resultCaller;  // ResultCallerへの参照
 
     [Header("Loop Settings")]
     public bool enableLooping = false;
@@ -109,38 +110,37 @@ public class SongLoopController : MonoBehaviour
         }
     }
 
-    void ShowResult()
+void ShowResult()
     {
         Debug.Log("[SongLoopController] ShowResult called");
-
-        // SafeArea 非表示
-        var safeArea = GameObject.Find("SafeArea");
-        if (safeArea != null)
+        
+        // ResultCallerを使ってリザルトを表示
+        if (resultCaller != null)
         {
-            var cg = safeArea.GetComponent<CanvasGroup>();
-            if (cg == null) cg = safeArea.AddComponent<CanvasGroup>();
-            cg.alpha = 0f;
-            cg.interactable = false;
-            cg.blocksRaycasts = false;
-        }
-
-        if (resultCanvas != null)
-        {
-            resultCanvas.SetActive(true);
-
-            var cg = resultCanvas.GetComponent<CanvasGroup>();
-            if (cg != null)
-            {
-                cg.alpha = 1f;
-                cg.interactable = true;
-                cg.blocksRaycasts = true;
-            }
-
-            Debug.Log("[SongLoopController] ResultCanvas activated");
+            Debug.Log("[SongLoopController] Calling ResultCaller.TriggerResult()");
+            resultCaller.TriggerResult();
         }
         else
         {
-            Debug.LogError("[SongLoopController] ResultCanvas reference is NULL");
+            Debug.LogError("[SongLoopController] ResultCaller reference is NULL!");
+            
+            // フォールバック: 直接ResultCanvasをアクティブ化
+            if (resultCanvas != null)
+            {
+                resultCanvas.SetActive(true);
+                var cg = resultCanvas.GetComponent<CanvasGroup>();
+                if (cg != null)
+                {
+                    cg.alpha = 1f;
+                    cg.interactable = true;
+                    cg.blocksRaycasts = true;
+                }
+                Debug.Log("[SongLoopController] ResultCanvas activated (fallback)");
+            }
+            else
+            {
+                Debug.LogError("[SongLoopController] ResultCanvas reference is also NULL");
+            }
         }
     }
 

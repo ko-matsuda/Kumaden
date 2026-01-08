@@ -82,6 +82,12 @@ public class ResultHUD : MonoBehaviour
     /// <summary>結果UIを表示（料理動画のあと等で1回呼ぶ）</summary>
     public void ShowResult()
     {
+        // ResultCanvasを先にアクティブ化してからコルーチンを開始
+        if (gameObject != null && !gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+        }
+
         if (isShowing || isBusy) return;
         isShowing = true;
         
