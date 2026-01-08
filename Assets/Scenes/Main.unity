@@ -17652,7 +17652,7 @@ MonoBehaviour:
   chartSpawner: {fileID: 1350261113}
   conductor: {fileID: 538003176}
   resultCanvas: {fileID: 942037559}
-  resultCaller: {fileID: 0}
+  resultCaller: {fileID: 186652062}
   enableLooping: 0
 --- !u!1 &1655579930
 GameObject:

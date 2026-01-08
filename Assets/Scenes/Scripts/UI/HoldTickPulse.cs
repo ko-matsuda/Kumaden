@@ -72,8 +72,8 @@ public void StartTick()
     /// </summary>
 public void StopTick()
     {
-        Debug.LogError("[HoldTickPulse] ========== StopTick START ==========");
-        Debug.LogError("[HoldTickPulse] _active before = " + _active);
+        Debug.Log("[HoldTickPulse] ========== StopTick START ==========");
+        Debug.Log("[HoldTickPulse] _active before = " + _active);
         
         _active = false;
         isGated = true;
@@ -83,17 +83,17 @@ public void StopTick()
         if (linkedHoldNote != null)
         {
             linkedHoldNote.StopHold();
-            Debug.LogError("[HoldTickPulse] StopTick - Notified LinkedHoldNote");
+            Debug.Log("[HoldTickPulse] StopTick - Notified LinkedHoldNote");
         }
         else
         {
-            Debug.LogError("[HoldTickPulse] StopTick - LinkedHoldNote NOT FOUND");
+            Debug.Log("[HoldTickPulse] StopTick - LinkedHoldNote NOT FOUND");
         }
         
         OnExit?.Invoke();
-        Debug.LogError("[HoldTickPulse] StopTick - OnExit invoked");
+        Debug.Log("[HoldTickPulse] StopTick - OnExit invoked");
         
-        Debug.LogError("[HoldTickPulse] ========== StopTick END ==========");
+        Debug.Log("[HoldTickPulse] ========== StopTick END ==========");
     }
 
     // ───────────────────────────────────────
