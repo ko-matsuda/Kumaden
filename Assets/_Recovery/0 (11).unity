@@ -4394,10 +4394,6 @@ MonoBehaviour:
   useGating: 1
   isGated: 1
   laneIndex: 0
-  hitVFXPool: {fileID: 0}
-  playerTransform: {fileID: 0}
-  vfxOffset: {x: 0, y: 0.5, z: 0}
-  vfxInterval: 0.1
   OnTick:
     m_PersistentCalls:
       m_Calls: []
@@ -11497,7 +11493,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1081451734}
   - component: {fileID: 1081451733}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: VFXPool
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21991,8 +21987,6 @@ MonoBehaviour:
   linkedHoldNote: {fileID: 0}
   hudCounterBinder: {fileID: 376677633}
   comboProbe: {fileID: 217732779}
-  hitVFXPool: {fileID: 1081451733}
-  vfxOffset: {x: 0, y: 1.3, z: 2}
   printDebug: 1
 --- !u!82 &1899053744
 AudioSource:

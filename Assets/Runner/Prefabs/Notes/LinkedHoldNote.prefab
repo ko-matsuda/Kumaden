@@ -79,6 +79,9 @@ MonoBehaviour:
   endSuccessVolume: 0.7
   ingredientType: 0
   laneIndex: 1
+  hitVFXPool: {fileID: 0}
+  vfxOffset: {x: 0, y: 1.3, z: 2}
+  vfxTickInterval: 0.2
   tickInterval: 0.2
   tickScore: 10
   debugLog: 1
@@ -99,6 +102,10 @@ MonoBehaviour:
   useGating: 1
   isGated: 1
   laneIndex: 1
+  hitVFXPool: {fileID: 0}
+  playerTransform: {fileID: 0}
+  vfxOffset: {x: 0, y: 0.5, z: 0}
+  vfxInterval: 0.1
   OnTick:
     m_PersistentCalls:
       m_Calls: []

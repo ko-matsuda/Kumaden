@@ -88,11 +88,18 @@ public class LinkedHoldNote : MonoBehaviour
     [SerializeField, Range(0.0f, 1.0f), Tooltip("End SE音量（0.7→1.0 = +3dB相当）")]
     private float endSuccessVolume = 1.0f;
 
-        [Header("食材タイプ")]
+    [Header("食材タイプ")]
     [Tooltip("この帯ノーツが対応する食材（Milk/Egg/Flour）")]
     public IngredientType ingredientType = IngredientType.Milk;
-[Header("レーン情報")]
+    
+    [Header("レーン情報")]
     public int laneIndex = 0;
+    
+    [Header("VFX")]
+    public HitVFXPool hitVFXPool;
+    public Vector3 vfxOffset = new Vector3(0f, 0.5f, 0f);
+    [SerializeField] private float vfxTickInterval = 0.2f;
+    private float vfxTickTimer = 0f;
 
     [Header("ホールド中のスコア")]
     public float tickInterval = 0.2f;
@@ -135,6 +142,16 @@ public class LinkedHoldNote : MonoBehaviour
         
         baseColor = ribbonColor;
         baseWidth = lineWidth * baseWidthMultiplier;
+        
+        // VFXPoolを自動検索
+        if (hitVFXPool == null)
+        {
+            hitVFXPool = FindObjectOfType<HitVFXPool>();
+            if (hitVFXPool != null && debugLog)
+            {
+                Debug.Log("[LinkedHoldNote] HitVFXPool found and assigned");
+            }
+        }
     }
 
     void OnEnable()
@@ -158,7 +175,7 @@ public class LinkedHoldNote : MonoBehaviour
         }
     }
 
-void Update()
+    void Update()
     {
         inputActiveThisFrame = false;
 
@@ -286,7 +303,6 @@ void Update()
             return;
         }
 
-        // Hold中の処理
         if (isHolding)
         {
             holdTimer += Time.deltaTime;
@@ -299,7 +315,6 @@ void Update()
             
             CheckBeatAccent();
             
-            // Hold中にPlayerから離れたかチェック
             float distanceX = Mathf.Abs(player.position.x - transform.position.x);
             
             if (distanceX > 1.5f)
@@ -426,30 +441,26 @@ void Update()
         return result;
     }
 
-public void HideRibbon()
+    public void HideRibbon()
     {
         if (debugLog) Debug.Log("[Ribbon] HideRibbon called - isHolding was: " + isHolding);
         
-        // Hold終了時にPERFECT明滅を停止
         var scoreMgr = ScoreManagerLite.Instance;
         if (scoreMgr != null)
         {
             scoreMgr.StopHoldPerfect();
         }
         
-        // isHolding=falseでHideRibbonが呼ばれた場合はMISS
         if (!isHolding && !hasEnded)
         {
             if (debugLog) Debug.LogWarning("[LinkedHoldNote] HideRibbon - MISS detected (not holding)");
             
-            // Comboリセット
             var comboProbe = FindObjectOfType<ComboProbe>();
             if (comboProbe != null)
             {
                 comboProbe.OnNoteMiss();
             }
             
-            // MISS表示
             if (scoreMgr != null)
             {
                 if (debugLog) Debug.LogWarning("[LinkedHoldNote] Calling ScoreManagerLite.OnPick(MISS)");
@@ -494,28 +505,25 @@ public void HideRibbon()
         return isHolding;
     }
 
-public void StopHold()
+    public void StopHold()
     {
         if (hasEnded) return;
         
         hasEnded = true;
         isHolding = false;
         
-        // HoldTickPulseを停止
         var holdTickPulse = GetComponentInChildren<HoldTickPulse>();
         if (holdTickPulse != null)
         {
             holdTickPulse.StopTick();
         }
         
-        // JudgeTextBlinkerを停止
         var judgeTextBlinker = FindObjectOfType<JudgeTextBlinker>();
         if (judgeTextBlinker != null)
         {
             judgeTextBlinker.StopBlink();
         }
         
-        // MISS処理
         var comboProbe = FindObjectOfType<ComboProbe>();
         if (comboProbe != null)
         {
@@ -538,7 +546,6 @@ public void StopHold()
         
         Destroy(gameObject, 0.1f);
     }
-
 
     void OnDisable()
     {
@@ -604,13 +611,27 @@ public void StopHold()
         if (debugLog) Debug.Log($"[LinkedHoldNote] LineRenderer created - enabled={ribbonLine.enabled}, width={ribbonLine.startWidth}");
     }
 
-    private void TryAutoDetect()
+private void TryAutoDetect()
     {
         if (player == null)
         {
-            var p = GameObject.Find("kuma_model");
-            if (p == null) p = GameObject.Find("Player");
-            if (p != null) player = p.transform;
+            // Pickup.csがついているPlayerオブジェクトを探す（最優先）
+            var pickup = FindObjectOfType<Pickup>();
+            if (pickup != null)
+            {
+                player = pickup.transform;
+                if (debugLog) Debug.Log("[LinkedHoldNote] Found player via Pickup component");
+            }
+            else
+            {
+                // フォールバック：Playerタグで探す
+                var playerObj = GameObject.FindGameObjectWithTag("Player");
+                if (playerObj != null)
+                {
+                    player = playerObj.transform;
+                    if (debugLog) Debug.Log("[LinkedHoldNote] Found player via Player tag");
+                }
+            }
         }
 
         if (startNote == null)
@@ -633,13 +654,12 @@ public void StopHold()
         }
     }
 
-private void AddTickScore()
+    private void AddTickScore()
     {
         inputActiveThisFrame = true;
         
         if (debugLog) Debug.Log($"[LinkedHoldNote] AddTickScore called - lane={laneIndex}, ingredient={ingredientType}");
         
-        // 食材カウントをScoreManagerLiteに通知
         var scoreMgr = ScoreManagerLite.Instance;
         if (scoreMgr != null)
         {
@@ -651,14 +671,28 @@ private void AddTickScore()
             if (debugLog) Debug.LogWarning("[LinkedHoldNote] ScoreManagerLite not found!");
         }
         
-        // HudCounterBinderを削除（ScoreManagerLiteが食材を管理するため）
-        
         if (audioSource != null && holdTickSE != null)
         {
             audioSource.PlayOneShot(holdTickSE, holdTickVolume);
         }
 
         if (debugLog) Debug.Log($"[LinkedHoldNote] Tick! lane={laneIndex}, ingredient={ingredientType}, interval={tickInterval}s");
+
+        PlayHoldTickVFX();
+    }
+
+private void PlayHoldTickVFX()
+    {
+        if (hitVFXPool == null || player == null)
+        {
+            if (debugLog) Debug.LogWarning("[LinkedHoldNote] PlayHoldTickVFX - hitVFXPool or player is null");
+            return;
+        }
+        
+        Vector3 vfxPosition = player.position + vfxOffset;
+        hitVFXPool.PlayVFX(vfxPosition, "GOOD");
+        
+        if (debugLog) Debug.Log($"[LinkedHoldNote] VFX played at {vfxPosition}");
     }
 
     public void SetEndNoteDistance(float distanceZ)

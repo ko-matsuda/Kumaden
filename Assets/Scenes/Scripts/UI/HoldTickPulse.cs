@@ -16,41 +16,62 @@ using UnityEngine.Events;
 public sealed class HoldTickPulse : MonoBehaviour
 {
     [Header("Tick Mode")]
-    [SerializeField] private bool perFrame = true;   // 毎フレーム発火
-    [SerializeField] private float tickRateHz = 30f; // perFrame=false のとき使用（1秒間に何回）
+    [SerializeField] private bool perFrame = true;
+    [SerializeField] private float tickRateHz = 30f;
 
     [Header("Gating")]
-    [SerializeField] private bool useGating = true;  // Gating 機能を使うかどうか
-    [SerializeField] private bool isGated = true;    // Inspector で状態確認用（読み取り専用的に使用）
+    [SerializeField] private bool useGating = true;
+    [SerializeField] private bool isGated = true;
 
     [Header("レーン情報")]
-    public int laneIndex = 0;  // 0=Milk, 1=Flour, 2=Egg
+    public int laneIndex = 0;
+
+    [Header("VFX")]
+    public HitVFXPool hitVFXPool;
+    public Transform playerTransform;
+    public Vector3 vfxOffset = new Vector3(0f, 0.5f, 0f);
+    [SerializeField] private float vfxInterval = 0.1f;
+    private float vfxTimer = 0f;
 
     [Header("Events")]
-    public UnityEvent OnTick;                        // 連続カウント用
-    public UnityEvent OnEnter;                       // ホールド開始時のイベント
-    public UnityEvent OnExit;                        // ホールド終了時のイベント
+    public UnityEvent OnTick;
+    public UnityEvent OnEnter;
+    public UnityEvent OnExit;
 
     [Header("Debug")]
     [SerializeField] private bool debugLog = true;
 
-    
-    
     private ComboProbe comboProbe;
-private JudgeTextBlinker judgeTextBlinker;
-private bool _active = false;                    // 内部状態（常に false で初期化）
+    private JudgeTextBlinker judgeTextBlinker;
+    private bool _active = false;
     private float _accum;
 
-    // ───────────────────────────────────────
-    // Pickup.cs から呼ばれるメソッド
-    // ───────────────────────────────────────
-    
-    /// <summary>
-    /// Tick 発火を開始する（Pickup.cs から呼ばれる）
-    /// </summary>
-public void StartTick()
+    private void Awake()
     {
-        // 自動検索
+        // Playerを自動検索
+        if (playerTransform == null)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                playerTransform = player.transform;
+                if (debugLog) Debug.Log("[HoldTickPulse] Player found and assigned");
+            }
+        }
+
+        // HitVFXPoolを自動検索
+        if (hitVFXPool == null)
+        {
+            hitVFXPool = FindObjectOfType<HitVFXPool>();
+            if (hitVFXPool != null && debugLog)
+            {
+                Debug.Log("[HoldTickPulse] HitVFXPool found and assigned");
+            }
+        }
+    }
+
+    public void StartTick()
+    {
         if (judgeTextBlinker == null)
         {
             judgeTextBlinker = FindObjectOfType<JudgeTextBlinker>();
@@ -62,15 +83,13 @@ public void StartTick()
         
         _active = true;
         _accum = 0f;
-        isGated = false;  // Inspector 表示用
+        vfxTimer = 0f;
+        isGated = false;
         OnEnter?.Invoke();
         if (debugLog) Debug.Log("[HoldTickPulse] StartTick - Started (_active = true)");
     }
 
-    /// <summary>
-    /// Tick 発火を停止する（Pickup.cs から呼ばれる）
-    /// </summary>
-public void StopTick()
+    public void StopTick()
     {
         Debug.Log("[HoldTickPulse] ========== StopTick START ==========");
         Debug.Log("[HoldTickPulse] _active before = " + _active);
@@ -78,7 +97,6 @@ public void StopTick()
         _active = false;
         isGated = true;
         
-        // LinkedHoldNoteに通知してisHolding=falseにする
         var linkedHoldNote = GetComponentInParent<LinkedHoldNote>();
         if (linkedHoldNote != null)
         {
@@ -92,14 +110,9 @@ public void StopTick()
         
         OnExit?.Invoke();
         Debug.Log("[HoldTickPulse] StopTick - OnExit invoked");
-        
         Debug.Log("[HoldTickPulse] ========== StopTick END ==========");
     }
 
-    // ───────────────────────────────────────
-    // Inspector イベント用エイリアス（互換性のため残す）
-    // ───────────────────────────────────────
-    
     public void OnHoldEnter()
     {
         StartTick();
@@ -110,10 +123,6 @@ public void StopTick()
         StopTick();
     }
 
-    // ───────────────────────────────────────
-    // 強制停止（ゲートからの呼び出し用）
-    // ───────────────────────────────────────
-    
     public void ForceStopFromGate()
     {
         _active = false;
@@ -121,13 +130,8 @@ public void StopTick()
         if (debugLog) Debug.Log("[HoldTickPulse] ForceStopFromGate");
     }
 
-    // ───────────────────────────────────────
-    // Update ループ
-    // ───────────────────────────────────────
-    
     private void Update()
     {
-        // Gating が有効な場合は _active をチェック
         if (useGating && !_active) return;
         if (Time.timeScale <= 0f) return;
 
@@ -137,12 +141,10 @@ public void StopTick()
             return;
         }
 
-        // 固定レート発火
         if (tickRateHz <= 0f) tickRateHz = 30f;
         _accum += Time.deltaTime;
         float interval = 1f / tickRateHz;
 
-        // フレーム落ち吸収：溜まった分だけ複数回呼ぶ
         while (_accum >= interval)
         {
             FireTick();
@@ -150,29 +152,41 @@ public void StopTick()
         }
     }
 
-private void FireTick()
+    private void FireTick()
     {
         OnTick?.Invoke();
         
-        // ComboProbeにCOMBOカウントを依頼
         if (comboProbe != null)
         {
             comboProbe.OnHoldTick();
         }
         
-        // JudgeTextBlinkerに明滅を依頼
         if (judgeTextBlinker != null)
         {
             judgeTextBlinker.OnHoldTick();
         }
-        
-        // Tick ログは大量に出るのでコメントアウト
-        // if (debugLog) Debug.Log("[HoldTickPulse] TICK");
+
+        // VFX表示（インターバル制御）
+        vfxTimer += Time.deltaTime;
+        if (vfxTimer >= vfxInterval)
+        {
+            PlayHoldVFX();
+            vfxTimer = 0f;
+        }
     }
 
-    // ───────────────────────────────────────
-    // 状態確認用
-    // ───────────────────────────────────────
-    
+    private void PlayHoldVFX()
+    {
+        if (hitVFXPool == null || playerTransform == null) return;
+
+        Vector3 vfxPosition = playerTransform.position + vfxOffset;
+        hitVFXPool.PlayVFX(vfxPosition, "GOOD");
+        
+        if (debugLog)
+        {
+            Debug.Log($"[HoldTickPulse] VFX played at {vfxPosition}");
+        }
+    }
+
     public bool IsActive => _active;
 }

@@ -22,12 +22,16 @@ public class Pickup : MonoBehaviour
     public HudCounterBinder hudCounterBinder;
     public ComboProbe comboProbe;
 
+    [Header("VFX")]
+    public HitVFXPool hitVFXPool;
+    public Vector3 vfxOffset = new Vector3(0f, 0.5f, 0f); // VFXの表示位置オフセット
+
     [Header("デバッグ")]
     public bool printDebug = true;
 
     private BoxCollider playerBox;
 
-void Awake()
+    void Awake()
     {
         playerBox = GetComponent<BoxCollider>();
         if (playerBox == null)
@@ -44,7 +48,7 @@ void Awake()
         }
     }
 
-private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         // AudioSourceを強制的に有効化（Retry対応）
         if (seSource != null && !seSource.enabled)
@@ -61,7 +65,8 @@ private void OnTriggerEnter(Collider other)
                 holdTickPulse.StartTick();
                 if (printDebug) Debug.Log("[Pickup] StartTick called");
             }
-            PlaySEOnly(other);
+            string holdStartJudge = PlaySEAndGetJudge(other);
+            PlayVFXAtPosition(transform.position, holdStartJudge);
             Destroy(other.gameObject);  // StartNote を破棄
             return;
         }
@@ -96,7 +101,8 @@ private void OnTriggerEnter(Collider other)
                 linkedHoldNote.HideRibbon();
                 if (printDebug) Debug.Log("[Pickup] HideRibbon called");
             }
-            PlaySEOnly(other);
+            string holdEndJudge = PlaySEAndGetJudge(other);
+            PlayVFXAtPosition(other.transform.position, holdEndJudge);
             Destroy(other.gameObject);  // EndNote を破棄
             return;
         }
@@ -112,31 +118,33 @@ private void OnTriggerEnter(Collider other)
         float noteCenterZ = other.bounds.center.z;
         float dz = Mathf.Abs(noteCenterZ - playerFrontZ);
 
-        string judge = (dz <= perfectRangeZ) ? "PERFECT"
-                     : (dz <= goodRangeZ)    ? "GOOD"
-                     :                         "MISS";
+        string normalJudge = (dz <= perfectRangeZ) ? "PERFECT"
+                           : (dz <= goodRangeZ)    ? "GOOD"
+                           :                         "MISS";
 
         if (printDebug)
         {
-            Debug.Log($"[Pickup] lane={note.laneIndex}, dz={dz:F2} → {judge}");
+            Debug.Log($"[Pickup] lane={note.laneIndex}, dz={dz:F2} → {normalJudge}");
         }
 
         if (seSource != null)
         {
-            if (judge == "PERFECT" && sePerfect != null) seSource.PlayOneShot(sePerfect);
-            else if (judge == "GOOD" && seGood != null)  seSource.PlayOneShot(seGood);
+            if (normalJudge == "PERFECT" && sePerfect != null) seSource.PlayOneShot(sePerfect);
+            else if (normalJudge == "GOOD" && seGood != null)  seSource.PlayOneShot(seGood);
         }
 
-        ScoreManagerLite.Instance?.OnPick(note.Type, judge);
+        ScoreManagerLite.Instance?.OnPick(note.Type, normalJudge);
 
-        if (judge == "PERFECT" || judge == "GOOD")
-        if (judge == "PERFECT" || judge == "GOOD")
+        if (normalJudge == "PERFECT" || normalJudge == "GOOD")
         {
             // HudCounterBinder削除: ScoreManagerLiteが食材を管理
             if (comboProbe != null) comboProbe.OnNormalNote();
             LaneController.Instance?.HighlightLane(note.laneIndex, 0.2f);
+            
+            // VFXを再生
+            PlayVFXAtPosition(transform.position, normalJudge);
         }
-        else if (judge == "MISS")
+        else if (normalJudge == "MISS")
         {
             // MISS でコンボリセット
             if (comboProbe != null) comboProbe.ResetCombo();
@@ -146,14 +154,14 @@ private void OnTriggerEnter(Collider other)
         Destroy(note.gameObject);
     }
 
-private void OnTriggerExit(Collider other)
+    private void OnTriggerExit(Collider other)
     {
         Debug.Log("[Pickup] OnTriggerExit called - Tag=" + other.tag);
         
         // ホールド中に外れた場合
         if (other.CompareTag("LinkedHoldStart") || other.CompareTag("LinkedHoldEnd"))
         {
-        Debug.Log("[Pickup] OnTriggerExit - Hold tag detected!");
+            Debug.Log("[Pickup] OnTriggerExit - Hold tag detected!");
             
             if (holdTickPulse != null)
             {
@@ -161,7 +169,7 @@ private void OnTriggerExit(Collider other)
                 
                 if (holdTickPulse.IsActive)
                 {
-        Debug.Log("[Pickup] OnTriggerExit - Hold interrupted! Calling StopTick");
+                    Debug.Log("[Pickup] OnTriggerExit - Hold interrupted! Calling StopTick");
                     holdTickPulse.StopTick();
                 }
             }
@@ -173,26 +181,38 @@ private void OnTriggerExit(Collider other)
         }
     }
 
-
-    private void PlaySEOnly(Collider other)
+    private string PlaySEAndGetJudge(Collider other)
     {
-        if (playerBox == null || seSource == null) return;
+        if (playerBox == null || seSource == null) return "MISS";
 
         Vector3 localFront = playerBox.center + new Vector3(0f, 0f, playerBox.size.z * 0.5f);
         float playerFrontZ = transform.TransformPoint(localFront).z + judgeOffsetFromFront;
         float noteCenterZ = other.bounds.center.z;
         float dz = Mathf.Abs(noteCenterZ - playerFrontZ);
 
-        string judge = (dz <= perfectRangeZ) ? "PERFECT"
-                     : (dz <= goodRangeZ)    ? "GOOD"
-                     :                         "MISS";
+        string holdJudge = (dz <= perfectRangeZ) ? "PERFECT"
+                         : (dz <= goodRangeZ)    ? "GOOD"
+                         :                         "MISS";
 
         if (printDebug)
         {
-            Debug.Log($"[Pickup] HoldNote SE: dz={dz:F2} → {judge}");
+            Debug.Log($"[Pickup] HoldNote SE: dz={dz:F2} → {holdJudge}");
         }
 
-        if (judge == "PERFECT" && sePerfect != null) seSource.PlayOneShot(sePerfect);
-        else if (judge == "GOOD" && seGood != null)  seSource.PlayOneShot(seGood);
+        if (holdJudge == "PERFECT" && sePerfect != null) seSource.PlayOneShot(sePerfect);
+        else if (holdJudge == "GOOD" && seGood != null)  seSource.PlayOneShot(seGood);
+        
+        return holdJudge;
+    }
+
+    /// <summary>
+    /// 指定位置でVFXを再生
+    /// </summary>
+    private void PlayVFXAtPosition(Vector3 position, string judgement)
+    {
+        if (hitVFXPool != null)
+        {
+            hitVFXPool.PlayVFX(position + vfxOffset, judgement);
+        }
     }
 }
