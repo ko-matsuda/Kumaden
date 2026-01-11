@@ -1453,7 +1453,7 @@ MonoBehaviour:
   videoPlayer: {fileID: 1763401056}
   resultHUD: {fileID: 942037572}
   quickRanking: {fileID: 330125190}
-  delayAfterVideo: 0.35
+  delayAfterVideo: 0.5
   resultVideoController: {fileID: 1859113772}
   fallbackSeconds: 8
 --- !u!114 &186652063
@@ -10129,7 +10129,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.107, g: 0.114, b: 0.14, a: 0.9411765}
+  m_Color: {r: 0.107, g: 0.114, b: 0.14, a: 0.9647059}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

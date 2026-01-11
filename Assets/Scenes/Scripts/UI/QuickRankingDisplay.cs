@@ -39,7 +39,7 @@ public class QuickRankingDisplay : MonoBehaviour
     [SerializeField, Range(0.05f, 0.15f)] private float fadeOutDuration = 0.1f;
     [SerializeField, Range(0.6f, 0.8f)] private float otherPlayerAlpha = 0.65f;
     
-    private Color selfColor = Color.white;
+    private Color selfColor = Color.yellow;
     private Color otherColor;
 
 private void Awake()
@@ -66,24 +66,68 @@ private void Awake()
         }
     }
 
-public void ShowRanking(int myRank, int myScore, RankingEntry topPlayer, RankingEntry bottomPlayer)
+public void ShowRanking(int myRank, int myScore, RankingEntry topPlayer, RankingEntry bottomPlayer, int topRank, int bottomRank)
     {
         Debug.Log("[QuickRankingDisplay] ShowRanking called");
         
-        // Retryボタンのイベント再設定（Awakeが呼ばれていない場合のため）
-        if (retryButton != null)
+        // ResultCanvasを探してアクティブにする
+        Transform resultCanvasTransform = null;
+        Transform current = transform.parent;
+        while (current != null)
         {
-            Debug.Log($"[QuickRankingDisplay] Setting up retry button - interactable={retryButton.interactable}");
-            retryButton.onClick.RemoveAllListeners();
-            retryButton.onClick.AddListener(OnRetry);
-            Debug.Log("[QuickRankingDisplay] Retry button onClick set");
-        }
-        else
-        {
-            Debug.LogWarning("[QuickRankingDisplay] retryButton is null!");
+            if (current.name == "ResultCanvas")
+            {
+                resultCanvasTransform = current;
+                break;
+            }
+            current = current.parent;
         }
         
-        StartCoroutine(DisplaySequence(myRank, myScore, topPlayer, bottomPlayer));
+        if (resultCanvasTransform != null)
+        {
+            // ResultCanvasをアクティブにする
+            if (!resultCanvasTransform.gameObject.activeSelf)
+            {
+                resultCanvasTransform.gameObject.SetActive(true);
+                Debug.Log("[QuickRankingDisplay] ResultCanvas activated");
+            }
+            
+            // ResultCanvasのCanvasGroupのalphaを1にする
+            var resultCanvasGroup = resultCanvasTransform.GetComponent<CanvasGroup>();
+            if (resultCanvasGroup != null)
+            {
+                resultCanvasGroup.alpha = 1f;
+                resultCanvasGroup.interactable = true;
+                resultCanvasGroup.blocksRaycasts = true;
+                Debug.Log("[QuickRankingDisplay] ResultCanvas CanvasGroup alpha set to 1");
+            }
+        }
+        
+        // GameObjectを確実にアクティブにする
+        if (!gameObject.activeInHierarchy)
+        {
+            gameObject.SetActive(true);
+            Debug.Log("[QuickRankingDisplay] GameObject activated");
+        }
+        
+        // QuickRanking自身のCanvasGroupのalphaを1にする
+        var selfCanvasGroup = GetComponent<CanvasGroup>();
+        if (selfCanvasGroup != null)
+        {
+            selfCanvasGroup.alpha = 1f;
+            selfCanvasGroup.interactable = true;
+            selfCanvasGroup.blocksRaycasts = true;
+            Debug.Log("[QuickRankingDisplay] Self CanvasGroup alpha set to 1");
+        }
+
+        Color selfColor = Color.yellow;
+        Color otherColor = Color.white;
+
+        SetRankLine(rankTopRank, rankTopName, rankTopScore, topRank, topPlayer.playerName, topPlayer.score, otherColor);
+        SetRankLine(rankSelfRank, rankSelfName, rankSelfScore, myRank, "YOU", myScore, selfColor);
+        SetRankLine(rankBottomRank, rankBottomName, rankBottomScore, bottomRank, bottomPlayer.playerName, bottomPlayer.score, otherColor);
+        
+        Debug.Log($"[QuickRankingDisplay] Ranking displayed: top={topRank}, self={myRank}, bottom={bottomRank}");
     }
 
 private IEnumerator DisplaySequence(int myRank, int myScore, RankingEntry topPlayer, RankingEntry bottomPlayer)

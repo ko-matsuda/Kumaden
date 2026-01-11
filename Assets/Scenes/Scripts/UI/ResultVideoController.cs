@@ -14,6 +14,9 @@ public class ResultVideoController : MonoBehaviour
     [Header("Video Clips")]
     public VideoClip resultSuccess;  // S/A/B用
     public VideoClip resultFail;     // C用
+        private bool isPlayingResultVideo = false;  // リザルト動画再生中フラグ
+    
+
     
     [Header("Result UI")]
     public ResultHUD resultHUD;
@@ -57,32 +60,53 @@ void Awake()
 
     public void PlayResultVideo()
     {
+        Debug.Log("[ResultVideoController] ===== PlayResultVideo CALLED =====");
         Debug.Log($"[ResultVideoController] PlayResultVideo called - rank={rank}");
         
-        if (videoPlayed) return;
-        if (videoPlayer == null || resultSuccess == null || resultFail == null)
+        // 動画再生前にResultCanvasの背景を表示
+        if (resultHUD != null)
+        {
+            var resultCanvasTransform = resultHUD.transform.root.Find("ResultCanvas");
+            if (resultCanvasTransform != null)
+            {
+                resultCanvasTransform.gameObject.SetActive(true);
+                var canvasGroup = resultCanvasTransform.GetComponent<CanvasGroup>();
+                if (canvasGroup != null)
+                {
+                    canvasGroup.alpha = 1f;
+                    canvasGroup.interactable = true;
+                    canvasGroup.blocksRaycasts = true;
+                }
+                Debug.Log("[ResultVideoController] ResultCanvas background displayed before video");
+            }
+        }
+        
+        if (!videoPlayer || !resultSuccess || !resultFail)
         {
             Debug.LogError("[ResultVideoController] Not initialized!");
             return;
         }
+
+        isPlayingResultVideo = true;
+        videoPlayer.loopPointReached += OnVideoFinished;
         
-        // Rankに応じて動画を選択
-        if (rank == "S" || rank == "A" || rank == "B")
+        VideoClip targetClip = (rank == "S" || rank == "A" || rank == "B") ? resultSuccess : resultFail;
+        Debug.Log($"[ResultVideoController] Selected video clip: {targetClip.name}");
+        
+        var cleaner = GetComponent<VideoPlayerCleaner>();
+        if (cleaner != null)
         {
-            videoPlayer.clip = resultSuccess;
-            Debug.Log("[ResultVideoController] Playing SUCCESS video");
+            cleaner.PlayClean(targetClip);
         }
         else
         {
-            videoPlayer.clip = resultFail;
-            Debug.Log("[ResultVideoController] Playing FAIL video");
+            videoPlayer.clip = targetClip;
+            videoPlayer.Prepare();
+            videoPlayer.Play();
         }
-        
-        videoPlayer.Play();
-        videoPlayed = true;
     }
 
-private void OnVideoFinished(VideoPlayer vp)
+    private void OnVideoFinished(VideoPlayer vp)
     {
         // プロローグ動画は無視
         if (vp.clip != resultSuccess && vp.clip != resultFail)
@@ -105,48 +129,91 @@ void ShowResult()
         
         if (resultHUD != null)
         {
-            resultHUD.ShowResult();
+                    
+        // ResultCanvasの背景を表示
+        var resultCanvasTransform = resultHUD.transform.root.Find("ResultCanvas");
+        if (resultCanvasTransform != null)
+        {
+            resultCanvasTransform.gameObject.SetActive(true);
+            var canvasGroup = resultCanvasTransform.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+            }
+            Debug.Log("[ResultVideoController] ResultCanvas background displayed");
+        }
+        
+resultHUD.ShowResult();
         }
     }
     
-    void ShowRanking()
+void ShowRanking()
     {
-        // SafeAreaを非表示
-        var safeArea = GameObject.Find("SafeArea");
-        if (safeArea != null)
+        if (!quickRanking)
         {
-            var canvasGroup = safeArea.GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
+            Debug.LogError("[ResultVideoController] quickRanking is null!");
+            return;
+        }
+
+        var score = ScoreManagerLite.Instance;
+        if (score == null)
+        {
+            Debug.LogError("[ResultVideoController] ScoreManagerLite.Instance is null!");
+            return;
+        }
+
+        int myScore = score.CalculateTotalScore();
+        
+        // スコアに基づいて順位を決定（より高いスコア = より良い順位）
+        int myRank;
+        if (myScore >= 100000) myRank = Random.Range(1, 3);      // 10万点以上: 1-2位
+        else if (myScore >= 80000) myRank = Random.Range(2, 5);  // 8万点以上: 2-4位
+        else if (myScore >= 60000) myRank = Random.Range(3, 7);  // 6万点以上: 3-6位
+        else if (myScore >= 40000) myRank = Random.Range(5, 10); // 4万点以上: 5-9位
+        else myRank = Random.Range(8, 15);                       // それ以下: 8-14位
+        
+        // 自然な名前リスト
+        string[] playerNames = {
+            "Sakura", "Hiro", "Yuki", "Kaito", "Aoi", "Ren", "Sora", "Mio",
+            "Riku", "Luna", "Kai", "Hana", "Taro", "Yui", "Ken", "Mai"
+        };
+        
+        // 上位プレイヤー（myRankの1つ上）
+        int topRank = myRank - 1;
+        int topScoreDiff = Random.Range(200, 800);  // 200〜800点差
+        string topName = playerNames[Random.Range(0, playerNames.Length)];
+        var topPlayer = new RankingEntry(topName, myScore + topScoreDiff);
+        
+        // 下位プレイヤー（myRankの1つ下）
+        int bottomRank = myRank + 1;
+        int bottomScoreDiff = Random.Range(200, 800);  // 200〜800点差
+        string bottomName = playerNames[Random.Range(0, playerNames.Length)];
+        // 同じ名前を避ける
+        while (bottomName == topName)
+        {
+            bottomName = playerNames[Random.Range(0, playerNames.Length)];
+        }
+        var bottomPlayer = new RankingEntry(bottomName, myScore - bottomScoreDiff);
+        
+        // SafeAreaを非表示にする（リザルト画面の中身）
+        if (resultHUD != null)
+        {
+            var safeArea = resultHUD.transform.Find("SafeArea");
+            if (safeArea != null)
             {
-                canvasGroup = safeArea.AddComponent<CanvasGroup>();
+                safeArea.gameObject.SetActive(false);
+                Debug.Log("[ResultVideoController] SafeArea hidden");
             }
-            canvasGroup.alpha = 0f;
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
-            
-            Debug.Log("[ResultVideoController] SafeArea hidden");
+            else
+            {
+                Debug.LogWarning("[ResultVideoController] SafeArea not found");
+            }
         }
         
-        // ランキングを表示
-        if (quickRanking != null)
-        {
-            var score = ScoreManagerLite.Instance;
-            if (score != null)
-            {
-                int myScore = score.PerfectCount * 100 + score.GoodCount * 50;
-                int myRank = Random.Range(3, 8);
-                
-                var topPlayer = new RankingEntry("Player_" + (char)('A' + Random.Range(0, 26)), myScore + Random.Range(100, 500));
-                var bottomPlayer = new RankingEntry("Player_" + (char)('A' + Random.Range(0, 26)), myScore - Random.Range(100, 500));
-                
-                quickRanking.ShowRanking(myRank, myScore, topPlayer, bottomPlayer);
-                Debug.Log("[ResultVideoController] QuickRanking shown");
-            }
-        }
-        else
-        {
-            Debug.LogError("[ResultVideoController] QuickRanking is null!");
-        }
+        quickRanking.ShowRanking(myRank, myScore, topPlayer, bottomPlayer, topRank, bottomRank);
+        Debug.Log($"[ResultVideoController] QuickRanking.ShowRanking() called - myRank={myRank}, myScore={myScore}");
     }
 
     void OnDestroy()

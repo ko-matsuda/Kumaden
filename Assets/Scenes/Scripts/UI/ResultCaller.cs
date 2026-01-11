@@ -70,7 +70,8 @@ public void TriggerResult()
             
             if (resultVideoController != null)
             {
-                Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoController.name} ({resultVideoController.GetType().Name})");
+                            
+Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoController.name} ({resultVideoController.GetType().Name})");
                 
                 // ResultVideoControllerにrankを設定
                 resultVideoController.rank = rank;
@@ -148,6 +149,7 @@ public void TriggerResult()
 
     void ShowResult()
     {
+        Debug.Log("[ResultCaller] ===== ShowResult CALLED =====");
         Time.timeScale = 1f;
 
         if (resultHUD == null)
@@ -157,11 +159,23 @@ public void TriggerResult()
 
         if (resultHUD != null)
         {
-            resultHUD.gameObject.SetActive(true);
+                    
+                // ResultCanvasの背景を表示（resultHUDはResultCanvasに直接アタッチされている）
+        resultHUD.gameObject.SetActive(true);
+        var canvasGroup = resultHUD.GetComponent<CanvasGroup>();
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 1f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
+            Debug.Log("[ResultCaller] ResultCanvas background displayed");
+        }
+        
+resultHUD.gameObject.SetActive(true);
             resultHUD.ShowResult();
             
             // 3秒後にランキング表示
-            Invoke(nameof(ShowRanking), 7.0f);
+            Invoke(nameof(ShowRanking), 5.0f);
         }
         else
         {
@@ -171,49 +185,69 @@ public void TriggerResult()
     
 void ShowRanking()
     {
-        // SafeAreaを非表示（CanvasGroupのアルファで制御）
-        var safeArea = GameObject.Find("SafeArea");
-        if (safeArea != null)
+        if (!quickRanking)
         {
-            var safeAreaCanvas = safeArea.GetComponent<CanvasGroup>();
-            if (safeAreaCanvas == null)
-            {
-                safeAreaCanvas = safeArea.AddComponent<CanvasGroup>();
-            }
-            safeAreaCanvas.alpha = 0f;
-            safeAreaCanvas.interactable = false;
-            safeAreaCanvas.blocksRaycasts = false;
-            
-            Debug.Log("[ResultCaller] SafeArea hidden via CanvasGroup");
+            Debug.LogError("[ResultCaller] quickRanking is null!");
+            return;
         }
-        
-        // ResultCanvasのalphaは消さない（QuickRankingが表示されるため）
-        
-        // ランキングを表示（ずっと表示）
-        if (quickRanking != null)
+
+        var score = ScoreManagerLite.Instance;
+        if (score == null)
         {
-            var score = ScoreManagerLite.Instance;
-            if (score != null)
+            Debug.LogError("[ResultCaller] ScoreManagerLite.Instance is null!");
+            return;
+        }
+
+        int myScore = score.CalculateTotalScore();
+        
+        // スコアに基づいて順位を決定（より高いスコア = より良い順位）
+        int myRank;
+        if (myScore >= 100000) myRank = Random.Range(1, 3);      // 10万点以上: 1-2位
+        else if (myScore >= 80000) myRank = Random.Range(2, 5);  // 8万点以上: 2-4位
+        else if (myScore >= 60000) myRank = Random.Range(3, 7);  // 6万点以上: 3-6位
+        else if (myScore >= 40000) myRank = Random.Range(5, 10); // 4万点以上: 5-9位
+        else myRank = Random.Range(8, 15);                       // それ以下: 8-14位
+        
+        // 自然な名前リスト
+        string[] playerNames = {
+            "Sakura", "Hiro", "Yuki", "Kaito", "Aoi", "Ren", "Sora", "Mio",
+            "Riku", "Luna", "Kai", "Hana", "Taro", "Yui", "Ken", "Mai"
+        };
+        
+        // 上位プレイヤー（myRankの1つ上）
+        int topRank = myRank - 1;
+        int topScoreDiff = Random.Range(200, 800);  // 200〜800点差
+        string topName = playerNames[Random.Range(0, playerNames.Length)];
+        var topPlayer = new RankingEntry(topName, myScore + topScoreDiff);
+        
+        // 下位プレイヤー（myRankの1つ下）
+        int bottomRank = myRank + 1;
+        int bottomScoreDiff = Random.Range(200, 800);  // 200〜800点差
+        string bottomName = playerNames[Random.Range(0, playerNames.Length)];
+        // 同じ名前を避ける
+        while (bottomName == topName)
+        {
+            bottomName = playerNames[Random.Range(0, playerNames.Length)];
+        }
+        var bottomPlayer = new RankingEntry(bottomName, myScore - bottomScoreDiff);
+        
+        // SafeAreaを非表示にする（リザルト画面の中身）
+        if (resultHUD != null)
+        {
+            var safeArea = resultHUD.transform.Find("SafeArea");
+            if (safeArea != null)
             {
-                // スコア計算（コンボボーナス含む）
-                int myScore = score.CalculateTotalScore();
-                int myRank = Random.Range(3, 8);
-                
-                var topPlayer = new RankingEntry("Player_" + (char)('A' + Random.Range(0, 26)), myScore + Random.Range(100, 500));
-                var bottomPlayer = new RankingEntry("Player_" + (char)('A' + Random.Range(0, 26)), myScore - Random.Range(100, 500));
-                
-                quickRanking.ShowRanking(myRank, myScore, topPlayer, bottomPlayer);
-                Debug.Log($"[ResultCaller] QuickRanking.ShowRanking() called - myScore={myScore}");
+                safeArea.gameObject.SetActive(false);
+                Debug.Log("[ResultCaller] SafeArea hidden");
             }
             else
             {
-                Debug.LogError("[ResultCaller] ScoreManagerLite.Instance is null!");
+                Debug.LogWarning("[ResultCaller] SafeArea not found");
             }
         }
-        else
-        {
-            Debug.LogError("[ResultCaller] quickRanking is null!");
-        }
+        
+        quickRanking.ShowRanking(myRank, myScore, topPlayer, bottomPlayer, topRank, bottomRank);
+        Debug.Log($"[ResultCaller] QuickRanking.ShowRanking() called - myRank={myRank}, myScore={myScore}");
     }
     
     private void OnRetry()
