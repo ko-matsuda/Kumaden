@@ -161,7 +161,7 @@ public void TriggerResult()
             resultHUD.ShowResult();
             
             // 3秒後にランキング表示
-            Invoke(nameof(ShowRanking), 3.0f);
+            Invoke(nameof(ShowRanking), 7.0f);
         }
         else
         {
