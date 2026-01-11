@@ -198,6 +198,7 @@ public class CookingResultSequence : MonoBehaviour
             if (prepared)
             {
                 videoPlayer.frame = 0;
+        
                 videoPlayer.Play();
                 if (videoAudio) videoAudio.Play();
 
@@ -243,7 +244,19 @@ public class CookingResultSequence : MonoBehaviour
 
         if (videoAudio && videoAudio.isPlaying) videoAudio.Stop();
 
-        if (resultRoot) resultRoot.SetActive(true);
+        // ResultCanvasの背景を表示
+        if (resultRoot)
+        {
+            resultRoot.SetActive(true);
+            var canvasGroup = resultRoot.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+                Debug.Log("[CookingResultSequence] ResultCanvas background displayed");
+            }
+        }
 
         if (!jingleSource && resultRoot)
             jingleSource = resultRoot.GetComponent<AudioSource>() ?? resultRoot.GetComponentInChildren<AudioSource>(true);
@@ -259,7 +272,7 @@ public class CookingResultSequence : MonoBehaviour
         isRunning = false;
     }
 
-void StoreResultData()
+    void StoreResultData()
     {
         var score = ScoreManagerLite.Instance;
         if (score == null)

@@ -74,10 +74,10 @@ public void TriggerResult()
 Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoController.name} ({resultVideoController.GetType().Name})");
                 
                 // ResultVideoControllerにrankを設定
-                resultVideoController.rank = rank;
+                // resultVideoController.rank = rank; // CookingResultSequenceが処理する
                 
                 Hook();
-                resultVideoController.PlayResultVideo();
+                // resultVideoController.PlayResultVideo(); // CookingResultSequenceが処理する
             }
         }
         else
@@ -161,7 +161,7 @@ Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoContr
         {
                     
                 // ResultCanvasの背景を表示（resultHUDはResultCanvasに直接アタッチされている）
-        resultHUD.gameObject.SetActive(true);
+        // resultHUD.gameObject.SetActive(true); // CookingResultSequenceが処理する
         var canvasGroup = resultHUD.GetComponent<CanvasGroup>();
         if (canvasGroup != null)
         {
@@ -171,8 +171,8 @@ Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoContr
             Debug.Log("[ResultCaller] ResultCanvas background displayed");
         }
         
-resultHUD.gameObject.SetActive(true);
-            resultHUD.ShowResult();
+        // resultHUD.gameObject.SetActive(true); // CookingResultSequenceが処理する
+            // resultHUD.ShowResult(); // CookingResultSequenceが処理する
             
             // 3秒後にランキング表示
             Invoke(nameof(ShowRanking), 5.0f);

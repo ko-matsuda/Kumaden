@@ -88,7 +88,7 @@ void Awake()
         }
 
         isPlayingResultVideo = true;
-        videoPlayer.loopPointReached += OnVideoFinished;
+        // videoPlayer.loopPointReached += OnVideoFinished; // CookingResultSequenceが処理する
         
         VideoClip targetClip = (rank == "S" || rank == "A" || rank == "B") ? resultSuccess : resultFail;
         Debug.Log($"[ResultVideoController] Selected video clip: {targetClip.name}");
@@ -116,7 +116,7 @@ void Awake()
         }
         
         Debug.Log("[ResultVideoController] OnVideoFinished - showing result UI");
-        ShowResult();
+        // ShowResult(); // CookingResultSequenceが処理する
     }
 
 void ShowResult()
