@@ -116,20 +116,27 @@ public class FeverManager : MonoBehaviour
         Debug.Log("[Fever] Exited");
     }
     
-    private void SetEffectsActive(bool active)
+private void SetEffectsActive(bool active)
     {
-        // 両サイド演出ON/OFF
+        // 両サイド演出：最背面に配置
         if (leftSideEffect != null)
+        {
             leftSideEffect.SetActive(active);
+            if (active) leftSideEffect.transform.SetAsFirstSibling();
+        }
         if (rightSideEffect != null)
+        {
             rightSideEffect.SetActive(active);
+            if (active) rightSideEffect.transform.SetAsFirstSibling();
+        }
         
-        // パーティクル制御（GameObjectで制御）
+        // パーティクル：最前面に配置
         if (leftSparkles != null)
         {
             if (active)
             {
                 leftSparkles.gameObject.SetActive(true);
+                leftSparkles.transform.SetAsLastSibling();
                 leftSparkles.Play();
             }
             else
@@ -144,6 +151,7 @@ public class FeverManager : MonoBehaviour
             if (active)
             {
                 rightSparkles.gameObject.SetActive(true);
+                rightSparkles.transform.SetAsLastSibling();
                 rightSparkles.Play();
             }
             else
@@ -158,6 +166,7 @@ public class FeverManager : MonoBehaviour
             if (active)
             {
                 feverStars.gameObject.SetActive(true);
+                feverStars.transform.SetAsLastSibling();
                 feverStars.Play();
             }
             else
@@ -172,6 +181,7 @@ public class FeverManager : MonoBehaviour
             if (active)
             {
                 playerAura.gameObject.SetActive(true);
+                playerAura.transform.SetAsLastSibling();
                 playerAura.Play();
             }
             else
