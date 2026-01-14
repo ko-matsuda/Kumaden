@@ -144,7 +144,7 @@ void ShowResult()
         }
     }
 
-    private System.Collections.IEnumerator TransitionToNextSong()
+private System.Collections.IEnumerator TransitionToNextSong()
     {
         isTransitioning = true;
 
@@ -155,23 +155,50 @@ void ShowResult()
             yield break;
         }
 
-        if (chartSpawner != null)
-            chartSpawner.ResetForNewSong();
+        // フェードアウト開始
+        float fadeTime = 0.3f;
+        float startVolume = musicSource.volume;
+        for (float t = 0; t < fadeTime; t += Time.deltaTime)
+        {
+            musicSource.volume = Mathf.Lerp(startVolume, 0, t / fadeTime);
+            yield return null;
+        }
+        musicSource.volume = 0;
+        musicSource.Stop();
 
+        // リセット処理（フレーム分散）
+        if (chartSpawner != null)
+        {
+            chartSpawner.ResetForNewSong();
+            yield return null; // 1フレーム待機
+        }
+
+        // 曲切り替え
         currentSongIndex = nextIndex;
         musicSource.clip = songs[currentSongIndex].audioClip;
+        yield return null; // 1フレーム待機
 
+        // タイミングリセット
         if (conductor != null)
             conductor.ResetTiming();
+        yield return null; // 1フレーム待機
 
-        musicSource.Play();
-
-        yield return null;
-
+        // チャート読み込み
         LoadChart();
+        yield return null; // 1フレーム待機
 
+        // BPM設定
         if (conductor != null && chartSpawner != null && chartSpawner.currentChart != null)
             conductor.bpm = chartSpawner.currentChart.bpm;
+
+        // フェードイン開始
+        musicSource.Play();
+        for (float t = 0; t < fadeTime; t += Time.deltaTime)
+        {
+            musicSource.volume = Mathf.Lerp(0, startVolume, t / fadeTime);
+            yield return null;
+        }
+        musicSource.volume = startVolume;
 
         isTransitioning = false;
     }
