@@ -1,0 +1,279 @@
+/* GENERAL STYLES */
+.root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background-color: #1e1e1e;
+    font-size: 13px;
+    font-family: Consolas, Menlo, monospace;
+}
+
+/* Tabs */
+.tab-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    background-color: #2d2d2d;
+    padding: 6px;
+    border-bottom: 1px solid #444;
+}
+
+.tab-button {
+    flex-grow: 1;
+    padding: 6px;
+    color: #ccc;
+    text-align: center;
+    background-color: #2d2d2d;
+    border: none;
+}
+
+.tab-button.active-tab {
+    background-color: #007acc;
+    color: white;
+}
+
+/* Tabs Content Area */
+.tab-wrapper {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.tab-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.tab-container.active-tab {
+    display: flex;
+}
+
+
+/* SESSION TAB CONTROLS */
+#save-session-btn {
+    margin: 6px 8px;
+    padding: 6px 12px;
+    background-color: #007acc;
+    color: white;
+    border-radius: 4px;
+    font-size: 13px;
+}
+#save-session-btn:hover {
+    background-color: #008ae6;
+    cursor: pointer;
+}
+
+#sessions-scroll-view {
+    margin: 6px 8px;
+    padding: 6px;
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Optional: Better layout for session controls inside Sessions tab */
+.sessions-control-wrapper {
+    padding: 8px;
+    margin-top: 8px;
+    border-top: 1px solid #444;
+}
+
+/* Already existing session card styles retained */
+.session-card {
+    padding: 8px;
+    margin: 6px 8px;
+    border-radius: 6px;
+    background-color: #1f1f1f;
+    border: 1px solid #3c3c3c;
+    cursor: pointer;
+}
+
+.session-title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.session-time {
+    font-size: 12px;
+    color: #aaa;
+}
+
+#sessionNameField {
+    margin: 6px 0;
+    background-color: #1e1e1e;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 4px;
+}
+
+#saveSessionBtn,
+#loadSessionBtn {
+    margin-top: 6px;
+    padding: 6px 12px;
+    background-color: #007acc;
+    color: white;
+    border-radius: 4px;
+}
+
+#saveSessionBtn:hover,
+#loadSessionBtn:hover {
+    background-color: #008ae6;
+    cursor: pointer;
+}
+
+/* Scrollable Chat Area */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.chat-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 8px;
+    min-height: 0;
+}
+
+/* Input Bar */
+.input-bar {
+    display: flex;
+    flex-direction: row;
+    padding: 6px;
+    background-color: #2d2d2d;
+    border-top: 1px solid #444;
+    align-items: center;
+    height: 48px; /* fixed height */
+    flex-shrink: 0; /* do not shrink */
+}
+
+#inputField {
+    flex-grow: 1;
+    background-color: #1e1e1e;
+    color: white;
+    padding: 6px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    height: 100%; /* fills parent height */
+}
+
+#sendButton {
+    margin-left: 6px;
+    background-color: #007acc;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+#sendButton:hover {
+    background-color: #008ae6;
+    cursor: pointer;
+}
+
+/* CHAT BUBBLES */
+.user-message {
+    background-color: #007acc;
+    color: white;
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 8px;
+    align-self: flex-end;
+    white-space: normal;
+    max-width: 90%;
+}
+
+.ai-message {
+    background-color: #333;
+    color: white;
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 8px;
+    align-self: flex-start;
+    white-space: normal;
+    max-width: 90%;
+}
+
+/* CODE BLOCKS */
+.code-block {
+    background-color: rgb(3, 9, 34);
+    border: 1px solid #555;
+    padding: 10px;
+    margin: 6px 0;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    max-width: 95%;
+    white-space: normal;
+}
+
+.code-text {
+    color: #ccc;
+    font-family: Consolas, monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+}
+
+.copy-button {
+    align-self: flex-end;
+    margin-top: 6px;
+    padding: 4px 8px;
+    background-color: #007acc;
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.copy-button:hover {
+    background-color: #008ae6;
+}
+
+/* ERROR LABEL */
+.error-label {
+    color: #ff6c6c;
+    padding: 4px;
+    margin-bottom: 4px;
+    background-color: #2d2d2d;
+    border-left: 3px solid red;
+    white-space: normal;
+}
+
+.sidebar-header {
+    padding: 6px;
+    font-weight: bold;
+    color: white;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#imageContainer {
+    padding: 10px;
+}
+
+#imagePromptField, #imageSizeDropdown {
+    margin-bottom: 10px;
+}
+
+#generateImageButton {
+    margin-top: 10px;
+}
+
+#imagePreview {
+    border: 1px solid #444;
+    margin-top: 10px;
+}
+.settings-scroll-view {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 8px;
+    background-color: #1e1e1e;
+}

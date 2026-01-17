@@ -10,7 +10,10 @@ using System.Collections;
 public class QuickRankingDisplay : MonoBehaviour
 {
     [Header("Title")]
-    [SerializeField] private TextMeshProUGUI titleText;
+    [SerializeField] private TextMeshProUGUI sessionCountText;
+    
+    
+[SerializeField] private TextMeshProUGUI titleText;
     
     [Header("UI References")]
     [SerializeField] private CanvasGroup canvasGroup;
@@ -44,6 +47,8 @@ public class QuickRankingDisplay : MonoBehaviour
 
 private void Awake()
     {
+        Debug.Log("[QuickRankingDisplay] Awake called");
+        
         if (canvasGroup == null)
             canvasGroup = GetComponent<CanvasGroup>();
         
@@ -51,7 +56,8 @@ private void Awake()
         selfColor = Color.yellow;
         otherColor = Color.white;
         
-        if (canvasGroup != null)
+        
+if (canvasGroup != null)
         {
             canvasGroup.alpha = 0f;
             canvasGroup.blocksRaycasts = false;
@@ -61,8 +67,13 @@ private void Awake()
         // Retryボタンのイベント設定
         if (retryButton != null)
         {
+            Debug.Log("[QuickRankingDisplay] Retry button found, setting up listener");
             retryButton.onClick.RemoveAllListeners();
             retryButton.onClick.AddListener(OnRetry);
+        }
+        else
+        {
+            Debug.LogWarning("[QuickRankingDisplay] Retry button is NULL in Awake!");
         }
     }
 
@@ -127,7 +138,15 @@ public void ShowRanking(int myRank, int myScore, RankingEntry topPlayer, Ranking
         SetRankLine(rankSelfRank, rankSelfName, rankSelfScore, myRank, "YOU", myScore, selfColor);
         SetRankLine(rankBottomRank, rankBottomName, rankBottomScore, bottomRank, bottomPlayer.playerName, bottomPlayer.score, otherColor);
         
-        Debug.Log($"[QuickRankingDisplay] Ranking displayed: top={topRank}, self={myRank}, bottom={bottomRank}");
+        // サイクル数表示のみ
+        int sessionCount = ScoreManagerLite.GetSessionCount();
+        
+        if (sessionCountText != null)
+        {
+            sessionCountText.text = $"Round {sessionCount}/3";
+        }
+        
+        Debug.Log($"[QuickRankingDisplay] Ranking displayed: top={topRank}, self={myRank}, bottom={bottomRank}, session={sessionCount}/3, cumulative={myScore}");
     }
 
 private IEnumerator DisplaySequence(int myRank, int myScore, RankingEntry topPlayer, RankingEntry bottomPlayer)
@@ -193,18 +212,12 @@ private void SetRankLine(TextMeshProUGUI rankText, TextMeshProUGUI nameText, Tex
         
 private void OnRetry()
     {
-        Debug.Log("[QuickRankingDisplay] OnRetry called - skipping prologue");
+        Debug.Log("[QuickRankingDisplay] ===== OnRetry called =====");
+        Debug.Log($"[QuickRankingDisplay] Current session count: {ScoreManagerLite.GetSessionCount()}");
+        Debug.Log($"[QuickRankingDisplay] Should show ad: {ScoreManagerLite.ShouldShowAd()}");
         
-        // ボタンの拡縮アニメーション
-        if (retryButton != null)
-        {
-            StartCoroutine(RetryButtonScaleAnimation());
-        }
-        else
-        {
-            // ボタンがない場合は即座にシーンロード
-            LoadMainScene();
-        }
+        // アニメーションをスキップして即座に処理（シーンリロードを防ぐ）
+        HandleRetryLogic();
     }
 
 private void LoadMainScene()
@@ -215,6 +228,42 @@ private void LoadMainScene()
     }
 
 
+private void HandleRetryLogic()
+    {
+        Debug.Log("[QuickRankingDisplay] HandleRetryLogic called");
+        
+        // 先に広告判定（カウント加算前）
+        if (ScoreManagerLite.ShouldShowAd())
+        {
+            Debug.Log("[QuickRankingDisplay] 3 sessions completed - showing ad phase");
+            
+            var adManager = AdPhaseManager.Instance;
+            Debug.Log($"[QuickRankingDisplay] AdPhaseManager.Instance = {adManager}");
+            
+            if (adManager != null)
+            {
+                adManager.ShowAd(() => {
+                    Debug.Log("[QuickRankingDisplay] Ad completed - loading next cycle");
+                    LoadMainScene();
+                });
+            }
+            else
+            {
+                Debug.LogWarning("[QuickRankingDisplay] AdPhaseManager not found - skipping ad");
+                ScoreManagerLite.ResetSessionCount();
+                LoadMainScene();
+            }
+        }
+        else
+        {
+            Debug.Log("[QuickRankingDisplay] Normal retry - incrementing session count");
+            // 通常リトライ（カウント加算）
+            ScoreManagerLite.IncrementSessionCount();
+            LoadMainScene();
+        }
+    }
+    
+    
 private IEnumerator RetryButtonScaleAnimation()
     {
         Transform buttonTransform = retryButton.transform;
@@ -243,8 +292,8 @@ private IEnumerator RetryButtonScaleAnimation()
         
         buttonTransform.localScale = originalScale;
         
-        // シーンロード
-        LoadMainScene();
+        // ロジック実行
+        HandleRetryLogic();
     }
 
 public void ForceHide()

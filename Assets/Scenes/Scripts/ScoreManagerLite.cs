@@ -291,4 +291,76 @@ public int CalculateTotalScore()
         int comboBonus = maxCombo * 10;
         return score + comboBonus;
     }
+
+
+// 累計スコア管理
+    private const string CUMULATIVE_SCORE_KEY = "CumulativeScore";
+    private const string SESSION_COUNT_KEY = "SessionCount";
+    private const int MAX_SESSIONS_BEFORE_AD = 3;
+    private static int cumulativeScore = -1;
+    private static int sessionCount = -1;
+    
+    public static int GetCumulativeScore()
+    {
+        if (cumulativeScore == -1)
+        {
+            cumulativeScore = PlayerPrefs.GetInt(CUMULATIVE_SCORE_KEY, 0);
+        }
+        return cumulativeScore;
+    }
+    
+    public static void AddToCumulativeScore(int scoreToAdd)
+    {
+        cumulativeScore = GetCumulativeScore() + scoreToAdd;
+        PlayerPrefs.SetInt(CUMULATIVE_SCORE_KEY, cumulativeScore);
+        PlayerPrefs.Save();
+        Debug.Log($"[ScoreManagerLite] Cumulative score updated: {cumulativeScore} (+{scoreToAdd})");
+    }
+    
+    public static int GetSessionCount()
+    {
+        if (sessionCount == -1)
+        {
+            sessionCount = PlayerPrefs.GetInt(SESSION_COUNT_KEY, 1);
+        }
+        return sessionCount;
+    }
+    
+    public static void IncrementSessionCount()
+    {
+        sessionCount = GetSessionCount();
+        sessionCount++;
+        
+        // 3サイクル完了後は1に戻る（広告表示後）
+        if (sessionCount > MAX_SESSIONS_BEFORE_AD)
+        {
+            sessionCount = 1;
+        }
+        
+        PlayerPrefs.SetInt(SESSION_COUNT_KEY, sessionCount);
+        PlayerPrefs.Save();
+        Debug.Log($"[ScoreManagerLite] Session count: {sessionCount}/{MAX_SESSIONS_BEFORE_AD}");
+    }
+    
+    public static bool ShouldShowAd()
+    {
+        return GetSessionCount() >= MAX_SESSIONS_BEFORE_AD;
+    }
+    
+    public static void ResetSessionCount()
+    {
+        sessionCount = 1;
+        PlayerPrefs.SetInt(SESSION_COUNT_KEY, 1);
+        PlayerPrefs.Save();
+        Debug.Log("[ScoreManagerLite] Session count reset to 1");
+    }
+    
+    
+public static void ResetCumulativeScore()
+    {
+        cumulativeScore = 0;
+        PlayerPrefs.SetInt(CUMULATIVE_SCORE_KEY, 0);
+        PlayerPrefs.Save();
+        Debug.Log("[ScoreManagerLite] Cumulative score reset to 0");
+    }
 }

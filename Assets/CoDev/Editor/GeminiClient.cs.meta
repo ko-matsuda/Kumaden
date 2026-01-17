@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: b2b6db1b72e3219429829bba185ded8b
+AssetOrigin:
+  serializedVersion: 1
+  productId: 318608
+  packageName: Co-Dev Ai Assistant
+  packageVersion: 1.3
+  assetPath: Assets/CoDev/Editor/GeminiClient.cs
+  uploadId: 775531

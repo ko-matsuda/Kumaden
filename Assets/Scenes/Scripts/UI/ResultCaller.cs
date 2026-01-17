@@ -198,15 +198,24 @@ void ShowRanking()
             return;
         }
 
-        int myScore = score.CalculateTotalScore();
+        // 今回のプレイスコアを計算
+        int thisPlayScore = score.CalculateTotalScore();
         
-        // スコアに基づいて順位を決定（より高いスコア = より良い順位）
+        // 累計スコアに加算
+        ScoreManagerLite.AddToCumulativeScore(thisPlayScore);
+        
+        // 累計スコアを取得
+        int cumulativeScore = ScoreManagerLite.GetCumulativeScore();
+        
+        Debug.Log($"[ResultCaller] This play: {thisPlayScore}, Cumulative: {cumulativeScore}");
+        
+        // 累計スコアに基づいて順位を決定
         int myRank;
-        if (myScore >= 100000) myRank = Random.Range(1, 3);      // 10万点以上: 1-2位
-        else if (myScore >= 80000) myRank = Random.Range(2, 5);  // 8万点以上: 2-4位
-        else if (myScore >= 60000) myRank = Random.Range(3, 7);  // 6万点以上: 3-6位
-        else if (myScore >= 40000) myRank = Random.Range(5, 10); // 4万点以上: 5-9位
-        else myRank = Random.Range(8, 15);                       // それ以下: 8-14位
+        if (cumulativeScore >= 500000) myRank = Random.Range(1, 3);      // 50万点以上: 1-2位
+        else if (cumulativeScore >= 300000) myRank = Random.Range(2, 5);  // 30万点以上: 2-4位
+        else if (cumulativeScore >= 150000) myRank = Random.Range(3, 7);  // 15万点以上: 3-6位
+        else if (cumulativeScore >= 50000) myRank = Random.Range(5, 10);  // 5万点以上: 5-9位
+        else myRank = Random.Range(8, 20);                                // それ以下: 8-19位
         
         // 自然な名前リスト
         string[] playerNames = {
@@ -216,20 +225,20 @@ void ShowRanking()
         
         // 上位プレイヤー（myRankの1つ上）
         int topRank = myRank - 1;
-        int topScoreDiff = Random.Range(200, 800);  // 200〜800点差
+        int topScoreDiff = Random.Range(1000, 5000);  // 1000～5000点差
         string topName = playerNames[Random.Range(0, playerNames.Length)];
-        var topPlayer = new RankingEntry(topName, myScore + topScoreDiff);
+        var topPlayer = new RankingEntry(topName, cumulativeScore + topScoreDiff);
         
         // 下位プレイヤー（myRankの1つ下）
         int bottomRank = myRank + 1;
-        int bottomScoreDiff = Random.Range(200, 800);  // 200〜800点差
+        int bottomScoreDiff = Random.Range(1000, 5000);  // 1000～5000点差
         string bottomName = playerNames[Random.Range(0, playerNames.Length)];
         // 同じ名前を避ける
         while (bottomName == topName)
         {
             bottomName = playerNames[Random.Range(0, playerNames.Length)];
         }
-        var bottomPlayer = new RankingEntry(bottomName, myScore - bottomScoreDiff);
+        var bottomPlayer = new RankingEntry(bottomName, cumulativeScore - bottomScoreDiff);
         
         // SafeAreaを非表示にする（リザルト画面の中身）
         if (resultHUD != null)
@@ -246,8 +255,8 @@ void ShowRanking()
             }
         }
         
-        quickRanking.ShowRanking(myRank, myScore, topPlayer, bottomPlayer, topRank, bottomRank);
-        Debug.Log($"[ResultCaller] QuickRanking.ShowRanking() called - myRank={myRank}, myScore={myScore}");
+        quickRanking.ShowRanking(myRank, cumulativeScore, topPlayer, bottomPlayer, topRank, bottomRank);
+        Debug.Log($"[ResultCaller] QuickRanking.ShowRanking() called - myRank={myRank}, cumulative={cumulativeScore} (+{thisPlayScore})");
     }
     
     private void OnRetry()

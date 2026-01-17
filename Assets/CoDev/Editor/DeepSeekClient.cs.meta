@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: b0b89b7304dbb7147a8616b5427021c1
+AssetOrigin:
+  serializedVersion: 1
+  productId: 318608
+  packageName: Co-Dev Ai Assistant
+  packageVersion: 1.3
+  assetPath: Assets/CoDev/Editor/DeepSeekClient.cs
+  uploadId: 775531
