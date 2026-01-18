@@ -93,9 +93,6 @@ public class QuickRankingDisplay : MonoBehaviour
             selfCanvasGroup.blocksRaycasts = true;
         }
 
-        Color selfColor = Color.yellow;
-        Color otherColor = Color.white;
-
         SetRankLine(rankTopRank, rankTopName, rankTopScore, topRank, topPlayer.playerName, topPlayer.score, otherColor);
         SetRankLine(rankSelfRank, rankSelfName, rankSelfScore, myRank, "YOU", myScore, selfColor);
         SetRankLine(rankBottomRank, rankBottomName, rankBottomScore, bottomRank, bottomPlayer.playerName, bottomPlayer.score, otherColor);
@@ -132,9 +129,6 @@ public class QuickRankingDisplay : MonoBehaviour
     
     private void OnRetry()
     {
-#if UNITY_EDITOR
-        Debug.Log($"[QuickRankingDisplay] OnRetry - Session: {ScoreManagerLite.GetSessionCount()}/3");
-#endif
         HandleRetryLogic();
     }
     

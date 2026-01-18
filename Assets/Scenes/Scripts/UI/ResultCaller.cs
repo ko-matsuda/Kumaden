@@ -29,24 +29,19 @@ public class ResultCaller : MonoBehaviour
         if (!resultVideoController) resultVideoController = FindObjectOfType<ResultVideoController>(true);
     }
 
-void OnEnable()
+    void OnEnable()
     {
-        // OnEnableでの自動再生を無効化
-        // ゲーム終了時に明示的にTriggerResult()を呼ぶこと
+#if UNITY_EDITOR
         Debug.Log("[ResultCaller] OnEnable called - autoplay disabled");
+#endif
     }
     
-    // ゲーム終了時に呼ぶメソッド
-public void TriggerResult()
+    public void TriggerResult()
     {
-        Debug.Log("[ResultCaller] TriggerResult called");
-        
-        // ScoreManagerLiteからランクを取得
-        string rank = "C"; // デフォルト
+        string rank = "C";
         var scoreManager = FindObjectOfType<ScoreManagerLite>();
         if (scoreManager != null)
         {
-            // ScoreManagerLiteからスコア情報を取得してランクを計算
             int perfect = scoreManager.PerfectCount;
             int good = scoreManager.GoodCount;
             int miss = scoreManager.MissCount;
@@ -61,28 +56,16 @@ public void TriggerResult()
                 else rank = "C";
             }
         }
-        
-        Debug.Log($"[ResultCaller] rank={rank}");
 
         if (!string.IsNullOrEmpty(rank) && rank != "F")
         {
-            Debug.Log($"[ResultCaller] rank={rank}, playing result video");
-            
             if (resultVideoController != null)
             {
-                            
-Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoController.name} ({resultVideoController.GetType().Name})");
-                
-                // ResultVideoControllerにrankを設定
-                // resultVideoController.rank = rank; // CookingResultSequenceが処理する
-                
                 Hook();
-                // resultVideoController.PlayResultVideo(); // CookingResultSequenceが処理する
             }
         }
         else
         {
-            Debug.Log($"[ResultCaller] rank={rank}, showing result directly");
             if (resultHUD != null)
             {
                 Hook();
@@ -149,7 +132,6 @@ Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoContr
 
     void ShowResult()
     {
-        Debug.Log("[ResultCaller] ===== ShowResult CALLED =====");
         Time.timeScale = 1f;
 
         if (resultHUD == null)
@@ -159,22 +141,14 @@ Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoContr
 
         if (resultHUD != null)
         {
-                    
-                // ResultCanvasの背景を表示（resultHUDはResultCanvasに直接アタッチされている）
-        // resultHUD.gameObject.SetActive(true); // CookingResultSequenceが処理する
-        var canvasGroup = resultHUD.GetComponent<CanvasGroup>();
-        if (canvasGroup != null)
-        {
-            canvasGroup.alpha = 1f;
-            canvasGroup.interactable = true;
-            canvasGroup.blocksRaycasts = true;
-            Debug.Log("[ResultCaller] ResultCanvas background displayed");
-        }
-        
-        // resultHUD.gameObject.SetActive(true); // CookingResultSequenceが処理する
-            // resultHUD.ShowResult(); // CookingResultSequenceが処理する
+            var canvasGroup = resultHUD.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+            }
             
-            // 3秒後にランキング表示
             Invoke(nameof(ShowRanking), 5.0f);
         }
         else
@@ -183,7 +157,7 @@ Debug.Log($"[ResultCaller] Calling PlayResultVideo, controller={resultVideoContr
         }
     }
     
-void ShowRanking()
+    void ShowRanking()
     {
         if (!quickRanking)
         {
@@ -198,56 +172,42 @@ void ShowRanking()
             return;
         }
 
-        // 今回のプレイスコアを計算
         int thisPlayScore = score.CalculateTotalScore();
-        
-        // 累計スコアに加算
         ScoreManagerLite.AddToCumulativeScore(thisPlayScore);
-        
-        // 累計スコアを取得
         int cumulativeScore = ScoreManagerLite.GetCumulativeScore();
         
-        Debug.Log($"[ResultCaller] This play: {thisPlayScore}, Cumulative: {cumulativeScore}");
-        
-        // 累計スコアに基づいて順位を決定
         int myRank;
-        if (cumulativeScore >= 500000) myRank = Random.Range(1, 3);      // 50万点以上: 1-2位
-        else if (cumulativeScore >= 300000) myRank = Random.Range(2, 5);  // 30万点以上: 2-4位
-        else if (cumulativeScore >= 150000) myRank = Random.Range(3, 7);  // 15万点以上: 3-6位
-        else if (cumulativeScore >= 50000) myRank = Random.Range(5, 10);  // 5万点以上: 5-9位
-        else myRank = Random.Range(8, 20);                                // それ以下: 8-19位
+        if (cumulativeScore >= 500000) myRank = Random.Range(1, 3);
+        else if (cumulativeScore >= 300000) myRank = Random.Range(2, 5);
+        else if (cumulativeScore >= 150000) myRank = Random.Range(3, 7);
+        else if (cumulativeScore >= 50000) myRank = Random.Range(5, 10);
+        else myRank = Random.Range(8, 20);
         
-        // 自然な名前リスト
         string[] playerNames = {
             "Sakura", "Hiro", "Yuki", "Kaito", "Aoi", "Ren", "Sora", "Mio",
             "Riku", "Luna", "Kai", "Hana", "Taro", "Yui", "Ken", "Mai"
         };
         
-        // 上位プレイヤー（myRankの1つ上）
         int topRank = myRank - 1;
-        int topScoreDiff = Random.Range(1000, 5000);  // 1000～5000点差
+        int topScoreDiff = Random.Range(1000, 5000);
         string topName = playerNames[Random.Range(0, playerNames.Length)];
         var topPlayer = new RankingEntry(topName, cumulativeScore + topScoreDiff);
         
-        // 下位プレイヤー（myRankの1つ下）
         int bottomRank = myRank + 1;
-        int bottomScoreDiff = Random.Range(1000, 5000);  // 1000～5000点差
+        int bottomScoreDiff = Random.Range(1000, 5000);
         string bottomName = playerNames[Random.Range(0, playerNames.Length)];
-        // 同じ名前を避ける
         while (bottomName == topName)
         {
             bottomName = playerNames[Random.Range(0, playerNames.Length)];
         }
         var bottomPlayer = new RankingEntry(bottomName, cumulativeScore - bottomScoreDiff);
         
-        // SafeAreaを非表示にする（リザルト画面の中身）
         if (resultHUD != null)
         {
             var safeArea = resultHUD.transform.Find("SafeArea");
             if (safeArea != null)
             {
                 safeArea.gameObject.SetActive(false);
-                Debug.Log("[ResultCaller] SafeArea hidden");
             }
             else
             {
@@ -256,16 +216,11 @@ void ShowRanking()
         }
         
         quickRanking.ShowRanking(myRank, cumulativeScore, topPlayer, bottomPlayer, topRank, bottomRank);
-        Debug.Log($"[ResultCaller] QuickRanking.ShowRanking() called - myRank={myRank}, cumulative={cumulativeScore} (+{thisPlayScore})");
     }
     
     private void OnRetry()
     {
-        Debug.Log("[ResultCaller] OnRetry called - skipping prologue");
-        
-        // Retry時はプロローグをスキップ
         GameFlags.SkipPrologueOnce = true;
-        
         Time.timeScale = 1f;
         UnityEngine.SceneManagement.SceneManager.LoadScene("Main");
     }

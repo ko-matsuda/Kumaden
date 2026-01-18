@@ -1,225 +1,110 @@
 using UnityEngine;
 using System;
-using UnityEngine.UI;
 
-public enum AdProviderType
-{
-    Mock,      // テスト用モック
-    AdMob,     // Google AdMob
-    UnityAds   // Unity Ads
-}
-
-/// <summary>
-/// 広告表示と完全停止を管理するマネージャー
-/// 3サイクル完了後に広告フェーズを挿入
-/// </summary>
 public class AdPhaseManager : MonoBehaviour
 {
-    [Header("Ad Provider")]
-    [SerializeField] private AdProviderType adProviderType = AdProviderType.Mock;
-    
     public static AdPhaseManager Instance { get; private set; }
     
-    [Header("UI References")]
-    [SerializeField] private GameObject hudContainer;
-    [SerializeField] private bool showProgressBar = true;
-    [SerializeField] private Image progressBarImage;
-    [SerializeField] private CanvasGroup adPanelCanvasGroup;
-    
     [Header("Settings")]
-    [SerializeField] private float mockAdDuration = 3f;
+    [SerializeField] private float fadeInDuration = 0.3f;
+    [SerializeField] private float fadeOutDuration = 0.3f;
     
-    private IAdProvider adProvider;
-    private bool isAdPlaying = false;
-    private Action onAdCompleted;
-    private Coroutine adTimerCoroutine;
+    private MockAdProvider adProvider;
+    private CanvasGroup adPanelCanvasGroup;
+    private Action onAdCompleteCallback;
     
-    private void InitializeAdProvider()
+    private void Awake()
     {
-        GameLogger.Info($"[AdPhaseManager] Initializing: {adProviderType}");
-        
-        switch (adProviderType)
-        {
-            case AdProviderType.Mock:
-                adProvider = new MockAdProvider();
-                break;
-            
-            case AdProviderType.AdMob:
-                adProvider = new AdMobProvider();
-                break;
-            
-            case AdProviderType.UnityAds:
-                adProvider = new UnityAdsProvider();
-                break;
-            
-            default:
-                GameLogger.Warning("[AdPhaseManager] Unknown provider, using Mock");
-                adProvider = new MockAdProvider();
-                break;
-        }
-        
-        adProvider.Initialize(() => {
-            GameLogger.Log("[AdPhaseManager] Provider initialized");
-            adProvider.LoadAd(
-                onSuccess: () => GameLogger.Log("[AdPhaseManager] Initial ad loaded"),
-                onFailure: (error) => GameLogger.Warning($"[AdPhaseManager] Load failed: {error}")
-            );
-        });
-    }
-    
-    void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
         Instance = this;
         
-        InitializeAdProvider();
-        
-        if (adPanelCanvasGroup != null)
-        {
-            adPanelCanvasGroup.alpha = 0f;
-            adPanelCanvasGroup.interactable = false;
-            adPanelCanvasGroup.blocksRaycasts = false;
-        }
-    }
-    
-    /// <summary>
-    /// 広告フェーズを開始（完全停止）
-    /// </summary>
-    public void ShowAd(Action onCompleted)
-    {
-        if (isAdPlaying)
-        {
-            GameLogger.Warning("[AdPhaseManager] Ad already playing");
-            return;
-        }
-        
+        // MockAdProvider を取得
+        adProvider = GetComponent<MockAdProvider>();
         if (adProvider == null)
         {
-            GameLogger.Error("[AdPhaseManager] Provider not initialized");
-            onCompleted?.Invoke();
+            Debug.LogError("[AdPhaseManager] MockAdProvider component not found!");
+        }
+        
+        // AdPanel を探す（非アクティブでも見つかる方法）
+        var allCanvasGroups = Resources.FindObjectsOfTypeAll<CanvasGroup>();
+        foreach (var cg in allCanvasGroups)
+        {
+            if (cg.gameObject.name == "AdPanel")
+            {
+                adPanelCanvasGroup = cg;
+                break;
+            }
+        }
+        
+        if (adPanelCanvasGroup == null)
+        {
+            Debug.LogError("[AdPhaseManager] AdPanel CanvasGroup not found!");
+        }
+    }
+    
+    public void ShowAd(Action onComplete)
+    {
+        if (adProvider == null)
+        {
+            Debug.LogError("[AdPhaseManager] No ad provider");
+            onComplete?.Invoke();
             return;
         }
         
-        isAdPlaying = true;
-        onAdCompleted = onCompleted;
-        
-        GameLogger.Important("[AdPhaseManager] Ad phase started");
-        
-        FreezeGame();
-        ShowAdPanel();
-        
-        adProvider.ShowAd(
-            onClosed: () => {
-                GameLogger.Log("[AdPhaseManager] Ad closed");
-                OnAdFinished();
-                adProvider.LoadAd(
-                    onSuccess: () => GameLogger.Log("[AdPhaseManager] Next ad loaded"),
-                    onFailure: (error) => GameLogger.Warning($"[AdPhaseManager] Reload failed: {error}")
-                );
-            },
-            onFailed: (error) => {
-                GameLogger.Error($"[AdPhaseManager] Ad failed: {error}");
-                OnAdFinished();
-                adProvider.LoadAd(null, null);
-            }
-        );
-    }
-    
-    private void FreezeGame()
-    {
-        Time.timeScale = 0f;
-        
-        if (hudContainer != null)
+        if (adPanelCanvasGroup == null)
         {
-            hudContainer.SetActive(false);
+            Debug.LogError("[AdPhaseManager] No ad panel");
+            onComplete?.Invoke();
+            return;
         }
         
-        var worldScroller = FindObjectOfType<WorldScroller>();
-        if (worldScroller != null)
-        {
-            worldScroller.enabled = false;
-        }
-        
-        GameLogger.Log("[AdPhaseManager] Game frozen");
+        onAdCompleteCallback = onComplete;
+        StartCoroutine(FadeInPanel());
+        adProvider.ShowAd(() => OnAdClosed(), (error) => OnAdFailed(error));
     }
     
-    private void UnfreezeGame()
+    private void OnAdClosed()
     {
-        Time.timeScale = 1f;
-        
-        var worldScroller = FindObjectOfType<WorldScroller>();
-        if (worldScroller != null)
-        {
-            worldScroller.enabled = true;
-        }
-        
-        GameLogger.Log("[AdPhaseManager] Game resumed");
+        StartCoroutine(FadeOutPanelAndCallback());
     }
     
-    private void ShowAdPanel()
+    private void OnAdFailed(string error)
     {
-        if (adPanelCanvasGroup != null)
-        {
-            adPanelCanvasGroup.gameObject.SetActive(true);
-            adPanelCanvasGroup.alpha = 1f;
-            adPanelCanvasGroup.interactable = true;
-            adPanelCanvasGroup.blocksRaycasts = true;
-            
-            if (showProgressBar && progressBarImage != null)
-            {
-                progressBarImage.fillAmount = 0f;
-            }
-        }
+        StartCoroutine(FadeOutPanelAndCallback());
     }
     
-    public void UpdateAdProgress(float progress)
+    private System.Collections.IEnumerator FadeInPanel()
     {
-        if (showProgressBar && progressBarImage != null)
+        adPanelCanvasGroup.gameObject.SetActive(true);
+        
+        float elapsed = 0f;
+        while (elapsed < fadeInDuration)
         {
-            progressBarImage.fillAmount = progress;
-        }
-    }
-    
-    private void HideAdPanel()
-    {
-        if (adPanelCanvasGroup != null)
-        {
-            adPanelCanvasGroup.alpha = 0f;
-            adPanelCanvasGroup.interactable = false;
-            adPanelCanvasGroup.blocksRaycasts = false;
-            adPanelCanvasGroup.gameObject.SetActive(false);
-        }
-    }
-    
-    private void OnAdFinished()
-    {
-        GameLogger.Important("[AdPhaseManager] Ad phase ended");
-        
-        adTimerCoroutine = null;
-        
-        HideAdPanel();
-        UnfreezeGame();
-        ScoreManagerLite.ResetSessionCount();
-        
-        isAdPlaying = false;
-        onAdCompleted?.Invoke();
-    }
-    
-    public void SkipAd()
-    {
-        if (!isAdPlaying) return;
-        
-        if (adTimerCoroutine != null)
-        {
-            StopCoroutine(adTimerCoroutine);
-            adTimerCoroutine = null;
+            elapsed += Time.deltaTime;
+            adPanelCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / fadeInDuration);
+            yield return null;
         }
         
-        GameLogger.Log("[AdPhaseManager] Ad skipped");
-        OnAdFinished();
+        adPanelCanvasGroup.alpha = 1f;
+        adPanelCanvasGroup.interactable = false;
+        adPanelCanvasGroup.blocksRaycasts = true;
+    }
+    
+    private System.Collections.IEnumerator FadeOutPanelAndCallback()
+    {
+        float elapsed = 0f;
+        while (elapsed < fadeOutDuration)
+        {
+            elapsed += Time.deltaTime;
+            adPanelCanvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeOutDuration);
+            yield return null;
+        }
+        
+        adPanelCanvasGroup.alpha = 0f;
+        adPanelCanvasGroup.interactable = false;
+        adPanelCanvasGroup.blocksRaycasts = false;
+        adPanelCanvasGroup.gameObject.SetActive(false);
+        
+        onAdCompleteCallback?.Invoke();
+        onAdCompleteCallback = null;
     }
 }
