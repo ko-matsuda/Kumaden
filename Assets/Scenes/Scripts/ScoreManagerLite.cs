@@ -195,7 +195,6 @@ private IEnumerator ShowJudgeText(string judge, bool isHoldContinuous)
             fadeDuration = missFadeDuration;
             targetAlpha = missAlpha;
             
-            // MISSの場合、ここでも色を設定
             if (refMissLabel)
             {
                 CopyTMPStyle(refMissLabel, judgeText);
@@ -208,7 +207,6 @@ private IEnumerator ShowJudgeText(string judge, bool isHoldContinuous)
 
         judgeText.text = judge;
 
-        // ホールドノート連続PERFECT時のみ明滅
         if (judge == "PERFECT" && isHoldContinuous)
         {
             for (int i = 0; i < holdPerfectBlinkCount; i++)
@@ -229,7 +227,6 @@ private IEnumerator ShowJudgeText(string judge, bool isHoldContinuous)
 
         yield return new WaitForSeconds(holdDuration);
 
-        // フェードアウト
         float elapsed = 0f;
         while (elapsed < fadeDuration)
         {
@@ -276,15 +273,8 @@ private IEnumerator ShowJudgeText(string judge, bool isHoldContinuous)
 
 public int CalculateTotalScore()
     {
-        // スコア計算式:
-        // PERFECT: 100点
-        // GOOD: 50点
-        // MISS: 0点
-        // コンボボーナス: 最大コンボ × 10点
-        
         int score = (perfectCount * 100) + (goodCount * 50);
         
-        // ComboProbeから最大コンボを取得
         var comboProbe = FindObjectOfType<ComboProbe>();
         int maxCombo = comboProbe != null ? comboProbe.GetMaxCombo() : 0;
         
@@ -314,7 +304,9 @@ public int CalculateTotalScore()
         cumulativeScore = GetCumulativeScore() + scoreToAdd;
         PlayerPrefs.SetInt(CUMULATIVE_SCORE_KEY, cumulativeScore);
         PlayerPrefs.Save();
-        Debug.Log($"[ScoreManagerLite] Cumulative score updated: {cumulativeScore} (+{scoreToAdd})");
+#if UNITY_EDITOR
+        Debug.Log($"[ScoreManagerLite] Cumulative: {cumulativeScore} (+{scoreToAdd})");
+#endif
     }
     
     public static int GetSessionCount()
@@ -331,7 +323,6 @@ public int CalculateTotalScore()
         sessionCount = GetSessionCount();
         sessionCount++;
         
-        // 3サイクル完了後は1に戻る（広告表示後）
         if (sessionCount > MAX_SESSIONS_BEFORE_AD)
         {
             sessionCount = 1;
@@ -339,7 +330,9 @@ public int CalculateTotalScore()
         
         PlayerPrefs.SetInt(SESSION_COUNT_KEY, sessionCount);
         PlayerPrefs.Save();
-        Debug.Log($"[ScoreManagerLite] Session count: {sessionCount}/{MAX_SESSIONS_BEFORE_AD}");
+#if UNITY_EDITOR
+        Debug.Log($"[ScoreManagerLite] Session: {sessionCount}/{MAX_SESSIONS_BEFORE_AD}");
+#endif
     }
     
     public static bool ShouldShowAd()
@@ -352,7 +345,6 @@ public int CalculateTotalScore()
         sessionCount = 1;
         PlayerPrefs.SetInt(SESSION_COUNT_KEY, 1);
         PlayerPrefs.Save();
-        Debug.Log("[ScoreManagerLite] Session count reset to 1");
     }
     
     
@@ -361,6 +353,8 @@ public static void ResetCumulativeScore()
         cumulativeScore = 0;
         PlayerPrefs.SetInt(CUMULATIVE_SCORE_KEY, 0);
         PlayerPrefs.Save();
-        Debug.Log("[ScoreManagerLite] Cumulative score reset to 0");
+#if UNITY_EDITOR
+        Debug.Log("[ScoreManagerLite] Cumulative score reset");
+#endif
     }
 }

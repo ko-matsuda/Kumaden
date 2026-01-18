@@ -36,7 +36,7 @@ public class AdPhaseManager : MonoBehaviour
     
     private void InitializeAdProvider()
     {
-        Debug.Log($"[AdPhaseManager] Initializing ad provider: {adProviderType}");
+        GameLogger.Info($"[AdPhaseManager] Initializing: {adProviderType}");
         
         switch (adProviderType)
         {
@@ -53,19 +53,16 @@ public class AdPhaseManager : MonoBehaviour
                 break;
             
             default:
-                Debug.LogWarning("[AdPhaseManager] Unknown ad provider type, using Mock");
+                GameLogger.Warning("[AdPhaseManager] Unknown provider, using Mock");
                 adProvider = new MockAdProvider();
                 break;
         }
         
-        // 広告SDK初期化
         adProvider.Initialize(() => {
-            Debug.Log("[AdPhaseManager] Ad provider initialized");
-            
-            // 初回ロード
+            GameLogger.Log("[AdPhaseManager] Provider initialized");
             adProvider.LoadAd(
-                onSuccess: () => Debug.Log("[AdPhaseManager] Initial ad loaded"),
-                onFailure: (error) => Debug.LogWarning($"[AdPhaseManager] Initial ad load failed: {error}")
+                onSuccess: () => GameLogger.Log("[AdPhaseManager] Initial ad loaded"),
+                onFailure: (error) => GameLogger.Warning($"[AdPhaseManager] Load failed: {error}")
             );
         });
     }
@@ -79,7 +76,6 @@ public class AdPhaseManager : MonoBehaviour
         }
         Instance = this;
         
-        // 広告プロバイダーの初期化
         InitializeAdProvider();
         
         if (adPanelCanvasGroup != null)
@@ -97,13 +93,13 @@ public class AdPhaseManager : MonoBehaviour
     {
         if (isAdPlaying)
         {
-            Debug.LogWarning("[AdPhaseManager] Ad is already playing");
+            GameLogger.Warning("[AdPhaseManager] Ad already playing");
             return;
         }
         
         if (adProvider == null)
         {
-            Debug.LogError("[AdPhaseManager] Ad provider not initialized");
+            GameLogger.Error("[AdPhaseManager] Provider not initialized");
             onCompleted?.Invoke();
             return;
         }
@@ -111,82 +107,59 @@ public class AdPhaseManager : MonoBehaviour
         isAdPlaying = true;
         onAdCompleted = onCompleted;
         
-        Debug.Log("[AdPhaseManager] ===== AD PHASE START =====");
+        GameLogger.Important("[AdPhaseManager] Ad phase started");
         
-        // 完全停止
         FreezeGame();
-        
-        // 広告UI表示
         ShowAdPanel();
         
-        // 広告表示
         adProvider.ShowAd(
             onClosed: () => {
-                Debug.Log("[AdPhaseManager] Ad closed by user/completed");
+                GameLogger.Log("[AdPhaseManager] Ad closed");
                 OnAdFinished();
-                
-                // 次の広告をプリロード
                 adProvider.LoadAd(
-                    onSuccess: () => Debug.Log("[AdPhaseManager] Next ad loaded"),
-                    onFailure: (error) => Debug.LogWarning($"[AdPhaseManager] Next ad load failed: {error}")
+                    onSuccess: () => GameLogger.Log("[AdPhaseManager] Next ad loaded"),
+                    onFailure: (error) => GameLogger.Warning($"[AdPhaseManager] Reload failed: {error}")
                 );
             },
             onFailed: (error) => {
-                Debug.LogError($"[AdPhaseManager] Ad failed to show: {error}");
-                // 失敗しても続行
+                GameLogger.Error($"[AdPhaseManager] Ad failed: {error}");
                 OnAdFinished();
-                
-                // 次の広告をロード
                 adProvider.LoadAd(null, null);
             }
         );
     }
     
-    /// <summary>
-    /// ゲームを完全停止
-    /// </summary>
     private void FreezeGame()
     {
-        // Time.timeScale を 0 に
         Time.timeScale = 0f;
         
-        // インゲームHUD非表示
         if (hudContainer != null)
         {
             hudContainer.SetActive(false);
         }
         
-        // WorldScrollerなどの動きを停止
         var worldScroller = FindObjectOfType<WorldScroller>();
         if (worldScroller != null)
         {
             worldScroller.enabled = false;
         }
         
-        Debug.Log("[AdPhaseManager] Game frozen: Time.timeScale=0, HUD hidden");
+        GameLogger.Log("[AdPhaseManager] Game frozen");
     }
     
-    /// <summary>
-    /// ゲームを再開
-    /// </summary>
     private void UnfreezeGame()
     {
-        // Time.timeScale を 1 に
         Time.timeScale = 1f;
         
-        // WorldScrollerを再開
         var worldScroller = FindObjectOfType<WorldScroller>();
         if (worldScroller != null)
         {
             worldScroller.enabled = true;
         }
         
-        Debug.Log("[AdPhaseManager] Game unfrozen: Time.timeScale=1");
+        GameLogger.Log("[AdPhaseManager] Game resumed");
     }
     
-    /// <summary>
-    /// 広告パネル表示
-    /// </summary>
     private void ShowAdPanel()
     {
         if (adPanelCanvasGroup != null)
@@ -196,7 +169,6 @@ public class AdPhaseManager : MonoBehaviour
             adPanelCanvasGroup.interactable = true;
             adPanelCanvasGroup.blocksRaycasts = true;
             
-            // プログレスバーをリセット
             if (showProgressBar && progressBarImage != null)
             {
                 progressBarImage.fillAmount = 0f;
@@ -204,9 +176,6 @@ public class AdPhaseManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// プログレスバー更新
-    /// </summary>
     public void UpdateAdProgress(float progress)
     {
         if (showProgressBar && progressBarImage != null)
@@ -215,9 +184,6 @@ public class AdPhaseManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// 広告パネル非表示
-    /// </summary>
     private void HideAdPanel()
     {
         if (adPanelCanvasGroup != null)
@@ -229,30 +195,20 @@ public class AdPhaseManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// 広告終了コールバック
-    /// </summary>
     private void OnAdFinished()
     {
-        Debug.Log("[AdPhaseManager] ===== AD PHASE END =====");
+        GameLogger.Important("[AdPhaseManager] Ad phase ended");
         
         adTimerCoroutine = null;
         
         HideAdPanel();
         UnfreezeGame();
-        
-        // セッションカウントをリセット（3サイクル完了）
         ScoreManagerLite.ResetSessionCount();
         
         isAdPlaying = false;
-        
-        // コールバック実行（次のサイクルへ）
         onAdCompleted?.Invoke();
     }
     
-    /// <summary>
-    /// スキップボタン用（デバッグ用）
-    /// </summary>
     public void SkipAd()
     {
         if (!isAdPlaying) return;
@@ -263,6 +219,7 @@ public class AdPhaseManager : MonoBehaviour
             adTimerCoroutine = null;
         }
         
+        GameLogger.Log("[AdPhaseManager] Ad skipped");
         OnAdFinished();
     }
 }
