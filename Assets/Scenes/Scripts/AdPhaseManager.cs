@@ -9,7 +9,7 @@ public class AdPhaseManager : MonoBehaviour
     [SerializeField] private float fadeInDuration = 0.3f;
     [SerializeField] private float fadeOutDuration = 0.3f;
     
-    private MockAdProvider adProvider;
+    private IAdProvider adProvider;
     private CanvasGroup adPanelCanvasGroup;
     private Action onAdCompleteCallback;
     
@@ -17,11 +17,11 @@ public class AdPhaseManager : MonoBehaviour
     {
         Instance = this;
         
-        // MockAdProvider を取得
-        adProvider = GetComponent<MockAdProvider>();
+        // IAdProvider を取得（UnityAdsProvider または MockAdProvider）
+        adProvider = GetComponent<IAdProvider>();
         if (adProvider == null)
         {
-            Debug.LogError("[AdPhaseManager] MockAdProvider component not found!");
+            Debug.LogError("[AdPhaseManager] IAdProvider component not found!");
         }
         
         // AdPanel を探す（非アクティブでも見つかる方法）
@@ -69,6 +69,7 @@ public class AdPhaseManager : MonoBehaviour
     
     private void OnAdFailed(string error)
     {
+        Debug.LogWarning($"[AdPhaseManager] Ad failed: {error}");
         StartCoroutine(FadeOutPanelAndCallback());
     }
     

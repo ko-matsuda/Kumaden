@@ -25344,8 +25344,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1466840478}
   - component: {fileID: 1466840477}
-  - component: {fileID: 1466840479}
-  - component: {fileID: 1466840480}
+  - component: {fileID: 1466840481}
   m_Layer: 0
   m_Name: AdPhaseManager
   m_TagString: Untagged
@@ -25382,7 +25381,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1466840479
+--- !u!114 &1466840481
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -25391,23 +25390,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1466840476}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f64626f9179dce44db047d48d201f5a6, type: 3}
+  m_Script: {fileID: 11500000, guid: 698191f3dc4e4984eb46ffb1dee74fd1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::MockAdProvider
-  adDuration: 3
---- !u!114 &1466840480
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1466840476}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ea3ec40526f74042863478376b4a905, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::MockAdProvider
-  adDuration: 3
+  m_EditorClassIdentifier: Unity.Hypercasual::UnityAdsProvider
+  androidGameId: 6028482
+  iOSGameId: 6028483
+  testMode: 1
+  androidAdUnitId: Interstitial_Android
+  iOSAdUnitId: Interstitial_iOS
 --- !u!1 &1474509616
 GameObject:
   m_ObjectHideFlags: 0
