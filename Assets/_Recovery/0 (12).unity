@@ -25185,7 +25185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e555d503ef6e7c04d8ecaae8cf7ecff5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::DifficultyManager
-  currentDifficulty: 0
+  currentDifficulty: 2
   easySettings:
     perfectWindow: 0.15
     goodWindow: 0.3

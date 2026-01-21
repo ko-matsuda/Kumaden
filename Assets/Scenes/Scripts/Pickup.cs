@@ -7,7 +7,11 @@ public class Pickup : MonoBehaviour
     public AudioClip sePerfect;
     public AudioClip seGood;
 
-    [Header("判定幅（Z距離）")]
+    
+    [Header("Difficulty (Optional)")]
+    [SerializeField] private bool useDifficultyManager = true;
+    
+[Header("判定幅（Z距離）")]
     public float perfectRangeZ = 0.30f;
     public float goodRangeZ    = 0.80f;
 
@@ -31,7 +35,7 @@ public class Pickup : MonoBehaviour
 
     private BoxCollider playerBox;
 
-    void Awake()
+void Awake()
     {
         playerBox = GetComponent<BoxCollider>();
         if (playerBox == null)
@@ -40,24 +44,31 @@ public class Pickup : MonoBehaviour
         }
         if (seSource != null)
         {
-            seSource.enabled = true; // 有効化
+            seSource.enabled = true;
             seSource.playOnAwake  = false;
             seSource.loop         = false;
             seSource.spatialBlend = 0f;
             seSource.dopplerLevel = 0f;
         }
+        
+        // 難易度設定を適用
+        if (useDifficultyManager && DifficultyManager.Instance != null)
+        {
+            var settings = DifficultyManager.Instance.GetCurrentSettings();
+            perfectRangeZ = settings.perfectWindow * 4.0f;
+            goodRangeZ = settings.goodWindow * 4.0f;
+            Debug.Log($"[Pickup] Difficulty applied - Perfect: {perfectRangeZ:F2}z, Good: {goodRangeZ:F2}z");
+        }
     }
 
-    private void OnTriggerEnter(Collider other)
+private void OnTriggerEnter(Collider other)
     {
-        // AudioSourceを強制的に有効化（Retry対応）
         if (seSource != null && !seSource.enabled)
         {
             seSource.enabled = true;
             Debug.Log("[Pickup] seSource force enabled");
         }
         
-        // ホールド開始
         if (other.CompareTag("LinkedHoldStart"))
         {
             if (holdTickPulse != null)
@@ -67,23 +78,18 @@ public class Pickup : MonoBehaviour
             }
             string holdStartJudge = PlaySEAndGetJudge(other);
             PlayVFXAtPosition(transform.position, holdStartJudge);
-            Destroy(other.gameObject);  // StartNote を破棄
+            Destroy(other.gameObject);
             return;
         }
 
-        // ホールド終了 - Colliderの中心がPlayerの中心を通過したら判定
         if (other.CompareTag("LinkedHoldEnd"))
         {
             if (playerBox == null) return;
             
-            // PlayerのCollider中心位置を取得
             Vector3 playerCenter = transform.TransformPoint(playerBox.center);
             float playerCenterZ = playerCenter.z;
-            
-            // EndNoteの中心位置を取得
             float endNoteCenterZ = other.bounds.center.z;
             
-            // EndNoteがまだPlayerより前にある場合は判定しない
             if (endNoteCenterZ > playerCenterZ)
             {
                 if (printDebug) Debug.Log($"[Pickup] EndNote too early: endZ={endNoteCenterZ:F2}, playerZ={playerCenterZ:F2}");
@@ -95,7 +101,6 @@ public class Pickup : MonoBehaviour
                 holdTickPulse.StopTick();
                 if (printDebug) Debug.Log("[Pickup] StopTick called");
             }
-            // リボンを非表示
             if (linkedHoldNote != null)
             {
                 linkedHoldNote.HideRibbon();
@@ -103,11 +108,10 @@ public class Pickup : MonoBehaviour
             }
             string holdEndJudge = PlaySEAndGetJudge(other);
             PlayVFXAtPosition(other.transform.position, holdEndJudge);
-            Destroy(other.gameObject);  // EndNote を破棄
+            Destroy(other.gameObject);
             return;
         }
 
-        // 通常ノーツ
         var note = other.GetComponent<NoteBehaviour>();
         if (note == null || playerBox == null) return;
 
@@ -122,10 +126,7 @@ public class Pickup : MonoBehaviour
                            : (dz <= goodRangeZ)    ? "GOOD"
                            :                         "MISS";
 
-        if (printDebug)
-        {
-            Debug.Log($"[Pickup] lane={note.laneIndex}, dz={dz:F2} → {normalJudge}");
-        }
+        Debug.Log($"[Pickup] lane={note.laneIndex}, dz={dz:F2}, perfectRange={perfectRangeZ:F2}, goodRange={goodRangeZ:F2} → {normalJudge}");
 
         if (seSource != null)
         {
@@ -137,16 +138,12 @@ public class Pickup : MonoBehaviour
 
         if (normalJudge == "PERFECT" || normalJudge == "GOOD")
         {
-            // HudCounterBinder削除: ScoreManagerLiteが食材を管理
             if (comboProbe != null) comboProbe.OnNormalNote();
             LaneController.Instance?.HighlightLane(note.laneIndex, 0.2f);
-            
-            // VFXを再生
             PlayVFXAtPosition(transform.position, normalJudge);
         }
         else if (normalJudge == "MISS")
         {
-            // MISS でコンボリセット
             if (comboProbe != null) comboProbe.ResetCombo();
             if (printDebug) Debug.Log("[Pickup] MISS - Combo reset");
         }

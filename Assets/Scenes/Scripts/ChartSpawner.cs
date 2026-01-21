@@ -39,7 +39,11 @@ public class ChartSpawner : MonoBehaviour
     [Header("Lane Positions")]
     [SerializeField] private Transform[] laneTransforms = new Transform[3];
     
-    [Header("Spawn Settings")]
+    
+    [Header("Difficulty (Optional)")]
+    [SerializeField] private bool useDifficultyManager = true;
+    
+[Header("Spawn Settings")]
     [SerializeField] private float spawnAheadBeats = 8f;
     
     [Header("References")]
@@ -51,27 +55,65 @@ public class ChartSpawner : MonoBehaviour
     
 void Start()
     {
-        Debug.Log("[ChartSpawner] Start called");
+        TextAsset chartToLoad = null;
         
-        if (chartJson != null)
+        if (useDifficultyManager && DifficultyManager.Instance != null)
         {
-            Debug.Log($"[ChartSpawner] Loading chart from chartJson: {chartJson.name}");
-            LoadChartFromJson(chartJson.text);
-        }
-        else
-        {
-            Debug.LogWarning("[ChartSpawner] chartJson is null! Attempting to load default chart...");
+            string difficultySuffix = "";
+            Difficulty currentDiff = DifficultyManager.Instance.GetCurrentDifficulty();
             
-            TextAsset defaultChart = Resources.Load<TextAsset>("Charts/kuma_odyssey_chart_kumaden");
-            if (defaultChart != null)
+            switch (currentDiff)
             {
-                Debug.Log("[ChartSpawner] Loading default chart from Resources");
-                LoadChartFromJson(defaultChart.text);
+                case Difficulty.Easy:
+                    difficultySuffix = "_easy";
+                    break;
+                case Difficulty.Normal:
+                    difficultySuffix = "";
+                    break;
+                case Difficulty.Hard:
+                    difficultySuffix = "_hard";
+                    break;
+            }
+            
+            string baseChartName = "kuma_odyssey_chart_kumaden";
+            string chartPath = "Charts/" + baseChartName + difficultySuffix;
+            
+            chartToLoad = Resources.Load<TextAsset>(chartPath);
+            
+            if (chartToLoad != null)
+            {
+                Debug.Log($"[ChartSpawner] Loading difficulty chart: {chartPath}");
             }
             else
             {
-                Debug.LogError("[ChartSpawner] No chart available! Please assign chartJson in Inspector.");
+                Debug.LogWarning($"[ChartSpawner] Difficulty chart not found: {chartPath}, falling back to default");
             }
+        }
+        
+        if (chartToLoad == null && chartJson != null)
+        {
+            chartToLoad = chartJson;
+            Debug.Log($"[ChartSpawner] Loading chart from chartJson: {chartJson.name}");
+        }
+        
+        if (chartToLoad == null)
+        {
+            Debug.LogWarning("[ChartSpawner] chartJson is null! Attempting to load default chart...");
+            TextAsset defaultChart = Resources.Load<TextAsset>("Charts/kuma_odyssey_chart_kumaden");
+            
+            if (defaultChart != null)
+            {
+                chartToLoad = defaultChart;
+            }
+        }
+        
+        if (chartToLoad != null)
+        {
+            LoadChartFromJson(chartToLoad.text);
+        }
+        else
+        {
+            Debug.LogError("[ChartSpawner] No chart available! Please assign chartJson in Inspector.");
         }
     }
 
@@ -107,7 +149,6 @@ void Update()
         {
             var nextNote = currentChart.notes[nextNoteIndex];
             float threshold = currentBeat + spawnAheadBeats;
-            Debug.Log($"[ChartSpawner] beat={currentBeat:F2}, next={nextNoteIndex}, noteBeat={nextNote.beat}, threshold={threshold:F2}, willSpawn={nextNote.beat <= threshold}");
         }
         
         while (nextNoteIndex < currentChart.notes.Length)
@@ -116,8 +157,12 @@ void Update()
             
             if (noteData.beat <= currentBeat + spawnAheadBeats)
             {
-                Debug.Log($"[ChartSpawner] Spawning note {nextNoteIndex}: beat={noteData.beat}, lane={noteData.lane}");
-                SpawnNote(noteData);
+                bool shouldSpawn = ShouldSpawnNote(nextNoteIndex);
+                
+                if (shouldSpawn)
+                {
+                    SpawnNote(noteData);
+                }
                 nextNoteIndex++;
             }
             else
@@ -126,6 +171,25 @@ void Update()
             }
         }
     }
+
+private bool ShouldSpawnNote(int noteIndex)
+    {
+        if (!useDifficultyManager || DifficultyManager.Instance == null)
+            return true;
+        
+        float density = DifficultyManager.Instance.GetCurrentSettings().noteDensity;
+        
+        if (density >= 1.0f)
+        {
+            return true;
+        }
+        else
+        {
+            int skipPattern = Mathf.RoundToInt(1.0f / density);
+            return (noteIndex % skipPattern) == 0;
+        }
+    }
+
     
 public void LoadChartFromJson(string jsonText)
     {
@@ -194,16 +258,11 @@ private void SpawnNote(NoteData noteData)
         
         bool isHoldNote = noteData.duration > 0 || (noteData.linkedHold && noteData.holdDuration > 0);
         
-        if (isHoldNote)
-        {
-            Debug.Log($"[ChartSpawner] Hold note detected - duration={noteData.duration}, linkedHold={noteData.linkedHold}, holdDuration={noteData.holdDuration}");
-        }
-        
         GameObject notePrefab = GetNotePrefabByLane(noteData.lane, noteData.type, isHoldNote);
         
         if (notePrefab == null)
         {
-            Debug.LogWarning($"[ChartSpawner] Prefab is NULL - lane={noteData.lane}, type={noteData.type}, isHold={isHoldNote}");
+            Debug.LogWarning($"[ChartSpawner] Prefab is NULL");
             return;
         }
         
@@ -211,7 +270,13 @@ private void SpawnNote(NoteData noteData)
         
         float currentBeat = conductor.songPositionBeats;
         float beatDifference = noteData.beat - currentBeat;
+        
         float scrollSpeed = 4.0f;
+        if (useDifficultyManager && DifficultyManager.Instance != null)
+        {
+            scrollSpeed *= DifficultyManager.Instance.GetCurrentSettings().speedMultiplier;
+        }
+        
         float spawnZ = beatDifference * conductor.secPerBeat * scrollSpeed;
         
         Vector3 spawnPos = laneTransform.position;
@@ -221,18 +286,12 @@ private void SpawnNote(NoteData noteData)
         
         if (isHoldNote)
         {
-            Debug.Log($"[ChartSpawner] Hold note instantiated at {spawnPos}");
             var linkedHold = noteObj.GetComponent<LinkedHoldNote>();
             if (linkedHold != null)
             {
                 float holdDuration = noteData.duration > 0 ? noteData.duration : noteData.holdDuration;
                 float distanceZ = holdDuration * conductor.secPerBeat * linkedHold.scrollSpeed;
                 linkedHold.SetEndNoteDistance(distanceZ);
-                Debug.Log($"[ChartSpawner] Hold note configured - holdDuration={holdDuration}, distanceZ={distanceZ}");
-            }
-            else
-            {
-                Debug.LogWarning($"[ChartSpawner] LinkedHoldNote component not found on instantiated object!");
             }
         }
         
@@ -290,5 +349,17 @@ private GameObject GetNotePrefabByLane(int lane, string type, bool isHoldNote = 
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
