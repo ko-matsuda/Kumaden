@@ -97,11 +97,16 @@ public class QuickRankingDisplay : MonoBehaviour
         SetRankLine(rankSelfRank, rankSelfName, rankSelfScore, myRank, "YOU", myScore, selfColor);
         SetRankLine(rankBottomRank, rankBottomName, rankBottomScore, bottomRank, bottomPlayer.playerName, bottomPlayer.score, otherColor);
         
-        int sessionCount = ScoreManagerLite.GetSessionCount();
+        // DifficultyManager のラウンド情報を使用
+        int currentRound = 1;
+        if (DifficultyManager.Instance != null)
+        {
+            currentRound = DifficultyManager.Instance.GetCurrentRound();
+        }
         
         if (sessionCountText != null)
         {
-            sessionCountText.text = $"Round {sessionCount}/3";
+            sessionCountText.text = $"Round {currentRound}/3";
         }
     }
     
@@ -134,27 +139,70 @@ public class QuickRankingDisplay : MonoBehaviour
     
     private void HandleRetryLogic()
     {
-        if (ScoreManagerLite.ShouldShowAd())
+        // DifficultyManager のラウンドシステムを使用
+        if (DifficultyManager.Instance != null)
         {
-            var adManager = AdPhaseManager.Instance;
+            int currentRound = DifficultyManager.Instance.GetCurrentRound();
             
-            if (adManager != null)
+            Debug.Log($"[QuickRankingDisplay] Current Round: {currentRound}");
+            
+            // Round 3 終了後は広告表示してから次のラウンドへ
+            if (currentRound >= 3)
             {
-                adManager.ShowAd(() => {
+                Debug.Log("[QuickRankingDisplay] Round 3 完了！広告表示後、Round 1 へ");
+                
+                var adManager = AdPhaseManager.Instance;
+                
+                if (adManager != null)
+                {
+                    adManager.ShowAd(() => 
+                    {
+                        // 広告終了後に次のラウンドへ（自動的に Round 1 に戻る）
+                        DifficultyManager.Instance.NextRound();
+                        LoadMainScene();
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("[QuickRankingDisplay] AdPhaseManager not found");
+                    DifficultyManager.Instance.NextRound();
                     LoadMainScene();
-                });
+                }
             }
             else
             {
-                Debug.LogWarning("[QuickRankingDisplay] AdPhaseManager not found");
-                ScoreManagerLite.ResetSessionCount();
+                // Round 1 または 2 の場合は広告なしで次のラウンドへ
+                Debug.Log($"[QuickRankingDisplay] Round {currentRound} → Round {currentRound + 1}");
+                DifficultyManager.Instance.NextRound();
                 LoadMainScene();
             }
         }
         else
         {
-            ScoreManagerLite.IncrementSessionCount();
-            LoadMainScene();
+            // DifficultyManager がない場合は旧システムにフォールバック
+            Debug.LogWarning("[QuickRankingDisplay] DifficultyManager not found, using fallback");
+            
+            if (ScoreManagerLite.ShouldShowAd())
+            {
+                var adManager = AdPhaseManager.Instance;
+                
+                if (adManager != null)
+                {
+                    adManager.ShowAd(() => {
+                        LoadMainScene();
+                    });
+                }
+                else
+                {
+                    ScoreManagerLite.ResetSessionCount();
+                    LoadMainScene();
+                }
+            }
+            else
+            {
+                ScoreManagerLite.IncrementSessionCount();
+                LoadMainScene();
+            }
         }
     }
     

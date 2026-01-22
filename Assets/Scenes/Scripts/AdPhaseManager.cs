@@ -13,12 +13,27 @@ public class AdPhaseManager : MonoBehaviour
     private CanvasGroup adPanelCanvasGroup;
     private Action onAdCompleteCallback;
     
-    private void Awake()
+private void Awake()
     {
         Instance = this;
         
-        // IAdProvider を取得（UnityAdsProvider または MockAdProvider）
+        // Editor では MockAdProvider を優先的に使用
+#if UNITY_EDITOR
+        var mockProvider = GetComponent<MockAdProvider>();
+        if (mockProvider != null)
+        {
+            adProvider = mockProvider;
+            Debug.Log("[AdPhaseManager] Using MockAdProvider for Editor");
+        }
+        else
+        {
+            adProvider = GetComponent<IAdProvider>();
+        }
+#else
+        // 実機では IAdProvider を取得（UnityAdsProvider または MockAdProvider）
         adProvider = GetComponent<IAdProvider>();
+#endif
+        
         if (adProvider == null)
         {
             Debug.LogError("[AdPhaseManager] IAdProvider component not found!");

@@ -75,18 +75,36 @@ void Start()
                     break;
             }
             
-            string baseChartName = "kuma_odyssey_chart_kumaden";
+            // chartJsonからベース名を取得
+            string baseChartName = "kuma_odyssey_chart_kumaden"; // デフォルト
+            
+            if (chartJson != null)
+            {
+                // chartJsonの名前を使う（_easy, _hard を除去）
+                baseChartName = chartJson.name;
+                if (baseChartName.EndsWith("_easy"))
+                {
+                    baseChartName = baseChartName.Substring(0, baseChartName.Length - 5);
+                }
+                else if (baseChartName.EndsWith("_hard"))
+                {
+                    baseChartName = baseChartName.Substring(0, baseChartName.Length - 5);
+                }
+                
+                Debug.Log($"[ChartSpawner] Base chart name: {baseChartName}");
+            }
+            
             string chartPath = "Charts/" + baseChartName + difficultySuffix;
             
             chartToLoad = Resources.Load<TextAsset>(chartPath);
             
             if (chartToLoad != null)
             {
-                Debug.Log($"[ChartSpawner] Loading difficulty chart: {chartPath}");
+                Debug.Log($"[ChartSpawner] ✅ Loading difficulty chart: {chartPath} (Difficulty: {currentDiff})");
             }
             else
             {
-                Debug.LogWarning($"[ChartSpawner] Difficulty chart not found: {chartPath}, falling back to default");
+                Debug.LogWarning($"[ChartSpawner] ⚠️ Difficulty chart not found: {chartPath}, falling back to default");
             }
         }
         

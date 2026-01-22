@@ -25185,12 +25185,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e555d503ef6e7c04d8ecaae8cf7ecff5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::DifficultyManager
+  currentRound: 1
   currentDifficulty: 0
   easySettings:
     perfectWindow: 0.15
     goodWindow: 0.3
-    speedMultiplier: 0.8
-    noteDensity: 0.5
+    speedMultiplier: 1
+    noteDensity: 1
     displayName: Easy
   normalSettings:
     perfectWindow: 0.1
@@ -25424,6 +25425,7 @@ GameObject:
   - component: {fileID: 1466840478}
   - component: {fileID: 1466840477}
   - component: {fileID: 1466840481}
+  - component: {fileID: 1466840482}
   m_Layer: 0
   m_Name: AdPhaseManager
   m_TagString: Untagged
@@ -25477,6 +25479,19 @@ MonoBehaviour:
   testMode: 1
   androidAdUnitId: Interstitial_Android
   iOSAdUnitId: Interstitial_iOS
+--- !u!114 &1466840482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1466840476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ea3ec40526f74042863478376b4a905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::MockAdProvider
+  adDuration: 3
 --- !u!1 &1474509616
 GameObject:
   m_ObjectHideFlags: 0

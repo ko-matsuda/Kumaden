@@ -65,7 +65,7 @@ public class DifficultyManager : MonoBehaviour
         displayName = "Hard"
     };
     
-    private void Awake()
+private void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -73,9 +73,13 @@ public class DifficultyManager : MonoBehaviour
             return;
         }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
         
-        // ゲーム開始時は Round 1 から
-        SetRound(1);
+        // 初回起動時のみ Round 1 から開始
+        if (currentRound == 0)
+        {
+            SetRound(1);
+        }
         
         Debug.Log($"[DifficultyManager] Initialized - Round {currentRound}, Difficulty: {currentDifficulty}");
     }
