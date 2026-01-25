@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: 68d067d7e58f6a149834ac3655b57838
-AssetOrigin:
-  serializedVersion: 1
-  productId: 318608
-  packageName: Co-Dev Ai Assistant
-  packageVersion: 1.3
-  assetPath: Assets/CoDev/Editor/Data/ChatSession.cs
-  uploadId: 775531

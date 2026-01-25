@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: a0a43b1cf9a939c4bbaedd67ef3384eb
-AssetOrigin:
-  serializedVersion: 1
-  productId: 318608
-  packageName: Co-Dev Ai Assistant
-  packageVersion: 1.3
-  assetPath: Assets/CoDev/Editor/ClaudeClient.cs
-  uploadId: 775531

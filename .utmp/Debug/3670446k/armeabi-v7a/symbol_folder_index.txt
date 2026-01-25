@@ -1,0 +1,1 @@
+C:\Users\tyuun\KumaDen\Library\Bee\Android\Prj\Mono2x\Gradle\unityLibrary\build\intermediates\cxx\Debug\3670446k\obj\armeabi-v7a

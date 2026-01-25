@@ -63,7 +63,19 @@ MonoBehaviour:
       - rid: 8938185515154014235
       - rid: 8938185515154014236
     m_RuntimeSettings:
-      m_List: []
+      m_List:
+      - rid: 8938185515154014210
+      - rid: 8938185515154014216
+      - rid: 8938185515154014217
+      - rid: 8938185515154014219
+      - rid: 8938185515154014220
+      - rid: 8938185515154014221
+      - rid: 8938185515154014222
+      - rid: 8938185515154014227
+      - rid: 8938185515154014228
+      - rid: 8938185515154014232
+      - rid: 8938185515154014233
+      - rid: 8938185515154014234
   m_AssetVersion: 8
   m_ObsoleteDefaultVolumeProfile: {fileID: 0}
   m_RenderingLayerNames:
@@ -171,7 +183,7 @@ MonoBehaviour:
       data:
         m_Version: 0
         m_StripUnusedPostProcessingVariants: 0
-        m_StripUnusedVariants: 0
+        m_StripUnusedVariants: 1
         m_StripScreenCoordOverrideVariants: 1
     - rid: 8938185515154014216
       type: {class: URPDefaultVolumeProfileSettings, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
