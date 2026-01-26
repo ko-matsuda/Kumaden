@@ -37558,11 +37558,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1890646676}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d322c1a0a10145646a5977bf5c4fe4ad, type: 3}
+  m_Script: {fileID: 11500000, guid: cb82a76cf0a98ea498adb1e13b3204be, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::ButtonClickSE
+  m_EditorClassIdentifier: Unity.Hypercasual::RetryButtonWithSE
   clickSound: {fileID: 8300000, guid: 7e45c99cbaff23d4f8bf3501f0e123d6, type: 3}
-  waitForSEComplete: 1
+  sceneToLoad: 
 --- !u!1 &1899053732 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 168254820557207646, guid: 6dc42ad68cc8044df837a14ff82a63dc, type: 3}
@@ -39182,11 +39182,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2021506697}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d322c1a0a10145646a5977bf5c4fe4ad, type: 3}
+  m_Script: {fileID: 11500000, guid: cb82a76cf0a98ea498adb1e13b3204be, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::ButtonClickSE
+  m_EditorClassIdentifier: Unity.Hypercasual::RetryButtonWithSE
   clickSound: {fileID: 8300000, guid: 7e45c99cbaff23d4f8bf3501f0e123d6, type: 3}
-  waitForSEComplete: 1
+  sceneToLoad: 
 --- !u!1001 &2026104686
 PrefabInstance:
   m_ObjectHideFlags: 0
