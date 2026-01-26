@@ -26,7 +26,7 @@ public class PrologueVideo : MonoBehaviour
         audioSource.volume = 1f;
     }
 
-void Start()
+    void Start()
     {
         // Retry時はプロローグをスキップ
         bool hasSeenPrologue = PlayerPrefs.GetInt("HasSeenPrologue", 0) == 1;
@@ -37,15 +37,22 @@ void Start()
         if (hasSeenPrologue || skipFlag)
         {
             Debug.Log("[PrologueVideo] Skipping prologue video");
+            // スキップ時はゲームを通常速度に戻す
+            Time.timeScale = 1f;
             enabled = false;
             return;
         }
         
         Debug.Log("[PrologueVideo] Playing prologue video");
         
+        // 動画再生中はゲームを停止
+        Time.timeScale = 0f;
+        
         if (videoClip == null)
         {
             Debug.LogError("[PrologueVideo] VideoClip が設定されていません");
+            // エラー時もゲームを再開
+            Time.timeScale = 1f;
             return;
         }
         
@@ -113,12 +120,15 @@ void Start()
         }
     }
 
-void OnVideoEnd(VideoPlayer source)
+    void OnVideoEnd(VideoPlayer source)
     {
         if (hasEnded) return;
         hasEnded = true;
         
         Debug.Log("[PrologueVideo] Video ended");
+        
+        // ゲームを再開
+        Time.timeScale = 1f;
         
         // プロローグを見たことを記録
         PlayerPrefs.SetInt("HasSeenPrologue", 1);
