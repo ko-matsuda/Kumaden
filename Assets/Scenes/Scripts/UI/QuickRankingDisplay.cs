@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 public class QuickRankingDisplay : MonoBehaviour
 {
@@ -20,9 +21,13 @@ public class QuickRankingDisplay : MonoBehaviour
     [SerializeField] private TextMeshProUGUI sessionCountText;
     [SerializeField] private Button retryButton;
     
+    [Header("SE設定")]
+    [SerializeField] private AudioClip retryClickSE;
+    
     private CanvasGroup canvasGroup;
     private Color selfColor;
     private Color otherColor;
+    private AudioSource audioSource;
     
     private void Awake()
     {
@@ -38,6 +43,21 @@ public class QuickRankingDisplay : MonoBehaviour
             canvasGroup.blocksRaycasts = false;
             canvasGroup.interactable = false;
         }
+        
+        // AudioSource を取得または追加
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null && retryButton != null)
+        {
+            audioSource = retryButton.GetComponent<AudioSource>();
+        }
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        
+        audioSource.playOnAwake = false;
+        audioSource.loop = false;
+        audioSource.volume = 1.0f;
         
         if (retryButton != null)
         {
@@ -134,6 +154,29 @@ public class QuickRankingDisplay : MonoBehaviour
     
     private void OnRetry()
     {
+        // SE再生してから処理を実行
+        StartCoroutine(PlaySEAndRetry());
+    }
+    
+    private IEnumerator PlaySEAndRetry()
+    {
+        // ボタンを無効化（連打防止）
+        if (retryButton != null)
+        {
+            retryButton.interactable = false;
+        }
+        
+        // SE再生
+        if (retryClickSE != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(retryClickSE);
+            Debug.Log($"[QuickRankingDisplay] SE再生: {retryClickSE.length}秒");
+            
+            // SEの長さ分待機
+            yield return new WaitForSeconds(retryClickSE.length);
+        }
+        
+        // Retry処理実行
         HandleRetryLogic();
     }
     
