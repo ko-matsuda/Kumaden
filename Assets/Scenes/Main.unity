@@ -36682,6 +36682,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Hypercasual::PrologueVideo
   videoClip: {fileID: 32900000, guid: 4e439673c6d7f19449f519da1d103437, type: 3}
   bgmLeadTime: 3.9
+  gameLogicObjects:
+  - {fileID: 1350261112}
+  - {fileID: 538003173}
+  - {fileID: 1932333261}
+  - {fileID: 420155179}
+  - {fileID: 528059052}
+  - {fileID: 891588767}
+  - {fileID: 1687618607}
+  disableCleaner: 1
 --- !u!114 &1859113772
 MonoBehaviour:
   m_ObjectHideFlags: 0
