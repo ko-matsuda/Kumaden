@@ -11550,6 +11550,7 @@ MonoBehaviour:
   bpm: 121
   preRollBeats: 12
   startDelaySec: 0.27000001072883606
+  waitForPrologueOverlay: 1
 --- !u!114 &538003177
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25660,7 +25661,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1466840476}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0ea3ec40526f74042863478376b4a905, type: 3}
   m_Name: 
