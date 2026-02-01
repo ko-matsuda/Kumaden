@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Video;
+using System.Collections;
 
 [RequireComponent(typeof(VideoPlayer), typeof(AudioSource))]
 public class PrologueVideo : MonoBehaviour
@@ -11,12 +12,20 @@ public class PrologueVideo : MonoBehaviour
     public float bgmLeadTime = 3.9f;
     
     [Header("ゲームロジック制御")]
-    [Tooltip("動画再生中は無効化するGameObject（ChartSpawner, Conductorなど）")]
+    [Tooltip("動画再生中は無効化するGameObject（重要: Conductorは含めないでください！）")]
     public GameObject[] gameLogicObjects;
     
+    [Header("再生遅延設定（エミュレータ対策）")]
+    [Tooltip("Prepare完了後、この秒数待ってから再生（デコーダー初期化のため）")]
+    public float delayBeforePlay = 1.5f;
+    
+    [Header("超軽量モード（エミュレータ用）")]
+    [Tooltip("ONにすると音声なしで最軽量設定")]
+    public bool ultraLightMode = false;
+    
     [Header("最適化設定")]
-    [Tooltip("trueの場合、VideoPlayerCleanerを完全に無視（エミュレータ推奨）")]
     public bool disableCleaner = true;
+    public bool verboseLog = true;
     
     private VideoPlayer vp;
     private AudioSource audioSource;
@@ -52,7 +61,7 @@ public class PrologueVideo : MonoBehaviour
         
         Debug.Log("[PrologueVideo] Playing prologue video");
         
-        // ★重要★ ゲームロジックを一時停止
+        // ゲームロジックを一時停止（Conductor以外）
         PauseGameLogic();
         
         if (videoClip == null)
@@ -63,28 +72,36 @@ public class PrologueVideo : MonoBehaviour
         }
         
         vp = GetComponent<VideoPlayer>();
-        var audioSource = GetComponent<AudioSource>();
         
         vp.source = VideoSource.VideoClip;
         vp.clip = videoClip;
         
-        if (audioSource != null)
+        // 超軽量モード
+        if (ultraLightMode)
         {
-            vp.audioOutputMode = VideoAudioOutputMode.AudioSource;
-            vp.SetTargetAudioSource(0, audioSource);
-            audioSource.playOnAwake = false;
-            audioSource.spatialBlend = 0f;
+            Debug.Log("[PrologueVideo] Ultra Light Mode enabled - No audio");
+            vp.audioOutputMode = VideoAudioOutputMode.None;
         }
         else
         {
-            vp.audioOutputMode = VideoAudioOutputMode.Direct;
+            if (audioSource != null)
+            {
+                vp.audioOutputMode = VideoAudioOutputMode.AudioSource;
+                vp.SetTargetAudioSource(0, audioSource);
+            }
+            else
+            {
+                vp.audioOutputMode = VideoAudioOutputMode.Direct;
+            }
         }
         
+        // 最軽量設定（BlueStacks対応）
         vp.playbackSpeed = 1f;
         vp.isLooping = false;
         vp.skipOnDrop = true;
-        vp.waitForFirstFrame = false;
+        vp.waitForFirstFrame = false;  // BlueStacksでフリーズを防ぐ
         vp.timeUpdateMode = VideoTimeUpdateMode.GameTime;
+        vp.targetCamera = null;
 
         overlay = FindObjectOfType<PrologueOverlay>();
 
@@ -103,7 +120,7 @@ public class PrologueVideo : MonoBehaviour
             }
         }
         
-        Debug.Log("[PrologueVideo] Starting Prepare...");
+        Debug.Log("[PrologueVideo] Calling Prepare()...");
         vp.Prepare();
     }
     
@@ -111,7 +128,7 @@ public class PrologueVideo : MonoBehaviour
     {
         if (gameLogicObjects == null || gameLogicObjects.Length == 0)
         {
-            Debug.LogWarning("[PrologueVideo] No game logic objects assigned to pause");
+            Debug.LogWarning("[PrologueVideo] No game logic objects to pause");
             return;
         }
         
@@ -123,33 +140,64 @@ public class PrologueVideo : MonoBehaviour
             {
                 originalStates[i] = gameLogicObjects[i].activeSelf;
                 gameLogicObjects[i].SetActive(false);
-                Debug.Log($"[PrologueVideo] Paused: {gameLogicObjects[i].name}");
+                if (verboseLog) Debug.Log($"[PrologueVideo] Paused: {gameLogicObjects[i].name}");
             }
         }
+        
+        Debug.Log($"[PrologueVideo] Paused {gameLogicObjects.Length} game objects");
     }
     
     void ResumeGameLogic()
     {
-        if (gameLogicObjects == null || originalStates == null)
-        {
-            return;
-        }
+        if (gameLogicObjects == null || originalStates == null) return;
         
         for (int i = 0; i < gameLogicObjects.Length; i++)
         {
             if (gameLogicObjects[i] != null && i < originalStates.Length)
             {
                 gameLogicObjects[i].SetActive(originalStates[i]);
-                Debug.Log($"[PrologueVideo] Resumed: {gameLogicObjects[i].name}");
+                if (verboseLog) Debug.Log($"[PrologueVideo] Resumed: {gameLogicObjects[i].name}");
             }
         }
+        
+        Debug.Log($"[PrologueVideo] Resumed {gameLogicObjects.Length} game objects");
     }
 
     void OnPrepared(VideoPlayer source)
     {
-        Debug.Log($"[PrologueVideo] Prepared! Duration: {vp.length:F2} sec");
+        Debug.Log($"[PrologueVideo] Prepared! Duration: {vp.length:F2}s");
+        
+        if (delayBeforePlay > 0)
+        {
+            Debug.Log($"[PrologueVideo] Waiting {delayBeforePlay}s for decoder initialization...");
+            StartCoroutine(DelayedPlay());
+        }
+        else
+        {
+            Debug.Log("[PrologueVideo] Playing immediately");
+            vp.Play();
+        }
+    }
+    
+    IEnumerator DelayedPlay()
+    {
+        // デコーダー初期化のために待機
+        yield return new WaitForSeconds(delayBeforePlay);
+        
+        Debug.Log("[PrologueVideo] Delay complete, starting playback!");
         vp.Play();
-        Debug.Log("[PrologueVideo] Play() called");
+        
+        // 再生開始を確認
+        yield return new WaitForSeconds(0.1f);
+        
+        if (vp.isPlaying)
+        {
+            Debug.Log($"[PrologueVideo] Playback confirmed! Time: {vp.time:F2}s");
+        }
+        else
+        {
+            Debug.LogWarning("[PrologueVideo] Video is not playing after delay!");
+        }
     }
     
     void OnVideoError(VideoPlayer source, string message)
@@ -162,11 +210,17 @@ public class PrologueVideo : MonoBehaviour
     {
         if (vp == null || !vp.isPlaying || hasEnded) return;
         
+        // デバッグ：30フレームごとに状態を出力
+        if (verboseLog && Time.frameCount % 30 == 0)
+        {
+            Debug.Log($"[PrologueVideo] Playing - Time: {vp.time:F2}s / {vp.length:F2}s");
+        }
+        
         double fadeStartTime = vp.length - bgmLeadTime;
         if (!bgmStarted && vp.time >= fadeStartTime)
         {
             bgmStarted = true;
-            Debug.Log($"[PrologueVideo] Starting BGM fade at {vp.time:F1} sec");
+            Debug.Log($"[PrologueVideo] Starting BGM fade at {vp.time:F1}s");
             if (overlay != null)
             {
                 overlay.StartBgmFadeIn(bgmLeadTime);
@@ -181,7 +235,7 @@ public class PrologueVideo : MonoBehaviour
         
         Debug.Log("[PrologueVideo] Video ended");
         
-        // ★重要★ ゲームロジックを再開
+        // ゲームロジックを再開
         ResumeGameLogic();
         
         // プロローグを見たことを記録

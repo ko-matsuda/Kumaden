@@ -46,6 +46,9 @@ public class PrologueOverlay : MonoBehaviour
         if (_conductor != null)
         {
             _conductor.enabled = true;
+            // 明示的に StartMusic() を呼ぶ（OnEnable() だけでは不十分）
+            _conductor.StartMusic();
+            Debug.Log("[PrologueOverlay] Conductor.StartMusic() called");
         }
         
         Debug.Log("[PrologueOverlay] BGM started");
@@ -63,7 +66,9 @@ public class PrologueOverlay : MonoBehaviour
         if (!_bgmStarted && _conductor != null)
         {
             _conductor.enabled = true;
+            _conductor.StartMusic();
             _bgmStarted = true;
+            Debug.Log("[PrologueOverlay] Skip: Conductor.StartMusic() called");
         }
         
         StartCoroutine(FadeOutAndStartGame());
