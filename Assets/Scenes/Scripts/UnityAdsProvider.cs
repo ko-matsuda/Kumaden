@@ -21,6 +21,8 @@ public class UnityAdsProvider : MonoBehaviour, IAdProvider, IUnityAdsInitializat
     
     private Action currentOnClosed;
     private Action<string> currentOnFailed;
+    private Action currentLoadSuccessCallback;
+    private Action<string> currentLoadFailureCallback;
     
     private void Awake()
     {
@@ -83,6 +85,9 @@ public class UnityAdsProvider : MonoBehaviour, IAdProvider, IUnityAdsInitializat
             return;
         }
         
+        currentLoadSuccessCallback = onSuccess;
+        currentLoadFailureCallback = onFailure;
+        
         Debug.Log($"[UnityAds] Loading ad: {adUnitId}");
         Advertisement.Load(adUnitId, this);
     }
@@ -96,22 +101,35 @@ public class UnityAdsProvider : MonoBehaviour, IAdProvider, IUnityAdsInitializat
             return;
         }
         
+        currentOnClosed = onClosed;
+        currentOnFailed = onFailed;
+        
         if (!IsAdReady)
         {
             Debug.LogWarning("[UnityAds] Ad not loaded yet, loading now...");
-            currentOnClosed = onClosed;
-            currentOnFailed = onFailed;
-            LoadAd(() => ShowAdInternal(), onFailed);
+            LoadAd(() => ShowAdInternal(), (error) => {
+                Debug.LogError($"[UnityAds] Failed to load ad before showing: {error}");
+                currentOnFailed?.Invoke(error);
+                currentOnClosed = null;
+                currentOnFailed = null;
+            });
             return;
         }
         
-        currentOnClosed = onClosed;
-        currentOnFailed = onFailed;
         ShowAdInternal();
     }
     
     private void ShowAdInternal()
     {
+        if (!IsAdReady)
+        {
+            Debug.LogError("[UnityAds] Cannot show ad - not ready");
+            currentOnFailed?.Invoke("Ad not ready");
+            currentOnClosed = null;
+            currentOnFailed = null;
+            return;
+        }
+        
         Debug.Log($"[UnityAds] Showing ad: {adUnitId}");
         Advertisement.Show(adUnitId, this);
     }
@@ -120,14 +138,26 @@ public class UnityAdsProvider : MonoBehaviour, IAdProvider, IUnityAdsInitializat
     {
         Debug.Log($"[UnityAds] Ad Loaded: {placementId}");
         IsAdReady = true;
+        
+        // ロード成功コールバックを呼ぶ
+        var callback = currentLoadSuccessCallback;
+        currentLoadSuccessCallback = null;
+        currentLoadFailureCallback = null;
+        callback?.Invoke();
     }
     
     public void OnUnityAdsFailedToLoad(string placementId, UnityAdsLoadError error, string message)
     {
         Debug.LogError($"[UnityAds] Ad Failed to Load: {placementId} - {error} - {message}");
         IsAdReady = false;
-        currentOnFailed?.Invoke($"Load failed: {message}");
         
+        // ロード失敗コールバックを呼ぶ
+        var failCallback = currentLoadFailureCallback;
+        currentLoadSuccessCallback = null;
+        currentLoadFailureCallback = null;
+        failCallback?.Invoke($"Load failed: {message}");
+        
+        // 5秒後にリトライ
         Invoke(nameof(RetryLoad), 5f);
     }
     
@@ -149,6 +179,7 @@ public class UnityAdsProvider : MonoBehaviour, IAdProvider, IUnityAdsInitializat
         
         callback?.Invoke();
         
+        // 次の広告をロード
         LoadAd(null, null);
     }
     
@@ -164,6 +195,7 @@ public class UnityAdsProvider : MonoBehaviour, IAdProvider, IUnityAdsInitializat
         
         failCallback?.Invoke($"Show failed: {message}");
         
+        // 次の広告をロード
         LoadAd(null, null);
     }
     

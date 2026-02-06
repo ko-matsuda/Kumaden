@@ -25651,7 +25651,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Hypercasual::UnityAdsProvider
   androidGameId: 6028482
   iOSGameId: 6028483
-  testMode: 0
+  testMode: 1
   androidAdUnitId: Interstitial_Android
   iOSAdUnitId: Interstitial_iOS
 --- !u!114 &1466840482

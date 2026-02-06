@@ -8,12 +8,15 @@ public class AdPhaseManager : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float fadeInDuration = 0.3f;
     [SerializeField] private float fadeOutDuration = 0.3f;
+    [SerializeField] private float adTimeout = 10f; // 広告タイムアウト（秒）
     
     private IAdProvider adProvider;
     private CanvasGroup adPanelCanvasGroup;
     private Action onAdCompleteCallback;
+    private Coroutine timeoutCoroutine;
+    private bool adInProgress = false;
     
-private void Awake()
+    private void Awake()
     {
         Instance = this;
         
@@ -73,17 +76,76 @@ private void Awake()
         }
         
         onAdCompleteCallback = onComplete;
+        adInProgress = true;
+        
+        // タイムアウトコルーチンを開始
+        if (timeoutCoroutine != null)
+        {
+            StopCoroutine(timeoutCoroutine);
+        }
+        timeoutCoroutine = StartCoroutine(AdTimeoutCoroutine());
+        
         StartCoroutine(FadeInPanel());
         adProvider.ShowAd(() => OnAdClosed(), (error) => OnAdFailed(error));
+        
+        Debug.Log($"[AdPhaseManager] ShowAd called, timeout set to {adTimeout} seconds");
+    }
+    
+    private System.Collections.IEnumerator AdTimeoutCoroutine()
+    {
+        yield return new WaitForSeconds(adTimeout);
+        
+        if (adInProgress)
+        {
+            Debug.LogWarning($"[AdPhaseManager] Ad timed out after {adTimeout} seconds, skipping...");
+            OnAdTimeout();
+        }
+    }
+    
+    private void OnAdTimeout()
+    {
+        if (!adInProgress) return;
+        
+        adInProgress = false;
+        if (timeoutCoroutine != null)
+        {
+            StopCoroutine(timeoutCoroutine);
+            timeoutCoroutine = null;
+        }
+        
+        StartCoroutine(FadeOutPanelAndCallback());
     }
     
     private void OnAdClosed()
     {
+        if (!adInProgress) return;
+        
+        adInProgress = false;
+        
+        // タイムアウトコルーチンをキャンセル
+        if (timeoutCoroutine != null)
+        {
+            StopCoroutine(timeoutCoroutine);
+            timeoutCoroutine = null;
+        }
+        
+        Debug.Log("[AdPhaseManager] Ad closed successfully");
         StartCoroutine(FadeOutPanelAndCallback());
     }
     
     private void OnAdFailed(string error)
     {
+        if (!adInProgress) return;
+        
+        adInProgress = false;
+        
+        // タイムアウトコルーチンをキャンセル
+        if (timeoutCoroutine != null)
+        {
+            StopCoroutine(timeoutCoroutine);
+            timeoutCoroutine = null;
+        }
+        
         Debug.LogWarning($"[AdPhaseManager] Ad failed: {error}");
         StartCoroutine(FadeOutPanelAndCallback());
     }
