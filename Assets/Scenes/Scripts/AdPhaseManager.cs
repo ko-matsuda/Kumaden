@@ -15,6 +15,7 @@ public class AdPhaseManager : MonoBehaviour
     private Action onAdCompleteCallback;
     private Coroutine timeoutCoroutine;
     private bool adInProgress = false;
+    private bool panelVisible = false;
     
     private void Awake()
     {
@@ -85,8 +86,19 @@ public class AdPhaseManager : MonoBehaviour
         }
         timeoutCoroutine = StartCoroutine(AdTimeoutCoroutine());
         
-        StartCoroutine(FadeInPanel());
-        adProvider.ShowAd(() => OnAdClosed(), (error) => OnAdFailed(error));
+        // 広告がロード済みならパネルをスキップ
+        var adsProvider = adProvider as UnityAdsProvider;
+        if (adsProvider != null && adsProvider.IsAdReady)
+        {
+            Debug.Log("[AdPhaseManager] Ad already loaded, showing immediately");
+            adProvider.ShowAd(() => OnAdClosed(), (error) => OnAdFailed(error));
+        }
+        else
+        {
+            Debug.Log("[AdPhaseManager] Ad not ready, showing loading panel");
+            StartCoroutine(FadeInPanel());
+            adProvider.ShowAd(() => OnAdClosed(), (error) => OnAdFailed(error));
+        }
         
         Debug.Log($"[AdPhaseManager] ShowAd called, timeout set to {adTimeout} seconds");
     }
@@ -113,7 +125,15 @@ public class AdPhaseManager : MonoBehaviour
             timeoutCoroutine = null;
         }
         
-        StartCoroutine(FadeOutPanelAndCallback());
+        if (panelVisible)
+        {
+            StartCoroutine(FadeOutPanelAndCallback());
+        }
+        else
+        {
+            onAdCompleteCallback?.Invoke();
+            onAdCompleteCallback = null;
+        }
     }
     
     private void OnAdClosed()
@@ -130,7 +150,16 @@ public class AdPhaseManager : MonoBehaviour
         }
         
         Debug.Log("[AdPhaseManager] Ad closed successfully");
-        StartCoroutine(FadeOutPanelAndCallback());
+        
+        if (panelVisible)
+        {
+            StartCoroutine(FadeOutPanelAndCallback());
+        }
+        else
+        {
+            onAdCompleteCallback?.Invoke();
+            onAdCompleteCallback = null;
+        }
     }
     
     private void OnAdFailed(string error)
@@ -147,12 +176,22 @@ public class AdPhaseManager : MonoBehaviour
         }
         
         Debug.LogWarning($"[AdPhaseManager] Ad failed: {error}");
-        StartCoroutine(FadeOutPanelAndCallback());
+        
+        if (panelVisible)
+        {
+            StartCoroutine(FadeOutPanelAndCallback());
+        }
+        else
+        {
+            onAdCompleteCallback?.Invoke();
+            onAdCompleteCallback = null;
+        }
     }
     
     private System.Collections.IEnumerator FadeInPanel()
     {
         adPanelCanvasGroup.gameObject.SetActive(true);
+        panelVisible = true;
         
         float elapsed = 0f;
         while (elapsed < fadeInDuration)
@@ -181,6 +220,7 @@ public class AdPhaseManager : MonoBehaviour
         adPanelCanvasGroup.interactable = false;
         adPanelCanvasGroup.blocksRaycasts = false;
         adPanelCanvasGroup.gameObject.SetActive(false);
+        panelVisible = false;
         
         onAdCompleteCallback?.Invoke();
         onAdCompleteCallback = null;
