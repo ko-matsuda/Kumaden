@@ -224,4 +224,13 @@ public class ResultCaller : MonoBehaviour
         Time.timeScale = 1f;
         UnityEngine.SceneManagement.SceneManager.LoadScene("Main");
     }
+
+
+public void ResetForNewSong()
+    {
+        fired = false;
+        CancelInvoke();
+        Unhook();
+        Debug.Log("[ResultCaller] Reset for new song");
+    }
 }

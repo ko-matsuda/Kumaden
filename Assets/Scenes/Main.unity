@@ -13976,6 +13976,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  cookingResultSequence: {fileID: 0}
 --- !u!4 &782789424
 Transform:
   m_ObjectHideFlags: 0

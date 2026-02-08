@@ -70,14 +70,9 @@ public class TitleToMainLoader : MonoBehaviour
         }
     }
     
-    System.Collections.IEnumerator GoMain()
+System.Collections.IEnumerator GoMain()
     {
-        // SE再生完了を待つ
-        if (tapSE != null && audioSource != null)
-        {
-            yield return new WaitForSeconds(tapSE.length);
-        }
-        
+        // SEは待たずにすぐフェード開始
         if (fade) yield return FadeTo(1f, 0.4f);
         SceneManager.LoadScene(mainSceneName, LoadSceneMode.Single);
     }

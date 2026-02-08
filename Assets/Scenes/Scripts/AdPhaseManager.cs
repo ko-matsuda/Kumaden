@@ -60,18 +60,11 @@ public class AdPhaseManager : MonoBehaviour
         }
     }
     
-    public void ShowAd(Action onComplete)
+public void ShowAd(Action onComplete)
     {
         if (adProvider == null)
         {
             Debug.LogError("[AdPhaseManager] No ad provider");
-            onComplete?.Invoke();
-            return;
-        }
-        
-        if (adPanelCanvasGroup == null)
-        {
-            Debug.LogError("[AdPhaseManager] No ad panel");
             onComplete?.Invoke();
             return;
         }
@@ -86,21 +79,9 @@ public class AdPhaseManager : MonoBehaviour
         }
         timeoutCoroutine = StartCoroutine(AdTimeoutCoroutine());
         
-        // 広告がロード済みならパネルをスキップ
-        var adsProvider = adProvider as UnityAdsProvider;
-        if (adsProvider != null && adsProvider.IsAdReady)
-        {
-            Debug.Log("[AdPhaseManager] Ad already loaded, showing immediately");
-            adProvider.ShowAd(() => OnAdClosed(), (error) => OnAdFailed(error));
-        }
-        else
-        {
-            Debug.Log("[AdPhaseManager] Ad not ready, showing loading panel");
-            StartCoroutine(FadeInPanel());
-            adProvider.ShowAd(() => OnAdClosed(), (error) => OnAdFailed(error));
-        }
-        
-        Debug.Log($"[AdPhaseManager] ShowAd called, timeout set to {adTimeout} seconds");
+        // ★★★ パネルは一切表示しない。広告を直接表示する ★★★
+        Debug.Log("[AdPhaseManager] ShowAd called - showing ad directly (no loading panel)");
+        adProvider.ShowAd(() => OnAdClosed(), (error) => OnAdFailed(error));
     }
     
     private System.Collections.IEnumerator AdTimeoutCoroutine()

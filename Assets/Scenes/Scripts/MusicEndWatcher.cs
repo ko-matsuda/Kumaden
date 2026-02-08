@@ -39,4 +39,11 @@ public class MusicEndWatcher : MonoBehaviour
             }
         }
     }
+
+
+public void ResetForNewSong()
+    {
+        fired = false;
+        Debug.Log("[MusicEndWatcher] Reset for new song");
+    }
 }

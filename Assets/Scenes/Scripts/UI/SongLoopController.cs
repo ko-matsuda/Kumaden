@@ -27,7 +27,7 @@ public class SongLoopController : MonoBehaviour
     private int currentSongIndex = 0;
     private AudioSource musicSource;
 
-    void Awake()
+void Awake()
     {
         Debug.Log("[SongLoopController] Awake called");
 
@@ -37,7 +37,7 @@ public class SongLoopController : MonoBehaviour
         if (conductor != null)
             musicSource = conductor.GetComponent<AudioSource>();
 
-        // ★ ResultCanvas を一度だけ取得（非アクティブOK）
+        // ResultCanvas を一度だけ取得（非アクティブOK）
         if (resultCanvas == null)
         {
             var canvases = FindObjectsOfType<Canvas>(true);
@@ -72,6 +72,20 @@ public class SongLoopController : MonoBehaviour
                 cg.interactable = true;
                 cg.blocksRaycasts = true;
             }
+        }
+
+        // ★★★ Song A中はMusicEndWatcherとCookingResultSequenceを無効化 ★★★
+        var mew = FindObjectOfType<MusicEndWatcher>();
+        if (mew != null)
+        {
+            mew.enabled = false;
+            Debug.Log("[SongLoopController] MusicEndWatcher disabled during Song A");
+        }
+        var crs = FindObjectOfType<CookingResultSequence>();
+        if (crs != null)
+        {
+            crs.enabled = false;
+            Debug.Log("[SongLoopController] CookingResultSequence disabled during Song A");
         }
 
         // 初期曲セット
@@ -155,6 +169,9 @@ private System.Collections.IEnumerator TransitionToNextSong()
             yield break;
         }
 
+        // リザルト画面を非表示にする
+        HideResultUI();
+
         if (chartSpawner != null)
             chartSpawner.ResetForNewSong();
 
@@ -173,8 +190,77 @@ private System.Collections.IEnumerator TransitionToNextSong()
         if (conductor != null && chartSpawner != null && chartSpawner.currentChart != null)
             conductor.bpm = chartSpawner.currentChart.bpm;
 
+        // MusicEndWatcher をリセットして有効化（Song Bからリザルト発動OK）
+        var musicEndWatcher = FindObjectOfType<MusicEndWatcher>();
+        if (musicEndWatcher != null)
+        {
+            musicEndWatcher.ResetForNewSong();
+            musicEndWatcher.enabled = true;
+            Debug.Log("[SongLoopController] MusicEndWatcher enabled for Song B");
+        }
+
+        // CookingResultSequence をリセットして有効化
+        var cookingResult = FindObjectOfType<CookingResultSequence>();
+        if (cookingResult != null)
+        {
+            cookingResult.ResetForNewSong();
+            cookingResult.enabled = true;
+            Debug.Log("[SongLoopController] CookingResultSequence enabled for Song B");
+        }
+
         isTransitioning = false;
+        Debug.Log($"[SongLoopController] Transitioned to song {currentSongIndex}");
     }
+
+private void HideResultUI()
+    {
+        // ResultCanvas を非表示
+        if (resultCanvas != null)
+        {
+            resultCanvas.SetActive(false);
+            var cg = resultCanvas.GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                cg.alpha = 0f;
+                cg.interactable = false;
+                cg.blocksRaycasts = false;
+            }
+            Debug.Log("[SongLoopController] ResultCanvas hidden for next song");
+        }
+
+        // FadeCanvas もクリア
+        var cookingResult = FindObjectOfType<CookingResultSequence>();
+        if (cookingResult != null && cookingResult.fadeGroup != null)
+        {
+            cookingResult.fadeGroup.alpha = 0f;
+            cookingResult.fadeGroup.blocksRaycasts = false;
+            cookingResult.fadeGroup.interactable = false;
+        }
+
+        // QuickRanking も非表示
+        var quickRanking = FindObjectOfType<QuickRankingDisplay>();
+        if (quickRanking != null)
+        {
+            quickRanking.gameObject.SetActive(false);
+        }
+
+        // ResultCaller もリセット
+        if (resultCaller != null)
+        {
+            resultCaller.ResetForNewSong();
+        }
+
+        // SafeArea を再表示
+        if (resultCanvas != null)
+        {
+            var safeArea = resultCanvas.transform.Find("SafeArea");
+            if (safeArea != null)
+            {
+                safeArea.gameObject.SetActive(true);
+            }
+        }
+    }
+
 
     void LoadChart()
     {

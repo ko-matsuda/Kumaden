@@ -163,20 +163,10 @@ public class PrologueVideo : MonoBehaviour
         Debug.Log($"[PrologueVideo] Resumed {gameLogicObjects.Length} game objects");
     }
 
-    void OnPrepared(VideoPlayer source)
+void OnPrepared(VideoPlayer source)
     {
-        Debug.Log($"[PrologueVideo] Prepared! Duration: {vp.length:F2}s");
-        
-        if (delayBeforePlay > 0)
-        {
-            Debug.Log($"[PrologueVideo] Waiting {delayBeforePlay}s for decoder initialization...");
-            StartCoroutine(DelayedPlay());
-        }
-        else
-        {
-            Debug.Log("[PrologueVideo] Playing immediately");
-            vp.Play();
-        }
+        Debug.Log($"[PrologueVideo] Prepared! Duration: {vp.length:F2}s - Playing immediately");
+        vp.Play();
     }
     
     IEnumerator DelayedPlay()

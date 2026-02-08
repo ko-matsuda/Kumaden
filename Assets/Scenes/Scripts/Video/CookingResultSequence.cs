@@ -116,20 +116,26 @@ public class CookingResultSequence : MonoBehaviour
         if (!isRunning) TriggerResultSequence();
     }
 
-    public void TriggerResultSequence()
+public void TriggerResultSequence()
     {
         if (Application.isPlaying && !isRunning)
+        {
+            // ★★★ GameObjectが非アクティブならアクティブにする ★★★
+            if (!gameObject.activeInHierarchy)
+            {
+                gameObject.SetActive(true);
+                Debug.Log("[CookingResultSequence] Activated inactive GameObject for coroutine");
+            }
             StartCoroutine(ResultSequenceCoroutine());
+        }
     }
 
-    IEnumerator ResultSequenceCoroutine()
+IEnumerator ResultSequenceCoroutine()
     {
         isRunning = true;
         Debug.Log("[CookingResultSequence] Starting");
 
         StoreResultData();
-        
-        
 
         if (fadeGroup)
         {
@@ -153,14 +159,12 @@ public class CookingResultSequence : MonoBehaviour
 
         if (videoPlayer)
         {
-            // ★★★ RenderTextureをクリア ★★★
             if (videoPlayer.targetTexture != null)
             {
                 RenderTexture rt = videoPlayer.targetTexture;
                 RenderTexture.active = rt;
                 GL.Clear(true, true, Color.black);
                 RenderTexture.active = null;
-                Debug.Log("[CookingResultSequence] RenderTexture cleared");
             }
             
             if (videoAudio)
@@ -198,7 +202,6 @@ public class CookingResultSequence : MonoBehaviour
             if (prepared)
             {
                 videoPlayer.frame = 0;
-        
                 videoPlayer.Play();
                 if (videoAudio) videoAudio.Play();
 
@@ -239,7 +242,8 @@ public class CookingResultSequence : MonoBehaviour
         if (interstitialGroup)
         {
             interstitialGroup.alpha = 0f;
-            interstitialGroup.gameObject.SetActive(false);
+            interstitialGroup.blocksRaycasts = false;
+            interstitialGroup.interactable = false;
         }
 
         if (videoAudio && videoAudio.isPlaying) videoAudio.Stop();
@@ -254,8 +258,14 @@ public class CookingResultSequence : MonoBehaviour
                 canvasGroup.alpha = 1f;
                 canvasGroup.interactable = true;
                 canvasGroup.blocksRaycasts = true;
-                Debug.Log("[CookingResultSequence] ResultCanvas background displayed");
             }
+        }
+
+        // fadeGroup のブロックを解除（リトライボタンを押せるようにする）
+        if (fadeGroup)
+        {
+            fadeGroup.blocksRaycasts = false;
+            fadeGroup.interactable = false;
         }
 
         if (!jingleSource && resultRoot)
@@ -269,6 +279,7 @@ public class CookingResultSequence : MonoBehaviour
             jingleSource.Play();
         }
 
+        Debug.Log("[CookingResultSequence] Result sequence complete");
         isRunning = false;
     }
 
@@ -321,5 +332,47 @@ public class CookingResultSequence : MonoBehaviour
                 }
             }
         }
+    }
+
+
+public void ResetForNewSong()
+    {
+        StopAllCoroutines();
+        isRunning = false;
+        isArmed = true;
+        
+        // ResultCanvas を非表示
+        if (resultRoot != null)
+        {
+            resultRoot.SetActive(false);
+        }
+        
+        // FadeGroup をリセット
+        if (fadeGroup != null)
+        {
+            fadeGroup.alpha = 0f;
+            fadeGroup.blocksRaycasts = false;
+            fadeGroup.interactable = false;
+        }
+        
+        // Interstitial をリセット（SetActiveせずalpha=0で隠す。自身のGameObjectなのでSetActive(false)するとCoroutine起動不可になる）
+        if (interstitialGroup != null)
+        {
+            interstitialGroup.alpha = 0f;
+            interstitialGroup.blocksRaycasts = false;
+            interstitialGroup.interactable = false;
+        }
+        
+        // Video をリセット
+        if (videoImage != null)
+            videoImage.enabled = false;
+        if (videoPlayer != null && videoPlayer.isPlaying)
+            videoPlayer.Stop();
+        if (videoAudio != null && videoAudio.isPlaying)
+            videoAudio.Stop();
+        if (jingleSource != null && jingleSource.isPlaying)
+            jingleSource.Stop();
+        
+        Debug.Log("[CookingResultSequence] Reset for new song");
     }
 }
