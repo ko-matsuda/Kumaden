@@ -16942,6 +16942,55 @@ RectTransform:
   m_AnchoredPosition: {x: 868, y: -180}
   m_SizeDelta: {x: 280, y: 280}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1066340673
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1066340675}
+  - component: {fileID: 1066340674}
+  m_Layer: 0
+  m_Name: AdMobRewardedManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1066340674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1066340673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66d1300c46e3f9f46817404fb63eac6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::AdMobRewardedManager
+  androidTestAdUnitId: ca-app-pub-3940256099942544/5224354917
+  androidProdAdUnitId: ca-app-pub-6139222263584451/7909908747
+  useTestAds: 1
+  mockAdDuration: 3
+  retryDelay: 5
+--- !u!4 &1066340675
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1066340673}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1068043891
 GameObject:
   m_ObjectHideFlags: 0
@@ -25600,8 +25649,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1466840478}
   - component: {fileID: 1466840477}
-  - component: {fileID: 1466840481}
-  - component: {fileID: 1466840482}
   m_Layer: 0
   m_Name: AdPhaseManager
   m_TagString: Untagged
@@ -25621,9 +25668,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b91915ef2deec64481ed435ecfa025b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Hypercasual::AdPhaseManager
-  fadeInDuration: 0.3
-  fadeOutDuration: 0.3
-  adTimeout: 10
 --- !u!4 &1466840478
 Transform:
   m_ObjectHideFlags: 0
@@ -25639,36 +25683,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1466840481
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1466840476}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 698191f3dc4e4984eb46ffb1dee74fd1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::UnityAdsProvider
-  androidGameId: 6028482
-  iOSGameId: 6028483
-  testMode: 0
-  androidAdUnitId: Interstitial_Android
-  iOSAdUnitId: Interstitial_iOS
---- !u!114 &1466840482
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1466840476}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ea3ec40526f74042863478376b4a905, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Hypercasual::MockAdProvider
-  adDuration: 3
 --- !u!1 &1474509616
 GameObject:
   m_ObjectHideFlags: 0
@@ -41397,3 +41411,4 @@ SceneRoots:
   - {fileID: 1466840478}
   - {fileID: 1647332337}
   - {fileID: 1454376310}
+  - {fileID: 1066340675}

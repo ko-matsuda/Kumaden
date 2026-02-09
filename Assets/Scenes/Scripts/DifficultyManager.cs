@@ -146,17 +146,20 @@ private void Awake()
     /// 次のラウンドに進む
     /// Round 3の後は広告表示して Round 1 に戻る
     /// </summary>
+/// <summary>
+    /// 次のラウンドに進む
+    /// 広告表示は呼び出し元（QuickRankingDisplay）が管理する
+    /// </summary>
     public void NextRound()
     {
-        // Round 3 の次は広告を表示
         if (currentRound >= MAX_ROUNDS)
         {
-            Debug.Log($"[DifficultyManager] Round {currentRound} 終了！広告表示後、Round 1 へ");
-            ShowAdAndRestart();
+            // Round 3 の次は Round 1 に戻る（広告は呼び出し元で処理）
+            Debug.Log($"[DifficultyManager] Round {currentRound} → Round 1 (cycle reset)");
+            SetRound(1);
         }
         else
         {
-            // Round 1 → 2, Round 2 → 3
             SetRound(currentRound + 1);
         }
     }
@@ -180,24 +183,13 @@ private void Awake()
     /// <summary>
     /// 広告表示して Round 1 に戻る
     /// </summary>
+/// <summary>
+    /// [非推奨] 広告表示は QuickRankingDisplay.HandleRetryLogic() で管理
+    /// </summary>
     private void ShowAdAndRestart()
     {
-        Debug.Log("[DifficultyManager] 📺 広告表示中...");
-        
-        // AdPhaseManager を使って広告表示
-        if (AdPhaseManager.Instance != null)
-        {
-            AdPhaseManager.Instance.ShowAd(() => 
-            {
-                // 広告終了後に Round 1 へ
-                RestartFromRound1();
-            });
-        }
-        else
-        {
-            Debug.LogWarning("[DifficultyManager] AdPhaseManager not found. Skipping ad.");
-            RestartFromRound1();
-        }
+        Debug.LogWarning("[DifficultyManager] ShowAdAndRestart is deprecated. Use QuickRankingDisplay flow.");
+        RestartFromRound1();
     }
     
     /// <summary>

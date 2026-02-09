@@ -180,44 +180,42 @@ private IEnumerator PlaySEAndRetry()
     
 private void HandleRetryLogic()
     {
-        if (DifficultyManager.Instance != null)
+        if (DifficultyManager.Instance == null)
         {
-            int currentRound = DifficultyManager.Instance.GetCurrentRound();
-            Debug.Log($"[QuickRankingDisplay] Current Round: {currentRound}");
-            
-            if (currentRound >= 3)
+            Debug.LogWarning("[QuickRankingDisplay] DifficultyManager not found, fallback");
+            LoadMainScene();
+            return;
+        }
+
+        int currentRound = DifficultyManager.Instance.GetCurrentRound();
+        Debug.Log($"[QuickRankingDisplay] Current Round: {currentRound}");
+
+        if (currentRound >= 3)
+        {
+            // Round 3 完了 → 広告表示 → Round 1 へ
+            Debug.Log("[QuickRankingDisplay] Round 3 完了！広告表示後、Round 1 へ");
+
+            var adManager = AdMobRewardedManager.Instance;
+            if (adManager != null)
             {
-                // Round 3 完了 → 広告表示 → Round 1 へ戻る
-                Debug.Log("[QuickRankingDisplay] Round 3 完了！広告表示後、Round 1 へ");
-                
-                var adManager = AdPhaseManager.Instance;
-                if (adManager != null)
+                adManager.ShowAd(() =>
                 {
-                    adManager.ShowAd(() => 
-                    {
-                        // 広告終了後、直接 Round 1 をセット（NextRound()は二重広告になるので使わない）
-                        DifficultyManager.Instance.SetRound(1);
-                        LoadMainScene();
-                    });
-                }
-                else
-                {
-                    Debug.LogWarning("[QuickRankingDisplay] AdPhaseManager not found");
                     DifficultyManager.Instance.SetRound(1);
                     LoadMainScene();
-                }
+                });
             }
             else
             {
-                // Round 1 または 2 → 広告なしで次のラウンドへ
-                Debug.Log($"[QuickRankingDisplay] Round {currentRound} → Round {currentRound + 1}");
-                DifficultyManager.Instance.SetRound(currentRound + 1);
+                Debug.LogWarning("[QuickRankingDisplay] AdMobRewardedManager not found");
+                DifficultyManager.Instance.SetRound(1);
                 LoadMainScene();
             }
         }
         else
         {
-            Debug.LogWarning("[QuickRankingDisplay] DifficultyManager not found, using fallback");
+            // Round 1, 2 → 広告なしで次へ
+            Debug.Log($"[QuickRankingDisplay] Round {currentRound} → Round {currentRound + 1}");
+            DifficultyManager.Instance.SetRound(currentRound + 1);
             LoadMainScene();
         }
     }
