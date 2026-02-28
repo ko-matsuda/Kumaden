@@ -36,7 +36,7 @@ public class ResultCaller : MonoBehaviour
 #endif
     }
     
-    public void TriggerResult()
+public void TriggerResult()
     {
         string rank = "C";
         var scoreManager = FindObjectOfType<ScoreManagerLite>();
@@ -57,12 +57,12 @@ public class ResultCaller : MonoBehaviour
             }
         }
 
-        if (!string.IsNullOrEmpty(rank) && rank != "F")
+        // ResultVideoController にランクをセット
+        if (resultVideoController != null)
         {
-            if (resultVideoController != null)
-            {
-                Hook();
-            }
+            resultVideoController.rank = rank;
+            Debug.Log($"[ResultCaller] rank={rank} を ResultVideoController にセット");
+            Hook();
         }
         else
         {
@@ -157,7 +157,7 @@ public class ResultCaller : MonoBehaviour
         }
     }
     
-    void ShowRanking()
+void ShowRanking()
     {
         if (!quickRanking)
         {
@@ -170,6 +170,13 @@ public class ResultCaller : MonoBehaviour
         {
             Debug.LogError("[ResultCaller] ScoreManagerLite.Instance is null!");
             return;
+        }
+
+        // ランクを QuickRankingDisplay にセット（ボタンテキスト切り替え用）
+        if (resultVideoController != null)
+        {
+            quickRanking.currentRank = resultVideoController.rank;
+            Debug.Log($"[ResultCaller] quickRanking.currentRank = {resultVideoController.rank}");
         }
 
         int thisPlayScore = score.CalculateTotalScore();
@@ -197,22 +204,13 @@ public class ResultCaller : MonoBehaviour
         int bottomScoreDiff = Random.Range(1000, 5000);
         string bottomName = playerNames[Random.Range(0, playerNames.Length)];
         while (bottomName == topName)
-        {
             bottomName = playerNames[Random.Range(0, playerNames.Length)];
-        }
         var bottomPlayer = new RankingEntry(bottomName, cumulativeScore - bottomScoreDiff);
         
         if (resultHUD != null)
         {
             var safeArea = resultHUD.transform.Find("SafeArea");
-            if (safeArea != null)
-            {
-                safeArea.gameObject.SetActive(false);
-            }
-            else
-            {
-                Debug.LogWarning("[ResultCaller] SafeArea not found");
-            }
+            if (safeArea != null) safeArea.gameObject.SetActive(false);
         }
         
         quickRanking.ShowRanking(myRank, cumulativeScore, topPlayer, bottomPlayer, topRank, bottomRank);

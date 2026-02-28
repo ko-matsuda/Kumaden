@@ -24,6 +24,13 @@ public class ResultButtons : MonoBehaviour
     public string mainSceneName = "Main";
     public string titleSceneName = "TitleScene";
 
+    [Header("インタースティシャル広告")]
+    [Tooltip("何回リトライしたら広告を表示するか")]
+    public int interstitialInterval = 3;
+
+    private static int retryCount = 0;
+
+
     void Awake()
     {
         // 念のため初期化（押せる状態に）
@@ -47,10 +54,23 @@ public class ResultButtons : MonoBehaviour
         }
     }
 
-    public void OnRetryButton()
+public void OnRetryButton()
     {
         if (clickSE) clickSE.Play();
-        StartCoroutine(FadeAndLoad(mainSceneName));
+
+        retryCount++;
+        if (retryCount % interstitialInterval == 0 && AdMobInterstitialManager.Instance != null)
+        {
+            Debug.Log($"[ResultButtons] リトライ{retryCount}回 - インタースティシャル広告表示");
+            AdMobInterstitialManager.Instance.ShowInterstitialAd(onClosed: () =>
+            {
+                StartCoroutine(FadeAndLoad(mainSceneName));
+            });
+        }
+        else
+        {
+            StartCoroutine(FadeAndLoad(mainSceneName));
+        }
     }
 
     public void OnTitleButton()

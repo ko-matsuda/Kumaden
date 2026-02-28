@@ -28,6 +28,9 @@ public class QuickRankingDisplay : MonoBehaviour
     private Color selfColor;
     private Color otherColor;
     private AudioSource audioSource;
+    // 現在のランク（ResultCallerからセットされる）
+    [HideInInspector] public string currentRank = "C";
+
     
     private void Awake()
     {
@@ -70,7 +73,7 @@ public class QuickRankingDisplay : MonoBehaviour
         }
     }
     
-    public void ShowRanking(int myRank, int myScore, RankingEntry topPlayer, RankingEntry bottomPlayer, int topRank, int bottomRank)
+public void ShowRanking(int myRank, int myScore, RankingEntry topPlayer, RankingEntry bottomPlayer, int topRank, int bottomRank)
     {
         Transform resultCanvasTransform = null;
         Transform current = transform.parent;
@@ -87,9 +90,7 @@ public class QuickRankingDisplay : MonoBehaviour
         if (resultCanvasTransform != null)
         {
             if (!resultCanvasTransform.gameObject.activeSelf)
-            {
                 resultCanvasTransform.gameObject.SetActive(true);
-            }
             
             var resultCanvasGroup = resultCanvasTransform.GetComponent<CanvasGroup>();
             if (resultCanvasGroup != null)
@@ -101,9 +102,7 @@ public class QuickRankingDisplay : MonoBehaviour
         }
         
         if (!gameObject.activeInHierarchy)
-        {
             gameObject.SetActive(true);
-        }
         
         var selfCanvasGroup = GetComponent<CanvasGroup>();
         if (selfCanvasGroup != null)
@@ -117,16 +116,26 @@ public class QuickRankingDisplay : MonoBehaviour
         SetRankLine(rankSelfRank, rankSelfName, rankSelfScore, myRank, "YOU", myScore, selfColor);
         SetRankLine(rankBottomRank, rankBottomName, rankBottomScore, bottomRank, bottomPlayer.playerName, bottomPlayer.score, otherColor);
         
-        // DifficultyManager のラウンド情報を使用
+        // 難易度ラベル表示
         int currentRound = 1;
         if (DifficultyManager.Instance != null)
-        {
             currentRound = DifficultyManager.Instance.GetCurrentRound();
-        }
         
         if (sessionCountText != null)
         {
-            sessionCountText.text = $"Round {currentRound}/3";
+            string[] difficultyLabels = { "Easy", "Normal", "Hard" };
+            sessionCountText.text = difficultyLabels[Mathf.Clamp(currentRound - 1, 0, 2)];
+        }
+
+        // ボタンテキストをランクで変える（currentRankはResultCallerから事前にセット済み）
+        bool isSuccess = (currentRank == "S" || currentRank == "A" || currentRank == "B");
+        Debug.Log($"[QuickRankingDisplay] ShowRanking - currentRank={currentRank}, isSuccess={isSuccess}");
+        if (retryButton != null)
+        {
+            if (retryButton != null) retryButton.interactable = true;
+            var btnText = retryButton.GetComponentInChildren<TextMeshProUGUI>();
+            if (btnText != null)
+                btnText.text = isSuccess ? "NEXT" : "RETRY";
         }
     }
     
@@ -188,13 +197,22 @@ private void HandleRetryLogic()
         }
 
         int currentRound = DifficultyManager.Instance.GetCurrentRound();
-        Debug.Log($"[QuickRankingDisplay] Current Round: {currentRound}");
+        bool isSuccess = (currentRank == "S" || currentRank == "A" || currentRank == "B");
+        Debug.Log($"[QuickRankingDisplay] HandleRetryLogic - Round:{currentRound}, Rank:{currentRank}, isSuccess:{isSuccess}");
+
+        if (!isSuccess)
+        {
+            // 失敗 → 同じラウンドをやり直し
+            Debug.Log($"[QuickRankingDisplay] 失敗！Round {currentRound} をやり直し");
+            DifficultyManager.Instance.SetRound(currentRound);
+            LoadMainScene();
+            return;
+        }
 
         if (currentRound >= 3)
         {
             // Round 3 完了 → 広告表示 → Round 1 へ
             Debug.Log("[QuickRankingDisplay] Round 3 完了！広告表示後、Round 1 へ");
-
             var adManager = AdMobRewardedManager.Instance;
             if (adManager != null)
             {
@@ -213,8 +231,8 @@ private void HandleRetryLogic()
         }
         else
         {
-            // Round 1, 2 → 広告なしで次へ
-            Debug.Log($"[QuickRankingDisplay] Round {currentRound} → Round {currentRound + 1}");
+            // 成功 → 次のラウンドへ
+            Debug.Log($"[QuickRankingDisplay] 成功！Round {currentRound} → Round {currentRound + 1}");
             DifficultyManager.Instance.SetRound(currentRound + 1);
             LoadMainScene();
         }
