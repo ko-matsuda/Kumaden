@@ -6500,6 +6500,7 @@ GameObject:
   - component: {fileID: 186652061}
   - component: {fileID: 186652062}
   - component: {fileID: 186652063}
+  - component: {fileID: 186652064}
   m_Layer: 0
   m_Name: GameFlow
   m_TagString: Untagged
@@ -6584,6 +6585,28 @@ MonoBehaviour:
   fadeCanvas: {fileID: 0}
   gameStartTarget: {fileID: 538003173}
   startMethodName: StartMusic
+--- !u!114 &186652064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186652057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75a6e3d4bae51dc4790ea17a056e74a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::BackgroundDifficultyTinter
+  directionalLight: {fileID: 0}
+  skyRenderer: {fileID: 0}
+  hillsRenderer: {fileID: 0}
+  cloudRenderers: []
+  lightColorDay: {r: 1, g: 0.96, b: 0.84, a: 1}
+  skyColorDay: {r: 1, g: 1, b: 1, a: 1}
+  lightColorDusk: {r: 1, g: 0.6, b: 0.25, a: 1}
+  skyColorDusk: {r: 1, g: 0.5, b: 0.15, a: 1}
+  lightColorNight: {r: 0.5, g: 0.55, b: 0.85, a: 1}
+  skyColorNight: {r: 0.1, g: 0.15, b: 0.4, a: 1}
 --- !u!43 &187665240
 Mesh:
   m_ObjectHideFlags: 0
@@ -8637,6 +8660,7 @@ MonoBehaviour:
   sessionCountText: {fileID: 1184317265}
   retryButton: {fileID: 1890646681}
   retryClickSE: {fileID: 8300000, guid: 7e45c99cbaff23d4f8bf3501f0e123d6, type: 3}
+  currentRank: C
 --- !u!225 &330125191
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -23643,6 +23667,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1268904766}
+  - component: {fileID: 1268904767}
   m_Layer: 3
   m_Name: BackgroundRoot
   m_TagString: Untagged
@@ -23668,6 +23693,28 @@ Transform:
   - {fileID: 248644223}
   m_Father: {fileID: 350379088}
   m_LocalEulerAnglesHint: {x: -7.125, y: 0, z: 0}
+--- !u!114 &1268904767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1268904765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75a6e3d4bae51dc4790ea17a056e74a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Hypercasual::BackgroundDifficultyTinter
+  directionalLight: {fileID: 0}
+  skyRenderer: {fileID: 0}
+  hillsRenderer: {fileID: 0}
+  cloudRenderers: []
+  lightColorDay: {r: 1, g: 0.96, b: 0.84, a: 1}
+  skyColorDay: {r: 1, g: 1, b: 1, a: 1}
+  lightColorDusk: {r: 1, g: 0.6, b: 0.25, a: 1}
+  skyColorDusk: {r: 1, g: 0.5, b: 0.15, a: 1}
+  lightColorNight: {r: 0.2, g: 0.25, b: 0.6, a: 1}
+  skyColorNight: {r: 0.08, g: 0.1, b: 0.25, a: 1}
 --- !u!1 &1278356709
 GameObject:
   m_ObjectHideFlags: 0
@@ -33258,7 +33305,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 9000
+  m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!225 &1655579937
 CanvasGroup:

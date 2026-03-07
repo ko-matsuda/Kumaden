@@ -74,13 +74,26 @@ private void Awake()
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        
+
+#if UNITY_EDITOR
+        // デバッグ: DebugDifficultyWindow から指定されたラウンドで開始
+        int debugRound = PlayerPrefs.GetInt("DebugStartRound", 0);
+        if (debugRound > 0)
+        {
+            PlayerPrefs.DeleteKey("DebugStartRound");
+            PlayerPrefs.Save();
+            Debug.Log($"[DifficultyManager] DebugPlay: Round {debugRound} からスタート");
+            SetRound(debugRound);
+            return;
+        }
+#endif
+
         // 初回起動時のみ Round 1 から開始
         if (currentRound == 0)
         {
             SetRound(1);
         }
-        
+
         Debug.Log($"[DifficultyManager] Initialized - Round {currentRound}, Difficulty: {currentDifficulty}");
     }
     

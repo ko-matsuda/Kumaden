@@ -202,12 +202,41 @@ private void HandleRetryLogic()
 
         if (!isSuccess)
         {
-            // 失敗 → 同じラウンドをやり直し
-            Debug.Log($"[QuickRankingDisplay] 失敗！Round {currentRound} をやり直し");
-            DifficultyManager.Instance.SetRound(currentRound);
-            LoadMainScene();
+            // 失敗 → 3回に1回広告を表示してリトライ
+            int retryCount = PlayerPrefs.GetInt("RetryCount", 0) + 1;
+            PlayerPrefs.SetInt("RetryCount", retryCount);
+            PlayerPrefs.Save();
+            Debug.Log($"[QuickRankingDisplay] リトライ {retryCount}回目");
+
+            if (retryCount % 3 == 0)
+            {
+                Debug.Log("[QuickRankingDisplay] 3回に1回の広告タイミング！");
+                var adManager = AdMobRewardedManager.Instance;
+                if (adManager != null)
+                {
+                    adManager.ShowAd(() =>
+                    {
+                        DifficultyManager.Instance.SetRound(currentRound);
+                        LoadMainScene();
+                    });
+                }
+                else
+                {
+                    DifficultyManager.Instance.SetRound(currentRound);
+                    LoadMainScene();
+                }
+            }
+            else
+            {
+                DifficultyManager.Instance.SetRound(currentRound);
+                LoadMainScene();
+            }
             return;
         }
+
+        // 成功時はリトライカウントをリセット
+        PlayerPrefs.SetInt("RetryCount", 0);
+        PlayerPrefs.Save();
 
         if (currentRound >= 3)
         {

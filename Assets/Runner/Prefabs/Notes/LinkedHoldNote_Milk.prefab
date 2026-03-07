@@ -151,7 +151,7 @@ PrefabInstance:
     - target: {fileID: 8384012808243909169, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
       propertyPath: 'm_Materials.Array.data[3]'
       value: 
-      objectReference: {fileID: -8932566056945677694, guid: bd4176b311cc29145ae994b0abeb7d41, type: 3}
+      objectReference: {fileID: 2100000, guid: 53fc0ecfaaff9c44194cd4a0d6215711, type: 2}
     - target: {fileID: 8384012808243909172, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
       propertyPath: m_Name
       value: EndNote
@@ -258,7 +258,7 @@ PrefabInstance:
     - target: {fileID: 8384012808243909169, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
       propertyPath: 'm_Materials.Array.data[3]'
       value: 
-      objectReference: {fileID: -8932566056945677694, guid: bd4176b311cc29145ae994b0abeb7d41, type: 3}
+      objectReference: {fileID: 2100000, guid: 53fc0ecfaaff9c44194cd4a0d6215711, type: 2}
     - target: {fileID: 8384012808243909172, guid: 45e15ee77c9e68447b93a838a03aab26, type: 3}
       propertyPath: m_Name
       value: StartNote
