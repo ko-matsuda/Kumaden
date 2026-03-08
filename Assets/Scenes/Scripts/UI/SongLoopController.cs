@@ -9,8 +9,14 @@ public class SongData
 
 public class SongLoopController : MonoBehaviour
 {
-    [Header("Songs (Size must be 2)")]
+    [Header("Songs Day (Easy)")]
     [SerializeField] private SongData[] songs = new SongData[2];
+
+    [Header("Songs Dusk/Evening (Normal)")]
+    [SerializeField] private SongData[] songsDusk = new SongData[2];
+
+    [Header("Songs Night (Hard)")]
+    [SerializeField] private SongData[] songsNight = new SongData[2];
 
     [Header("References")]
     [SerializeField] private ChartSpawner chartSpawner;
@@ -18,7 +24,7 @@ public class SongLoopController : MonoBehaviour
 
     [Header("Result UI")]
     [SerializeField] private GameObject resultCanvas;
-    [SerializeField] private ResultCaller resultCaller;  // ResultCallerへの参照
+    [SerializeField] private ResultCaller resultCaller;
 
     [Header("Loop Settings")]
     public bool enableLooping = false;
@@ -27,7 +33,7 @@ public class SongLoopController : MonoBehaviour
     private int currentSongIndex = 0;
     private AudioSource musicSource;
 
-void Awake()
+    void Awake()
     {
         Debug.Log("[SongLoopController] Awake called");
 
@@ -36,6 +42,17 @@ void Awake()
 
         if (conductor != null)
             musicSource = conductor.GetComponent<AudioSource>();
+
+        // 難易度に応じてsongsを切り替え
+        if (DifficultyManager.Instance != null)
+        {
+            Difficulty diff = DifficultyManager.Instance.GetCurrentDifficulty();
+            if (diff == Difficulty.Hard && songsNight[0].audioClip != null)
+                songs = songsNight;
+            else if (diff == Difficulty.Normal && songsDusk[0].audioClip != null)
+                songs = songsDusk;
+            Debug.Log($"[SongLoopController] Difficulty={diff}, using songs[0]={songs[0]?.audioClip?.name}");
+        }
 
         // ResultCanvas を一度だけ取得（非アクティブOK）
         if (resultCanvas == null)
@@ -124,11 +141,10 @@ void Awake()
         }
     }
 
-void ShowResult()
+    void ShowResult()
     {
         Debug.Log("[SongLoopController] ShowResult called");
         
-        // ResultCallerを使ってリザルトを表示
         if (resultCaller != null)
         {
             Debug.Log("[SongLoopController] Calling ResultCaller.TriggerResult()");
@@ -138,7 +154,6 @@ void ShowResult()
         {
             Debug.LogError("[SongLoopController] ResultCaller reference is NULL!");
             
-            // フォールバック: 直接ResultCanvasをアクティブ化
             if (resultCanvas != null)
             {
                 resultCanvas.SetActive(true);
@@ -158,7 +173,7 @@ void ShowResult()
         }
     }
 
-private System.Collections.IEnumerator TransitionToNextSong()
+    private System.Collections.IEnumerator TransitionToNextSong()
     {
         isTransitioning = true;
 
@@ -169,7 +184,6 @@ private System.Collections.IEnumerator TransitionToNextSong()
             yield break;
         }
 
-        // リザルト画面を非表示にする
         HideResultUI();
 
         if (chartSpawner != null)
@@ -190,7 +204,6 @@ private System.Collections.IEnumerator TransitionToNextSong()
         if (conductor != null && chartSpawner != null && chartSpawner.currentChart != null)
             conductor.bpm = chartSpawner.currentChart.bpm;
 
-        // MusicEndWatcher をリセットして有効化（Song Bからリザルト発動OK）
         var musicEndWatcher = FindObjectOfType<MusicEndWatcher>();
         if (musicEndWatcher != null)
         {
@@ -199,7 +212,6 @@ private System.Collections.IEnumerator TransitionToNextSong()
             Debug.Log("[SongLoopController] MusicEndWatcher enabled for Song B");
         }
 
-        // CookingResultSequence をリセットして有効化
         var cookingResult = FindObjectOfType<CookingResultSequence>();
         if (cookingResult != null)
         {
@@ -212,9 +224,8 @@ private System.Collections.IEnumerator TransitionToNextSong()
         Debug.Log($"[SongLoopController] Transitioned to song {currentSongIndex}");
     }
 
-private void HideResultUI()
+    private void HideResultUI()
     {
-        // ResultCanvas を非表示
         if (resultCanvas != null)
         {
             resultCanvas.SetActive(false);
@@ -228,7 +239,6 @@ private void HideResultUI()
             Debug.Log("[SongLoopController] ResultCanvas hidden for next song");
         }
 
-        // FadeCanvas もクリア
         var cookingResult = FindObjectOfType<CookingResultSequence>();
         if (cookingResult != null && cookingResult.fadeGroup != null)
         {
@@ -237,30 +247,26 @@ private void HideResultUI()
             cookingResult.fadeGroup.interactable = false;
         }
 
-        // QuickRanking も非表示
         var quickRanking = FindObjectOfType<QuickRankingDisplay>();
         if (quickRanking != null)
         {
             quickRanking.gameObject.SetActive(false);
         }
 
-        // ResultCaller もリセット
         if (resultCaller != null)
         {
             resultCaller.ResetForNewSong();
         }
 
-        // SafeArea を再表示
         if (resultCanvas != null)
         {
-            var safeArea = resultCanvas.transform.Find("SafeArea");
-            if (safeArea != null)
+            var sa = resultCanvas.transform.Find("SafeArea");
+            if (sa != null)
             {
-                safeArea.gameObject.SetActive(true);
+                sa.gameObject.SetActive(true);
             }
         }
     }
-
 
     void LoadChart()
     {

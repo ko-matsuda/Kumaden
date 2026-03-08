@@ -5191,7 +5191,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 130, y: -950}
+  m_AnchoredPosition: {x: 129.99998, y: -950}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!222 &58351906
@@ -6496,7 +6496,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 186652058}
-  - component: {fileID: 186652060}
   - component: {fileID: 186652061}
   - component: {fileID: 186652062}
   - component: {fileID: 186652063}
@@ -6524,18 +6523,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &186652060
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 186652057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 990cdae8765516544841b32a4174b43e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &186652061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6600,6 +6587,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Hypercasual::BackgroundDifficultyTinter
   tintDusk: {r: 1, g: 0.75, b: 0.45, a: 1}
   tintNight: {r: 0.65, g: 0.7, b: 0.95, a: 1}
+  skyColorDusk: {r: 1, g: 0.6, b: 0.1, a: 1}
   skyColorNight: {r: 0.08, g: 0.1, b: 0.28, a: 1}
 --- !u!114 &186652065
 MonoBehaviour:
@@ -6615,6 +6603,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Hypercasual::BackgroundDifficultyTinter
   tintDusk: {r: 1, g: 0.75, b: 0.45, a: 1}
   tintNight: {r: 0.45, g: 0.5, b: 0.85, a: 1}
+  skyColorDusk: {r: 1, g: 0.6, b: 0.1, a: 1}
   skyColorNight: {r: 0.05, g: 0.07, b: 0.2, a: 1}
 --- !u!43 &187665240
 Mesh:
@@ -37046,7 +37035,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -130, y: -950}
+  m_AnchoredPosition: {x: -129.99998, y: -950}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!21 &1609286639
@@ -38021,9 +38010,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Hypercasual::SongLoopController
   songs:
   - audioClip: {fileID: 8300000, guid: 82be84c926c7e6540ae3387bf4cb2cfb, type: 3}
-    chartJson: {fileID: 4900000, guid: 56fa01fd2908bd549a7053ef9e23d69f, type: 3}
+    chartJson: {fileID: 4900000, guid: 511d0d79410ab33428bb2477719f36f5, type: 3}
   - audioClip: {fileID: 8300000, guid: 8e18a20714cbfa648baab2a588e766af, type: 3}
-    chartJson: {fileID: 4900000, guid: 604b211bec8c00d4e8e6e281bf9238c0, type: 3}
+    chartJson: {fileID: 4900000, guid: 428156ae79ac3d44eb8f1cea77a8fa6a, type: 3}
+  songsDusk:
+  - audioClip: {fileID: 8300000, guid: 0fb63d72483373042b6c5e43f9280cbb, type: 3}
+    chartJson: {fileID: 4900000, guid: 1f7c46c4311d8af4ca926e08d1017f74, type: 3}
+  - audioClip: {fileID: 8300000, guid: 64e59f47863fbff4eb9063351d60e15a, type: 3}
+    chartJson: {fileID: 4900000, guid: a4a2f817256cd304280320d38f2aea9b, type: 3}
+  songsNight:
+  - audioClip: {fileID: 8300000, guid: 8477a4fa5c6756948ad63335f10fd944, type: 3}
+    chartJson: {fileID: 4900000, guid: f30f002e6cd70704489a630038b60cde, type: 3}
+  - audioClip: {fileID: 8300000, guid: f9bb16758f6581742afae71d6c1b97f0, type: 3}
+    chartJson: {fileID: 4900000, guid: 2d6f9b5aa5ab36d48aeac114843272e7, type: 3}
   chartSpawner: {fileID: 1350261113}
   conductor: {fileID: 538003176}
   resultCanvas: {fileID: 942037559}
