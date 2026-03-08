@@ -1,128 +1,161 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-/// <summary>
-/// 難易度に応じて背景・世界全体の色調を変える
-/// 
-/// 【方法】
-/// 1. ディレクショナルライトの色を変える
-///    → 建物・道路・クマ（Lit）に色が乗る。UIは自己発光なので影響なし。
-/// 2. Sky/Hills/Clouds は Unlit なので MaterialPropertyBlock で個別tint
-///
-/// Easy=昼（現状）, Normal=夕方オレンジ, Hard=夜ブルー
-/// </summary>
 public class BackgroundDifficultyTinter : MonoBehaviour
 {
-    [Header("ライト（自動検索）")]
-    [SerializeField] private Light directionalLight;
-
-    [Header("背景Renderer（自動検索）")]
-    [SerializeField] private Renderer skyRenderer;
-    [SerializeField] private Renderer hillsRenderer;
-    [SerializeField] private Renderer[] cloudRenderers;
-
-    [Header("昼（Easy）")]
-    [SerializeField] private Color lightColorDay  = new Color(1.00f, 0.96f, 0.84f);
-    [SerializeField] private Color skyColorDay    = new Color(1.00f, 1.00f, 1.00f);
-
     [Header("夕方（Normal）")]
-    [SerializeField] private Color lightColorDusk = new Color(1.00f, 0.60f, 0.25f);
-    [SerializeField] private Color skyColorDusk   = new Color(1.00f, 0.50f, 0.15f);
+    [SerializeField] private Color tintDusk  = new Color(1.00f, 0.75f, 0.45f, 1f);
 
     [Header("夜（Hard）")]
-    [SerializeField] private Color lightColorNight = new Color(0.20f, 0.25f, 0.60f);
-    [SerializeField] private Color skyColorNight   = new Color(0.08f, 0.10f, 0.25f);
+    [SerializeField] private Color tintNight = new Color(0.75f, 0.80f, 1.00f, 1f);
 
+    [Header("夕方の空の色")]
+    [SerializeField] private Color skyColorDusk  = new Color(1.00f, 0.60f, 0.10f, 1f);
+
+    [Header("夜空の色")]
+    [SerializeField] private Color skyColorNight = new Color(0.10f, 0.13f, 0.35f, 1f);
+
+    private struct RendererInfo
+    {
+        public Renderer renderer;
+        public Color[] originalColors;
+    }
+
+    private struct WindowInfo
+    {
+        public Renderer renderer;
+        public int slot; // Glass_Windowマテリアルのスロット番号
+    }
+
+    private List<RendererInfo> _worldRenderers = new List<RendererInfo>();
+    private List<WindowInfo>   _windowRenderers = new List<WindowInfo>();
     private MaterialPropertyBlock _block;
-    private Color _originalLightColor;
+    private Difficulty _lastDiff = (Difficulty)(-1);
+
+    private Renderer   _skyRenderer;
+    private GameObject _cloudsObject;
+    private GameObject _nightStarsObject;
 
     private void Start()
     {
         _block = new MaterialPropertyBlock();
-        AutoFind();
-        ApplyCurrentDifficulty();
+        CollectRenderers();
+        ApplyIfChanged();
     }
 
-    private void OnDestroy()
+    private void Update()
     {
-        // Playモード終了時にライト色を元に戻す
-        if (directionalLight != null)
-            directionalLight.color = _originalLightColor;
+        ApplyIfChanged();
     }
 
-    private void AutoFind()
+    private void CollectRenderers()
     {
-        if (directionalLight == null)
-            directionalLight = FindObjectOfType<Light>();
+        _worldRenderers.Clear();
+        _windowRenderers.Clear();
 
-        if (directionalLight != null)
-            _originalLightColor = directionalLight.color;
+        var skyQuad = GameObject.Find("SkyQuad");
+        if (skyQuad != null)
+            _skyRenderer = skyQuad.GetComponent<Renderer>();
 
-        // BackgroundRoot は WorldCam の子なので相対パスで探す
-        var bgRoot = GameObject.Find("BackgroundRoot");
-        Transform bgTransform = bgRoot != null ? bgRoot.transform : null;
-
-        if (bgTransform != null)
+        foreach (var t in Resources.FindObjectsOfTypeAll<Transform>())
         {
-            if (skyRenderer == null)
-            {
-                var t = bgTransform.Find("SkyQuad");
-                if (t) skyRenderer = t.GetComponent<Renderer>();
-            }
-            if (hillsRenderer == null)
-            {
-                var t = bgTransform.Find("Hills_Far");
-                if (t) hillsRenderer = t.GetComponent<Renderer>();
-            }
-            if (cloudRenderers == null || cloudRenderers.Length == 0)
-            {
-                var t = bgTransform.Find("Clouds");
-                if (t) cloudRenderers = t.GetComponentsInChildren<Renderer>();
-            }
+            if (!t.gameObject.scene.isLoaded) continue;
+            if (t.name == "Clouds")      { _cloudsObject = t.gameObject; }
+            if (t.name == "NightStars")  { _nightStarsObject = t.gameObject; }
         }
 
-        Debug.Log($"[BgTinter] light={directionalLight?.name}, sky={skyRenderer?.name}, hills={hillsRenderer?.name}, clouds={cloudRenderers?.Length}");
+        GameObject player = GameObject.Find("Player");
+        Transform playerRoot = player != null ? player.transform : null;
+
+        var all = FindObjectsOfType<Renderer>();
+        foreach (var r in all)
+        {
+            if (r.GetComponentInParent<Canvas>() != null) continue;
+            if (r is ParticleSystemRenderer) continue;
+            if (playerRoot != null && r.transform.IsChildOf(playerRoot)) continue;
+            if (r == _skyRenderer) continue;
+
+            var mats = r.sharedMaterials;
+
+            // Glass_Windowのスロット番号を記録（Renderer全体ではなくそのスロットのみ黄色にする）
+            for (int i = 0; i < mats.Length; i++)
+                if (mats[i] != null && mats[i].name.Contains("Glass_Window"))
+                    _windowRenderers.Add(new WindowInfo { renderer = r, slot = i });
+
+            var colors = new Color[mats.Length];
+            for (int i = 0; i < mats.Length; i++)
+                colors[i] = (mats[i] != null && mats[i].HasProperty("_BaseColor"))
+                    ? mats[i].GetColor("_BaseColor") : Color.white;
+            _worldRenderers.Add(new RendererInfo { renderer = r, originalColors = colors });
+        }
+        Debug.Log($"[BgTinter] sky={_skyRenderer?.name} clouds={_cloudsObject?.name} renderers={_worldRenderers.Count} windows={_windowRenderers.Count}");
     }
 
-    private void ApplyCurrentDifficulty()
+    private void ApplyIfChanged()
     {
         if (DifficultyManager.Instance == null) return;
-
         Difficulty diff = DifficultyManager.Instance.GetCurrentDifficulty();
-        Debug.Log($"[BgTinter] Applying: {diff}");
+        if (diff == _lastDiff) return;
+        _lastDiff = diff;
 
-        Color lightColor, skyColor;
-        switch (diff)
+        bool isNight = diff == Difficulty.Hard;
+        bool isEasy  = diff == Difficulty.Easy;
+
+        Color tint = diff == Difficulty.Normal ? tintDusk
+                   : diff == Difficulty.Hard   ? tintNight
+                   : Color.white;
+
+        // 世界全体にtintを乗算（窓スロットも含むが、後から窓スロットだけ上書きする）
+        foreach (var info in _worldRenderers)
         {
-            case Difficulty.Normal:
-                lightColor = lightColorDusk;  skyColor = skyColorDusk;
-                break;
-            case Difficulty.Hard:
-                lightColor = lightColorNight; skyColor = skyColorNight;
-                break;
-            default: // Easy
-                lightColor = lightColorDay;   skyColor = skyColorDay;
-                break;
+            if (info.renderer == null) continue;
+            if (isEasy)
+            {
+                info.renderer.SetPropertyBlock(null);
+            }
+            else
+            {
+                var mats = info.renderer.sharedMaterials;
+                for (int i = 0; i < mats.Length; i++)
+                {
+                    Color blended = info.originalColors[i] * tint;
+                    blended.a = info.originalColors[i].a;
+                    info.renderer.GetPropertyBlock(_block, i);
+                    _block.SetColor("_BaseColor", blended);
+                    info.renderer.SetPropertyBlock(_block, i);
+                }
+            }
         }
 
-        // ライト色変更（建物・道路・クマに反映）
-        if (directionalLight != null)
-            directionalLight.color = lightColor;
+        // SkyQuad
+        if (_skyRenderer != null)
+        {
+            _block.Clear();
+            Color skyColor = isNight ? skyColorNight
+                         : diff == Difficulty.Normal ? skyColorDusk
+                         : Color.white;
+            _block.SetColor("_BaseColor", skyColor);
+            _skyRenderer.SetPropertyBlock(_block);
+        }
 
-        // Unlit背景の個別tint
-        ApplyColor(skyRenderer, skyColor);
-        ApplyColor(hillsRenderer, skyColor);
-        if (cloudRenderers != null)
-            foreach (var cr in cloudRenderers)
-                ApplyColor(cr, skyColor);
-    }
+        // 雲の表示切り替え
+        if (_cloudsObject != null)     _cloudsObject.SetActive(!isNight);
+        if (_nightStarsObject != null) _nightStarsObject.SetActive(isNight);
 
-    private void ApplyColor(Renderer r, Color color)
-    {
-        if (r == null) return;
-        float originalAlpha = r.sharedMaterial != null ? r.sharedMaterial.color.a : 1f;
-        color.a = originalAlpha;
-        r.GetPropertyBlock(_block);
-        _block.SetColor("_BaseColor", color);
-        r.SetPropertyBlock(_block);
+        // 窓のガラス部分のみ黄色に上書き
+        foreach (var w in _windowRenderers)
+        {
+            if (w.renderer == null) continue;
+            w.renderer.GetPropertyBlock(_block, w.slot);
+            if (isNight)
+                _block.SetColor("_BaseColor", new Color(1.0f, 0.85f, 0.2f, 1f));
+            else if (isEasy)
+                _block.SetColor("_BaseColor", Color.white);
+            else
+                _block.SetColor("_BaseColor", new Color(1.0f, 0.80f, 0.3f, 1f)); // 夕方は薄い黄色
+            w.renderer.SetPropertyBlock(_block, w.slot);
+        }
+
+        Debug.Log($"[BgTinter] Applied diff={diff} isNight={isNight} windows={_windowRenderers.Count}");
     }
 }
