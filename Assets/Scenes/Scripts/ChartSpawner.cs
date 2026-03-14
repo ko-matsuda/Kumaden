@@ -150,12 +150,17 @@ void Update()
 
         float currentBeat = conductor.songPositionBeats;
 
-        // spawnZ = beatDiff * secPerBeat * scrollSpeed
-        //        = (targetTravelSec / secPerBeat) * secPerBeat * (4.0 * speedMult)
-        //        = targetTravelSec * 4.0 * speedMult
-        // travelTime = spawnZ / scrollSpeed = targetTravelSec ✓
-        // speedMultは不要—距離は速度に比例して大きくなるが、到達時間は常に3秒
-        float targetTravelSec = 3.0f;
+        float speedMult = 1.0f;
+        if (useDifficultyManager && DifficultyManager.Instance != null)
+            speedMult = DifficultyManager.Instance.GetCurrentSettings().speedMultiplier;
+
+        // 難易度別に出現時間を調整
+        // Easyはスピードが遅いので物理距離が短くなるため長めに設定
+        float targetTravelSec;
+        if      (speedMult <= 1.0f) targetTravelSec = 5.0f;  // Easy
+        else if (speedMult <= 2.5f) targetTravelSec = 3.5f;  // Normal
+        else                        targetTravelSec = 3.0f;  // Hard
+
         float effectiveSpawnAheadBeats = targetTravelSec / Mathf.Max(0.001f, conductor.secPerBeat);
 
         while (nextNoteIndex < currentChart.notes.Length)
