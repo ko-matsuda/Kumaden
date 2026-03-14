@@ -33,6 +33,9 @@ public class BackgroundDifficultyTinter : MonoBehaviour
     private Difficulty _lastDiff = (Difficulty)(-1);
 
     private Renderer   _skyRenderer;
+    private Material   _skyMatEasy;
+    private Material   _skyMatDusk;
+    private Material   _skyMatNight;
     private GameObject _cloudsObject;
     private GameObject _nightStarsObject;
 
@@ -48,7 +51,7 @@ public class BackgroundDifficultyTinter : MonoBehaviour
         ApplyIfChanged();
     }
 
-    private void CollectRenderers()
+private void CollectRenderers()
     {
         _worldRenderers.Clear();
         _windowRenderers.Clear();
@@ -56,6 +59,16 @@ public class BackgroundDifficultyTinter : MonoBehaviour
         var skyQuad = GameObject.Find("SkyQuad");
         if (skyQuad != null)
             _skyRenderer = skyQuad.GetComponent<Renderer>();
+
+        // 空のマテリアルをロード
+        _skyMatEasy  = _skyRenderer != null ? _skyRenderer.sharedMaterial : null;
+        _skyMatDusk  = Resources.Load<Material>("../Material/Mat_SkyGrad_Dusk");
+        _skyMatNight = Resources.Load<Material>("../Material/Mat_SkyGrad_Night");
+        // Resourcesフォルダ外なのでAssetDatabaseで
+#if UNITY_EDITOR
+        if (_skyMatDusk  == null) _skyMatDusk  = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/Mat_SkyGrad_Dusk.mat");
+        if (_skyMatNight == null) _skyMatNight = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/Mat_SkyGrad_Night.mat");
+#endif
 
         foreach (var t in Resources.FindObjectsOfTypeAll<Transform>())
         {
@@ -77,7 +90,6 @@ public class BackgroundDifficultyTinter : MonoBehaviour
 
             var mats = r.sharedMaterials;
 
-            // Glass_Windowのスロット番号を記録（Renderer全体ではなくそのスロットのみ黄色にする）
             for (int i = 0; i < mats.Length; i++)
                 if (mats[i] != null && mats[i].name.Contains("Glass_Window"))
                     _windowRenderers.Add(new WindowInfo { renderer = r, slot = i });
@@ -88,10 +100,10 @@ public class BackgroundDifficultyTinter : MonoBehaviour
                     ? mats[i].GetColor("_BaseColor") : Color.white;
             _worldRenderers.Add(new RendererInfo { renderer = r, originalColors = colors });
         }
-        Debug.Log($"[BgTinter] sky={_skyRenderer?.name} clouds={_cloudsObject?.name} renderers={_worldRenderers.Count} windows={_windowRenderers.Count}");
+        Debug.Log($"[BgTinter] sky={_skyRenderer?.name} duskMat={_skyMatDusk?.name} renderers={_worldRenderers.Count}");
     }
 
-    private void ApplyIfChanged()
+private void ApplyIfChanged()
     {
         if (DifficultyManager.Instance == null) return;
         Difficulty diff = DifficultyManager.Instance.GetCurrentDifficulty();
@@ -105,7 +117,6 @@ public class BackgroundDifficultyTinter : MonoBehaviour
                    : diff == Difficulty.Hard   ? tintNight
                    : Color.white;
 
-        // 世界全体にtintを乗算（窓スロットも含むが、後から窓スロットだけ上書きする）
         foreach (var info in _worldRenderers)
         {
             if (info.renderer == null) continue;
@@ -127,22 +138,19 @@ public class BackgroundDifficultyTinter : MonoBehaviour
             }
         }
 
-        // SkyQuad
+        // SkyQuad: マテリアルごと差し替え（PropertyBlockではなく実体を切り替え）
         if (_skyRenderer != null)
         {
-            _block.Clear();
-            Color skyColor = isNight ? skyColorNight
-                         : diff == Difficulty.Normal ? skyColorDusk
-                         : Color.white;
-            _block.SetColor("_BaseColor", skyColor);
-            _skyRenderer.SetPropertyBlock(_block);
+            Material skyMat = isNight ? _skyMatNight
+                            : diff == Difficulty.Normal ? _skyMatDusk
+                            : _skyMatEasy;
+            if (skyMat != null)
+                _skyRenderer.sharedMaterial = skyMat;
         }
 
-        // 雲の表示切り替え
         if (_cloudsObject != null)     _cloudsObject.SetActive(!isNight);
         if (_nightStarsObject != null) _nightStarsObject.SetActive(isNight);
 
-        // 窓のガラス部分のみ黄色に上書き
         foreach (var w in _windowRenderers)
         {
             if (w.renderer == null) continue;
@@ -152,10 +160,10 @@ public class BackgroundDifficultyTinter : MonoBehaviour
             else if (isEasy)
                 _block.SetColor("_BaseColor", Color.white);
             else
-                _block.SetColor("_BaseColor", new Color(1.0f, 0.80f, 0.3f, 1f)); // 夕方は薄い黄色
+                _block.SetColor("_BaseColor", new Color(1.0f, 0.80f, 0.3f, 1f));
             w.renderer.SetPropertyBlock(_block, w.slot);
         }
 
-        Debug.Log($"[BgTinter] Applied diff={diff} isNight={isNight} windows={_windowRenderers.Count}");
+        Debug.Log($"[BgTinter] Applied diff={diff}");
     }
 }

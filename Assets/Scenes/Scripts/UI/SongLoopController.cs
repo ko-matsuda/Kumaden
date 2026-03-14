@@ -33,7 +33,7 @@ public class SongLoopController : MonoBehaviour
     private int currentSongIndex = 0;
     private AudioSource musicSource;
 
-    void Awake()
+void Awake()
     {
         Debug.Log("[SongLoopController] Awake called");
 
@@ -53,6 +53,18 @@ public class SongLoopController : MonoBehaviour
                 songs = songsDusk;
             Debug.Log($"[SongLoopController] Difficulty={diff}, using songs[0]={songs[0]?.audioClip?.name}");
         }
+
+#if UNITY_EDITOR
+        // デバッグ: DebugStartSongIndex が指定されていれば Song B から開始
+        int debugSongIndex = PlayerPrefs.GetInt("DebugStartSongIndex", 0);
+        if (debugSongIndex > 0)
+        {
+            PlayerPrefs.DeleteKey("DebugStartSongIndex");
+            PlayerPrefs.Save();
+            currentSongIndex = Mathf.Clamp(debugSongIndex, 0, songs.Length - 1);
+            Debug.Log($"[SongLoopController] DebugPlay: Song index {currentSongIndex} からスタート");
+        }
+#endif
 
         // ResultCanvas を一度だけ取得（非アクティブOK）
         if (resultCanvas == null)
@@ -91,18 +103,32 @@ public class SongLoopController : MonoBehaviour
             }
         }
 
-        // ★★★ Song A中はMusicEndWatcherとCookingResultSequenceを無効化 ★★★
         var mew = FindObjectOfType<MusicEndWatcher>();
-        if (mew != null)
-        {
-            mew.enabled = false;
-            Debug.Log("[SongLoopController] MusicEndWatcher disabled during Song A");
-        }
         var crs = FindObjectOfType<CookingResultSequence>();
-        if (crs != null)
+
+        if (currentSongIndex == 0)
         {
-            crs.enabled = false;
-            Debug.Log("[SongLoopController] CookingResultSequence disabled during Song A");
+            // Song A: MusicEndWatcher / CookingResultSequence を無効化
+            if (mew != null) { mew.enabled = false; Debug.Log("[SongLoopController] MusicEndWatcher disabled during Song A"); }
+            if (crs != null) { crs.enabled = false; Debug.Log("[SongLoopController] CookingResultSequence disabled during Song A"); }
+        }
+        else
+        {
+            // Song B から開始: MusicEndWatcher / CookingResultSequence を有効化
+            if (mew != null)
+            {
+                mew.ResetForNewSong();
+                if (songs[currentSongIndex].audioClip != null)
+                    mew.verse1EndSec = songs[currentSongIndex].audioClip.length - 0.3f;
+                mew.enabled = true;
+                Debug.Log($"[SongLoopController] DebugPlay: MusicEndWatcher enabled, verse1EndSec={mew.verse1EndSec}");
+            }
+            if (crs != null)
+            {
+                crs.ResetForNewSong();
+                crs.enabled = true;
+                Debug.Log("[SongLoopController] DebugPlay: CookingResultSequence enabled");
+            }
         }
 
         // 初期曲セット
@@ -173,7 +199,7 @@ public class SongLoopController : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator TransitionToNextSong()
+private System.Collections.IEnumerator TransitionToNextSong()
     {
         isTransitioning = true;
 
@@ -186,19 +212,23 @@ public class SongLoopController : MonoBehaviour
 
         HideResultUI();
 
-        if (chartSpawner != null)
-            chartSpawner.ResetForNewSong();
+        // ★ここで ResetForNewSong() を呼ばない
+        // 画面上を移動中の Song A のノーツをすぐ消してしまうのを防ぐ
+        // LoadChart() 内の ResetForNewSong() がまとめて処理する
 
         currentSongIndex = nextIndex;
-        musicSource.clip = songs[currentSongIndex].audioClip;
 
+        // ResetTiming() は clip を Song B に切り替える前に呼ぶ
+        // (Song A の clip.length で _dspSongStartTime を進めるため)
         if (conductor != null)
             conductor.ResetTiming();
 
+        musicSource.clip = songs[currentSongIndex].audioClip;
         musicSource.Play();
 
         yield return null;
 
+        // ここで初めてノーツをリセット＆新チャートロード
         LoadChart();
 
         if (conductor != null && chartSpawner != null && chartSpawner.currentChart != null)
@@ -208,8 +238,10 @@ public class SongLoopController : MonoBehaviour
         if (musicEndWatcher != null)
         {
             musicEndWatcher.ResetForNewSong();
+            if (musicSource.clip != null)
+                musicEndWatcher.verse1EndSec = musicSource.clip.length - 0.3f;
             musicEndWatcher.enabled = true;
-            Debug.Log("[SongLoopController] MusicEndWatcher enabled for Song B");
+            Debug.Log($"[SongLoopController] MusicEndWatcher enabled, verse1EndSec={musicEndWatcher.verse1EndSec}");
         }
 
         var cookingResult = FindObjectOfType<CookingResultSequence>();
@@ -221,7 +253,7 @@ public class SongLoopController : MonoBehaviour
         }
 
         isTransitioning = false;
-        Debug.Log($"[SongLoopController] Transitioned to song {currentSongIndex}");
+        Debug.Log($"[SongLoopController] Transitioned to song {currentSongIndex}: {musicSource.clip.name}");
     }
 
     private void HideResultUI()

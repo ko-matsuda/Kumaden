@@ -55,6 +55,13 @@ public class ChartSpawner : MonoBehaviour
     
 void Start()
     {
+        // SongLoopController.Awake() から既にLoadChartFromJson済みの場合は上書きしない
+        if (currentChart != null)
+        {
+            Debug.Log("[ChartSpawner] Chart already loaded by SongLoopController, skipping Start()");
+            return;
+        }
+
         TextAsset chartToLoad = null;
         
         if (useDifficultyManager && DifficultyManager.Instance != null)
@@ -75,37 +82,26 @@ void Start()
                     break;
             }
             
-            // chartJsonからベース名を取得
-            string baseChartName = "kuma_odyssey_chart_kumaden"; // デフォルト
+            string baseChartName = "kuma_odyssey_chart_kumaden";
             
             if (chartJson != null)
             {
-                // chartJsonの名前を使う（_easy, _hard を除去）
                 baseChartName = chartJson.name;
                 if (baseChartName.EndsWith("_easy"))
-                {
                     baseChartName = baseChartName.Substring(0, baseChartName.Length - 5);
-                }
                 else if (baseChartName.EndsWith("_hard"))
-                {
                     baseChartName = baseChartName.Substring(0, baseChartName.Length - 5);
-                }
                 
                 Debug.Log($"[ChartSpawner] Base chart name: {baseChartName}");
             }
             
             string chartPath = "Charts/" + baseChartName + difficultySuffix;
-            
             chartToLoad = Resources.Load<TextAsset>(chartPath);
             
             if (chartToLoad != null)
-            {
                 Debug.Log($"[ChartSpawner] ✅ Loading difficulty chart: {chartPath} (Difficulty: {currentDiff})");
-            }
             else
-            {
                 Debug.LogWarning($"[ChartSpawner] ⚠️ Difficulty chart not found: {chartPath}, falling back to default");
-            }
         }
         
         if (chartToLoad == null && chartJson != null)
@@ -118,21 +114,14 @@ void Start()
         {
             Debug.LogWarning("[ChartSpawner] chartJson is null! Attempting to load default chart...");
             TextAsset defaultChart = Resources.Load<TextAsset>("Charts/kuma_odyssey_chart_kumaden");
-            
             if (defaultChart != null)
-            {
                 chartToLoad = defaultChart;
-            }
         }
         
         if (chartToLoad != null)
-        {
             LoadChartFromJson(chartToLoad.text);
-        }
         else
-        {
             Debug.LogError("[ChartSpawner] No chart available! Please assign chartJson in Inspector.");
-        }
     }
 
 public void ResetForNewSong()
@@ -156,31 +145,26 @@ public void ResetForNewSong()
     
 void Update()
     {
-        if (currentChart == null || conductor == null) 
-        {
+        if (currentChart == null || conductor == null)
             return;
-        }
-        
+
         float currentBeat = conductor.songPositionBeats;
-        
-        if (Time.frameCount % 120 == 0 && nextNoteIndex < currentChart.notes.Length)
-        {
-            var nextNote = currentChart.notes[nextNoteIndex];
-            float threshold = currentBeat + spawnAheadBeats;
-        }
-        
+
+        // spawnZ = beatDiff * secPerBeat * scrollSpeed
+        //        = (targetTravelSec / secPerBeat) * secPerBeat * (4.0 * speedMult)
+        //        = targetTravelSec * 4.0 * speedMult
+        // travelTime = spawnZ / scrollSpeed = targetTravelSec ✓
+        // speedMultは不要—距離は速度に比例して大きくなるが、到達時間は常に3秒
+        float targetTravelSec = 3.0f;
+        float effectiveSpawnAheadBeats = targetTravelSec / Mathf.Max(0.001f, conductor.secPerBeat);
+
         while (nextNoteIndex < currentChart.notes.Length)
         {
             var noteData = currentChart.notes[nextNoteIndex];
-            
-            if (noteData.beat <= currentBeat + spawnAheadBeats)
+            if (noteData.beat <= currentBeat + effectiveSpawnAheadBeats)
             {
-                bool shouldSpawn = ShouldSpawnNote(nextNoteIndex);
-                
-                if (shouldSpawn)
-                {
+                if (ShouldSpawnNote(nextNoteIndex))
                     SpawnNote(noteData);
-                }
                 nextNoteIndex++;
             }
             else
