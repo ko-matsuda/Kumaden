@@ -154,12 +154,9 @@ void Update()
         if (useDifficultyManager && DifficultyManager.Instance != null)
             speedMult = DifficultyManager.Instance.GetCurrentSettings().speedMultiplier;
 
-        // 難易度別に出現時間を調整
-        // Easyはスピードが遅いので物理距離が短くなるため長めに設定
         float targetTravelSec;
-        if      (speedMult <= 1.0f) targetTravelSec = 5.0f;  // Easy
-        else if (speedMult <= 2.5f) targetTravelSec = 3.5f;  // Normal
-        else                        targetTravelSec = 3.0f;  // Hard
+        if (speedMult >= 2.5f) targetTravelSec = 3.0f;  // Hard
+        else                   targetTravelSec = 3.5f;  // Easy / Normal
 
         float effectiveSpawnAheadBeats = targetTravelSec / Mathf.Max(0.001f, conductor.secPerBeat);
 

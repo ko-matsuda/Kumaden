@@ -42,7 +42,7 @@ public class DifficultyManager : MonoBehaviour
     {
         perfectWindow = 0.375f,
         goodWindow = 0.75f,
-        speedMultiplier = 1.2f,
+        speedMultiplier = 2.0f,
         noteDensity = 1.0f,
         displayName = "Easy"
     };
@@ -73,6 +73,9 @@ private void Awake()
             return;
         }
         Instance = this;
+        // Easy の速度を確実に 2.0 に固定
+        easySettings.speedMultiplier = 2.0f;
+
         DontDestroyOnLoad(gameObject);
 
 #if UNITY_EDITOR
@@ -229,7 +232,10 @@ private void Awake()
     }
     
     // Inspector でテスト用
-    [ContextMenu("Set Easy")]
+    [ContextMenu("Fix Easy Speed 2.0")]
+    private void FixEasySpeed() { easySettings.speedMultiplier = 2.0f; Debug.Log("[DifficultyManager] easySettings.speedMultiplier set to 2.0"); }
+    
+[ContextMenu("Set Easy")]
     private void SetEasy() => SetDifficulty(Difficulty.Easy);
     
     [ContextMenu("Set Normal")]
