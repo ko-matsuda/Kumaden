@@ -84,7 +84,7 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 15.800000190734864,
+            "beat": 16.0,
             "lane": 1,
             "type": "",
             "linkedHold": false,
@@ -92,7 +92,7 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 17.100000381469728,
+            "beat": 17.0,
             "lane": 2,
             "type": "",
             "linkedHold": false,
@@ -233,7 +233,7 @@
             "type": "",
             "linkedHold": true,
             "duration": 0.0,
-            "holdDuration": 1.2999999523162842
+            "holdDuration": 1.3
         },
         {
             "beat": 38.5,

@@ -108,7 +108,7 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 21.799999237060548,
+            "beat": 22.0,
             "lane": 1,
             "type": "",
             "linkedHold": false,
@@ -116,7 +116,7 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 23.100000381469728,
+            "beat": 23.0,
             "lane": 0,
             "type": "",
             "linkedHold": false,
@@ -257,7 +257,7 @@
             "type": "",
             "linkedHold": true,
             "duration": 0.0,
-            "holdDuration": 1.2999999523162842
+            "holdDuration": 1.3
         },
         {
             "beat": 44.5,
@@ -340,7 +340,7 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 55.29999923706055,
+            "beat": 55.5,
             "lane": 0,
             "type": "",
             "linkedHold": false,
@@ -348,7 +348,7 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 56.599998474121097,
+            "beat": 56.5,
             "lane": 1,
             "type": "",
             "linkedHold": false,
@@ -817,7 +817,7 @@
             "type": "",
             "linkedHold": true,
             "duration": 0.0,
-            "holdDuration": 1.2999999523162842
+            "holdDuration": 1.3
         },
         {
             "beat": 139.5,
@@ -900,7 +900,7 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 150.3000030517578,
+            "beat": 150.5,
             "lane": 1,
             "type": "",
             "linkedHold": false,
@@ -908,7 +908,7 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 151.60000610351563,
+            "beat": 151.5,
             "lane": 2,
             "type": "",
             "linkedHold": false,

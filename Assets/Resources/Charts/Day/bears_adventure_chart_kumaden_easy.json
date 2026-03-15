@@ -12,23 +12,7 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 6.0,
-            "lane": 2,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
             "beat": 8.0,
-            "lane": 0,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
-            "beat": 10.0,
             "lane": 2,
             "type": "",
             "linkedHold": false,
@@ -44,24 +28,8 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 14.0,
-            "lane": 2,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
             "beat": 16.0,
             "lane": 0,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
-            "beat": 18.0,
-            "lane": 1,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -76,24 +44,8 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 22.0,
-            "lane": 0,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
             "beat": 24.0,
             "lane": 1,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
-            "beat": 26.0,
-            "lane": 2,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -181,7 +133,7 @@
         },
         {
             "beat": 48.0,
-            "lane": 0,
+            "lane": 1,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -197,7 +149,7 @@
         },
         {
             "beat": 52.0,
-            "lane": 1,
+            "lane": 0,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -205,7 +157,7 @@
         },
         {
             "beat": 54.0,
-            "lane": 0,
+            "lane": 1,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -221,7 +173,7 @@
         },
         {
             "beat": 58.0,
-            "lane": 1,
+            "lane": 0,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -229,14 +181,6 @@
         },
         {
             "beat": 60.0,
-            "lane": 0,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
-            "beat": 62.0,
             "lane": 2,
             "type": "",
             "linkedHold": false,
@@ -244,7 +188,7 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 64.0,
+            "beat": 62.0,
             "lane": 1,
             "type": "",
             "linkedHold": false,
@@ -252,8 +196,16 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 66.0,
+            "beat": 64.0,
             "lane": 0,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 66.0,
+            "lane": 2,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -264,7 +216,23 @@
             "lane": 1,
             "type": "",
             "linkedHold": false,
-            "duration": 4.0,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 70.0,
+            "lane": 0,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 72.0,
+            "lane": 0,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
             "holdDuration": 0.0
         },
         {
@@ -276,8 +244,16 @@
             "holdDuration": 0.0
         },
         {
+            "beat": 74.0,
+            "lane": 1,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
             "beat": 75.0,
-            "lane": 2,
+            "lane": 0,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -285,34 +261,74 @@
         },
         {
             "beat": 76.0,
-            "lane": 0,
+            "lane": 1,
             "type": "",
             "linkedHold": false,
-            "duration": 5.0,
+            "duration": 3.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 80.0,
+            "lane": 2,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
             "holdDuration": 0.0
         },
         {
             "beat": 82.0,
-            "lane": 2,
+            "lane": 0,
             "type": "",
             "linkedHold": false,
-            "duration": 5.0,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 84.0,
+            "lane": 1,
+            "type": "",
+            "linkedHold": false,
+            "duration": 3.0,
             "holdDuration": 0.0
         },
         {
             "beat": 88.0,
-            "lane": 1,
-            "type": "",
-            "linkedHold": false,
-            "duration": 5.0,
-            "holdDuration": 0.0
-        },
-        {
-            "beat": 94.0,
             "lane": 0,
             "type": "",
             "linkedHold": false,
-            "duration": 5.0,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 90.0,
+            "lane": 2,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 92.0,
+            "lane": 0,
+            "type": "",
+            "linkedHold": false,
+            "duration": 4.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 97.0,
+            "lane": 1,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 99.0,
+            "lane": 2,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
             "holdDuration": 0.0
         },
         {
@@ -320,19 +336,35 @@
             "lane": 2,
             "type": "",
             "linkedHold": false,
-            "duration": 5.0,
+            "duration": 4.0,
             "holdDuration": 0.0
         },
         {
-            "beat": 106.0,
+            "beat": 105.0,
+            "lane": 0,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 107.0,
             "lane": 1,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 108.0,
+            "lane": 2,
             "type": "",
             "linkedHold": false,
             "duration": 5.0,
             "holdDuration": 0.0
         },
         {
-            "beat": 112.0,
+            "beat": 114.0,
             "lane": 0,
             "type": "",
             "linkedHold": false,
@@ -340,24 +372,32 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 118.0,
-            "lane": 2,
+            "beat": 120.0,
+            "lane": 1,
             "type": "",
             "linkedHold": false,
-            "duration": 5.0,
+            "duration": 3.0,
             "holdDuration": 0.0
         },
         {
             "beat": 124.0,
-            "lane": 1,
+            "lane": 2,
             "type": "",
             "linkedHold": false,
-            "duration": 4.0,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 126.0,
+            "lane": 0,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
             "holdDuration": 0.0
         },
         {
             "beat": 128.0,
-            "lane": 2,
+            "lane": 1,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -365,22 +405,6 @@
         },
         {
             "beat": 130.0,
-            "lane": 0,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
-            "beat": 132.0,
-            "lane": 1,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
-            "beat": 134.0,
             "lane": 2,
             "type": "",
             "linkedHold": false,
@@ -388,8 +412,24 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 136.0,
+            "beat": 132.0,
             "lane": 0,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 134.0,
+            "lane": 1,
+            "type": "",
+            "linkedHold": false,
+            "duration": 0.0,
+            "holdDuration": 0.0
+        },
+        {
+            "beat": 136.0,
+            "lane": 2,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -405,7 +445,7 @@
         },
         {
             "beat": 140.0,
-            "lane": 2,
+            "lane": 0,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -413,7 +453,7 @@
         },
         {
             "beat": 142.0,
-            "lane": 0,
+            "lane": 2,
             "type": "",
             "linkedHold": false,
             "duration": 0.0,
@@ -429,14 +469,6 @@
         },
         {
             "beat": 146.0,
-            "lane": 2,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
-            "beat": 148.0,
             "lane": 0,
             "type": "",
             "linkedHold": false,
@@ -444,7 +476,7 @@
             "holdDuration": 0.0
         },
         {
-            "beat": 150.0,
+            "beat": 148.0,
             "lane": 1,
             "type": "",
             "linkedHold": false,
@@ -453,14 +485,6 @@
         },
         {
             "beat": 152.0,
-            "lane": 2,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
-            "beat": 154.0,
             "lane": 0,
             "type": "",
             "linkedHold": false,
@@ -469,14 +493,6 @@
         },
         {
             "beat": 156.0,
-            "lane": 1,
-            "type": "",
-            "linkedHold": false,
-            "duration": 0.0,
-            "holdDuration": 0.0
-        },
-        {
-            "beat": 158.0,
             "lane": 2,
             "type": "",
             "linkedHold": false,
