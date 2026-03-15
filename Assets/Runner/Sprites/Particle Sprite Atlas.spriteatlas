@@ -50,5 +50,5 @@ SpriteAtlas:
   - ball
   - ring
   m_RenderDataMap: {}
-  m_Tag: Sprite Atlas
+  m_Tag: Particle Sprite Atlas
   m_IsVariant: 0
