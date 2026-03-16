@@ -91,11 +91,10 @@ private void Awake()
         }
 #endif
 
-        // 初回起動時のみ Round 1 から開始
-        if (currentRound == 0)
-        {
-            SetRound(1);
-        }
+        // PlayerPrefsから進捗を復元（タスクキル対応）
+        int savedRound = PlayerPrefs.GetInt(ROUND_PREF_KEY, 1);
+        SetRound(savedRound);
+        Debug.Log($"[DifficultyManager] Restored round={savedRound} from PlayerPrefs");
 
         Debug.Log($"[DifficultyManager] Initialized - Round {currentRound}, Difficulty: {currentDifficulty}");
     }
@@ -133,9 +132,14 @@ private void Awake()
     /// ラウンド番号に応じて難易度を設定
     /// Round 1 = Easy, Round 2 = Normal, Round 3 = Hard
     /// </summary>
+    private const string ROUND_PREF_KEY = "CurrentRound";
+
     public void SetRound(int round)
     {
         currentRound = Mathf.Clamp(round, 1, MAX_ROUNDS);
+        // タスクキル後も進捗を保持
+        PlayerPrefs.SetInt(ROUND_PREF_KEY, currentRound);
+        PlayerPrefs.Save();
         
         Difficulty newDifficulty;
         switch (currentRound)

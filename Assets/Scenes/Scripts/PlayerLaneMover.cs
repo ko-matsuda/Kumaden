@@ -1,34 +1,37 @@
-// PlayerLaneMover.cs  © ’u‚«Š·‚¦
+// PlayerLaneMover.cs  ï¿½ï¿½ ï¿½uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 using UnityEngine;
 using UnityEngine.EventSystems;
 #if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem; // VInput System
+using UnityEngine.InputSystem; // ï¿½VInput System
 #endif
 
 public class PlayerLaneMover : MonoBehaviour
 {
-    [Header("ƒŒ[ƒ“XÀ•Wi¶¨‰E‚Ì‡j")]
+    [Header("ï¿½ï¿½ï¿½[ï¿½ï¿½Xï¿½ï¿½ï¿½Wï¿½iï¿½ï¿½ï¿½ï¿½ï¿½Eï¿½Ìï¿½ï¿½j")]
     public float[] laneX = new float[] { -2.5f, 0f, 2.5f };
 
-    [Header("ŠJnƒŒ[ƒ“i0=¶, 1=’†, 2=‰Ej")]
+    [Header("ï¿½Jï¿½nï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½i0=ï¿½ï¿½, 1=ï¿½ï¿½, 2=ï¿½Eï¿½j")]
     public int currentLane = 1;
 
-    [Header("ˆÚ“®ƒXƒs[ƒh")]
+    [Header("ï¿½Ú“ï¿½ï¿½Xï¿½sï¿½[ï¿½h")]
     public float moveSpeed = 12f;
 
-    [Header("“ü—Íİ’è")]
-    [Tooltip("ON=‰æ–Ê‚ğƒNƒŠƒbƒN/ƒ^ƒbƒv‚µ‚½êŠ‚ÉÅ‚à‹ß‚¢ƒŒ[ƒ“‚ÖƒXƒiƒbƒv\nOFF=‰æ–Ê‚Ì¶”¼•ªƒNƒŠƒbƒN‚Å¶/‰E”¼•ªƒNƒŠƒbƒN‚Å‰E‚Ö1’iƒVƒtƒg")]
+    [Header("ï¿½ï¿½ï¿½Íİ’ï¿½")]
+    [Tooltip("ON=ï¿½ï¿½Ê‚ï¿½Nï¿½ï¿½ï¿½bï¿½N/ï¿½^ï¿½bï¿½vï¿½ï¿½ï¿½ï¿½ï¿½êŠï¿½ÉÅ‚ï¿½ß‚ï¿½ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ÖƒXï¿½iï¿½bï¿½v\nOFF=ï¿½ï¿½Ê‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½bï¿½Nï¿½Åï¿½/ï¿½Eï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½bï¿½Nï¿½Å‰Eï¿½ï¿½1ï¿½iï¿½Vï¿½tï¿½g")]
     public bool clickSnapToNearestLane = true;
 
-    [Tooltip("–¾¦“I‚Éw’è‚µ‚È‚¯‚ê‚Î Camera.main ‚ğg—p")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½Éwï¿½è‚µï¿½È‚ï¿½ï¿½ï¿½ï¿½ Camera.main ï¿½ï¿½gï¿½p")]
     public Camera cam;
 
     Rigidbody rb;
+    // ã‚¿ãƒƒãƒè¿½è·¡ï¼ˆãƒ•ãƒ¬ãƒ¼ãƒ è½ã¡å¯¾ç­–ï¼‰
+    private System.Collections.Generic.HashSet<int> _processedFingerIds = new System.Collections.Generic.HashSet<int>();
+
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        // ŠJnƒŒ[ƒ“‚ÖƒXƒiƒbƒv
+        // ï¿½Jï¿½nï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ÖƒXï¿½iï¿½bï¿½v
         if (laneX != null && laneX.Length > 0)
         {
             currentLane = Mathf.Clamp(currentLane, 0, laneX.Length - 1);
@@ -40,7 +43,7 @@ public class PlayerLaneMover : MonoBehaviour
 
     void Update()
     {
-        // --- ƒL[/ƒpƒbƒh‚Å‚à“®‚­i‚¨D‚İ‚Åj ---
+        // --- ï¿½Lï¿½[/ï¿½pï¿½bï¿½hï¿½Å‚ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½Dï¿½İ‚Åj ---
 #if ENABLE_INPUT_SYSTEM
         var kb = Keyboard.current;
         if (kb != null)
@@ -59,10 +62,10 @@ public class PlayerLaneMover : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D)) Shift(+1);
 #endif
 
-        // --- ƒNƒŠƒbƒN/ƒ^ƒbƒv ---
+        // --- ï¿½Nï¿½ï¿½ï¿½bï¿½N/ï¿½^ï¿½bï¿½v ---
         if (TryGetPointerDown(out Vector2 screenPos))
         {
-            // UI‚Ìã‚Í–³‹
+            // UIï¿½Ìï¿½Í–ï¿½ï¿½ï¿½
             if (!PointerIsOverUI())
             {
                 if (clickSnapToNearestLane) SnapToNearestLane(screenPos);
@@ -70,17 +73,17 @@ public class PlayerLaneMover : MonoBehaviour
             }
         }
 
-        // --- –Ú•WX‚Ö•âŠÔ ---
+        // --- ï¿½Ú•WXï¿½Ö•ï¿½ï¿½ ---
         float targetX = laneX[Mathf.Clamp(currentLane, 0, laneX.Length - 1)];
         Vector3 pos = transform.position;
-        float newX = targetX;  // ˆê”­‚Å–Ú•WƒŒ[ƒ“‚Ö
+        float newX = targetX;  // ï¿½ê”­ï¿½Å–Ú•Wï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½
         Vector3 newPos = new Vector3(newX, pos.y, pos.z);
 
         if (rb && rb.isKinematic) rb.MovePosition(newPos);
         else                      transform.position = newPos;
     }
 
-    void Shift(int dir) // -1=¶ / +1=‰E
+    void Shift(int dir) // -1=ï¿½ï¿½ / +1=ï¿½E
     {
         currentLane = Mathf.Clamp(currentLane + dir, 0, laneX.Length - 1);
     }
@@ -97,7 +100,7 @@ public class PlayerLaneMover : MonoBehaviour
         var c = cam ? cam : Camera.main;
         if (c == null) { HalfScreenShift(screenPos); return; }
 
-        // ƒvƒŒƒCƒ„[‚ÌZˆÊ’u‚Ì•½–Ê‚ÉƒXƒNƒŠ[ƒ“À•W‚ğ“Š‰e‚µ‚ÄX‚ğ“¾‚é
+        // ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½Zï¿½Ê’uï¿½Ì•ï¿½ï¿½Ê‚ÉƒXï¿½Nï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½ğ“Š‰eï¿½ï¿½ï¿½ï¿½Xï¿½ğ“¾‚ï¿½
         var plane = new Plane(Vector3.forward, new Vector3(0f, 0f, transform.position.z));
 #if ENABLE_INPUT_SYSTEM
         Vector3 wp;
@@ -113,7 +116,7 @@ public class PlayerLaneMover : MonoBehaviour
 #endif
         float clickX = wp.x;
 
-        // Å‚à‹ß‚¢ƒŒ[ƒ“‚ğ‘I‚Ô
+        // ï¿½Å‚ï¿½ß‚ï¿½ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½
         int best = 0;
         float bestDist = float.PositiveInfinity;
         for (int i = 0; i < laneX.Length; i++)
@@ -124,9 +127,8 @@ public class PlayerLaneMover : MonoBehaviour
         currentLane = best;
     }
 
-    bool TryGetPointerDown(out Vector2 screenPos)
+bool TryGetPointerDown(out Vector2 screenPos)
     {
-        // VInput System
 #if ENABLE_INPUT_SYSTEM
         var mouse = Mouse.current;
         if (mouse != null && mouse.leftButton.wasPressedThisFrame)
@@ -135,46 +137,60 @@ public class PlayerLaneMover : MonoBehaviour
             return true;
         }
         var ts = Touchscreen.current;
-        if (ts != null && ts.primaryTouch.press.wasPressedThisFrame)
+        if (ts != null)
         {
-            screenPos = ts.primaryTouch.position.ReadValue();
-            return true;
+            foreach (var touch in ts.touches)
+            {
+                int fid = touch.touchId.ReadValue();
+                // ãƒ•ã‚§ãƒ¼ã‚ºã‚’å•ã‚ãšã€Œã¾ã å‡¦ç†ã—ã¦ã„ãªã„æŒ‡ã€ã‚’æ•æ‰
+                if (!_processedFingerIds.Contains(fid))
+                {
+                    _processedFingerIds.Add(fid);
+                    screenPos = touch.position.ReadValue();
+                    return true;
+                }
+                // æŒ‡ãŒé›¢ã‚ŒãŸã‚‰è¿½è·¡è§£é™¤
+                if (!touch.press.isPressed)
+                    _processedFingerIds.Remove(fid);
+            }
         }
         screenPos = default;
         return false;
 #else
-        // ‹ŒInput System
         if (Input.GetMouseButtonDown(0))
         {
             screenPos = Input.mousePosition;
             return true;
         }
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        // å…¨ãƒ•ã‚§ãƒ¼ã‚ºå¯¾å¿œï¼šã¾ã å‡¦ç†ã—ã¦ã„ãªã„æŒ‡ã¯ãƒ•ã‚§ãƒ¼ã‚ºä¸å•ã§å¿…ãšæ•æ‰
+        for (int i = 0; i < Input.touchCount; i++)
         {
-            screenPos = Input.GetTouch(0).position;
-            return true;
+            var t = Input.GetTouch(i);
+            if (!_processedFingerIds.Contains(t.fingerId))
+            {
+                // Began/Moved/Stationary/Endedå…¨ã¦å¯¾å¿œ
+                // é‡ã„ãƒ•ãƒ¬ãƒ¼ãƒ ã§BeganãŒæ¶ˆãˆã¦Endedã«ãªã£ã¦ã„ã¦ã‚‚æ•æ‰ã§ãã‚‹
+                _processedFingerIds.Add(t.fingerId);
+                screenPos = t.position;
+                return true;
+            }
+            // æŒ‡ãŒé›¢ã‚ŒãŸã‚‰è¿½è·¡è§£é™¤
+            if (t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled)
+                _processedFingerIds.Remove(t.fingerId);
         }
         screenPos = default;
         return false;
 #endif
     }
 
-    bool PointerIsOverUI()
+bool PointerIsOverUI()
     {
         if (EventSystem.current == null) return false;
-#if ENABLE_INPUT_SYSTEM
-        // ƒ^ƒbƒ`‚ª‚ ‚é‚Æ‚«‚Í‚»‚ÌfingerId‚Å”»’è
-        var ts = Touchscreen.current;
-        if (ts != null && ts.primaryTouch.press.isPressed)
-        {
-            // Input System‚Å‚Í fingerId ‚ªæ‚ê‚È‚¢‚½‚ßŠÈˆÕ”»’è‚Ì‚İ
-            return EventSystem.current.IsPointerOverGameObject();
-        }
-        return EventSystem.current.IsPointerOverGameObject();
-#else
-        if (Input.touchCount > 0)
-            return EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
-        return EventSystem.current.IsPointerOverGameObject();
-#endif
+
+        // ãƒ¬ã‚¤ã‚­ãƒ£ã‚¹ãƒˆã§UIã‚’ãƒã‚§ãƒƒã‚¯ã™ã‚‹ãŒã€
+        // ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®CanvasRendererãŒãƒ–ãƒ­ãƒƒã‚¯ã—ã¦ã„ã‚‹å ´åˆã¯ç„¡è¦–ã™ã‚‹
+        // ã‚·ãƒ³ãƒ—ãƒ«ã«: IsPointerOverGameObjectã‚’ä½¿ã‚ãšã€å¸¸ã«falseè¿”ã™
+        // ï¼ˆUIãƒœã‚¿ãƒ³è‡ªä½“ã¯Buttonã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®ã‚¯ãƒªãƒƒã‚¯ã§å¦é€”å‡¦ç†ã•ã‚Œã‚‹ï¼‰
+        return false;
     }
 }

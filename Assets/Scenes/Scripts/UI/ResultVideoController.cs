@@ -149,6 +149,20 @@ resultHUD.ShowResult();
         }
     }
     
+private string CalcRankFromScore()
+    {
+        var score = ScoreManagerLite.Instance;
+        if (score == null) return "C";
+        int total = score.PerfectCount + score.GoodCount + score.MissCount;
+        if (total == 0) return "C";
+        float r = (float)score.PerfectCount / total;
+        if (r >= 0.95f && score.MissCount == 0) return "S";
+        if (r >= 0.85f) return "A";
+        if (r >= 0.70f) return "B";
+        return "C";
+    }
+
+    
 void ShowRanking()
     {
         if (!quickRanking)
@@ -212,6 +226,17 @@ void ShowRanking()
             }
         }
         
+        // ResultCaller.TriggerResult()でセット済みのcurrentRankをそのまま使用（上書きしない）
+        // rankフィールドが未設定の場合のみフォールバック
+        if (string.IsNullOrEmpty(quickRanking.currentRank) || quickRanking.currentRank == "")
+        {
+            quickRanking.currentRank = rank;
+            Debug.Log($"[ResultVideoController] currentRank fallback={rank}");
+        }
+        else
+        {
+            Debug.Log($"[ResultVideoController] currentRank already set={quickRanking.currentRank}, not overwriting");
+        }
         quickRanking.ShowRanking(myRank, myScore, topPlayer, bottomPlayer, topRank, bottomRank);
         Debug.Log($"[ResultVideoController] QuickRanking.ShowRanking() called - myRank={myRank}, myScore={myScore}");
     }

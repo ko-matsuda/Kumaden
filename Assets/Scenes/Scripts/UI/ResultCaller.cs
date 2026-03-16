@@ -20,6 +20,7 @@ public class ResultCaller : MonoBehaviour
     public float fallbackSeconds = 8f;
 
     bool fired;
+    private string _finalRank = "C";
 
     void Reset()
     {
@@ -36,32 +37,14 @@ public class ResultCaller : MonoBehaviour
 #endif
     }
     
-public void TriggerResult()
+    public void TriggerResult()
     {
-        string rank = "C";
-        var scoreManager = FindObjectOfType<ScoreManagerLite>();
-        if (scoreManager != null)
-        {
-            int perfect = scoreManager.PerfectCount;
-            int good = scoreManager.GoodCount;
-            int miss = scoreManager.MissCount;
-            int total = perfect + good + miss;
-            
-            if (total > 0)
-            {
-                float perfectRate = (float)perfect / total;
-                if (perfectRate >= 0.95f && miss == 0) rank = "S";
-                else if (perfectRate >= 0.85f) rank = "A";
-                else if (perfectRate >= 0.70f) rank = "B";
-                else rank = "C";
-            }
-        }
+        _finalRank = CalculateRank();
+        Debug.Log($"[ResultCaller] TriggerResult: _finalRank={_finalRank}");
 
-        // ResultVideoController にランクをセット
         if (resultVideoController != null)
         {
-            resultVideoController.rank = rank;
-            Debug.Log($"[ResultCaller] rank={rank} を ResultVideoController にセット");
+            resultVideoController.rank = _finalRank;
             Hook();
         }
         else
@@ -78,41 +61,27 @@ public void TriggerResult()
     {
         var score = ScoreManagerLite.Instance;
         if (score == null) return "C";
-        
-        int totalNotes = score.PerfectCount + score.GoodCount + score.MissCount;
-        if (totalNotes == 0) return "C";
-        
-        float perfectRate = (float)score.PerfectCount / totalNotes;
-        
-        if (perfectRate >= 0.95f) return "S";
-        if (perfectRate >= 0.85f) return "A";
-        if (perfectRate >= 0.70f) return "B";
+        int miss = score.MissCount;
+        if (miss == 0) return "S";
+        if (miss <= 1) return "A";
+        if (miss <= 2) return "B";
         return "C";
     }
 
-    void OnDisable()
-    {
-        Unhook();
-    }
+    void OnDisable() { Unhook(); }
 
     void Hook()
     {
         if (videoPlayer != null)
-        {
             videoPlayer.loopPointReached += OnVideoFinished;
-        }
         else
-        {
             Invoke(nameof(FallbackShow), fallbackSeconds);
-        }
     }
 
     void Unhook()
     {
         if (videoPlayer != null)
-        {
             videoPlayer.loopPointReached -= OnVideoFinished;
-        }
         CancelInvoke(nameof(FallbackShow));
     }
 
@@ -133,12 +102,7 @@ public void TriggerResult()
     void ShowResult()
     {
         Time.timeScale = 1f;
-
-        if (resultHUD == null)
-        {
-            resultHUD = FindObjectOfType<ResultHUD>(true);
-        }
-
+        if (resultHUD == null) resultHUD = FindObjectOfType<ResultHUD>(true);
         if (resultHUD != null)
         {
             var canvasGroup = resultHUD.GetComponent<CanvasGroup>();
@@ -148,36 +112,22 @@ public void TriggerResult()
                 canvasGroup.interactable = true;
                 canvasGroup.blocksRaycasts = true;
             }
-            
-            Invoke(nameof(ShowRanking), 5.0f);
+            Invoke(nameof(ShowRanking), 3.0f);
         }
         else
         {
-            Debug.LogError("[ResultCaller] ResultHUD が見つかりません。ResultCanvas に ResultHUD を付けてください。");
+            Debug.LogError("[ResultCaller] ResultHUD が見つかりません。");
         }
     }
     
-void ShowRanking()
+    void ShowRanking()
     {
-        if (!quickRanking)
-        {
-            Debug.LogError("[ResultCaller] quickRanking is null!");
-            return;
-        }
-
+        if (!quickRanking) { Debug.LogError("[ResultCaller] quickRanking is null!"); return; }
         var score = ScoreManagerLite.Instance;
-        if (score == null)
-        {
-            Debug.LogError("[ResultCaller] ScoreManagerLite.Instance is null!");
-            return;
-        }
+        if (score == null) { Debug.LogError("[ResultCaller] ScoreManagerLite.Instance is null!"); return; }
 
-        // ランクを QuickRankingDisplay にセット（ボタンテキスト切り替え用）
-        if (resultVideoController != null)
-        {
-            quickRanking.currentRank = resultVideoController.rank;
-            Debug.Log($"[ResultCaller] quickRanking.currentRank = {resultVideoController.rank}");
-        }
+        quickRanking.currentRank = _finalRank;
+        Debug.Log($"[ResultCaller] quickRanking.currentRank = {_finalRank}");
 
         int thisPlayScore = score.CalculateTotalScore();
         ScoreManagerLite.AddToCumulativeScore(thisPlayScore);
@@ -190,22 +140,16 @@ void ShowRanking()
         else if (cumulativeScore >= 50000) myRank = Random.Range(5, 10);
         else myRank = Random.Range(8, 20);
         
-        string[] playerNames = {
-            "Sakura", "Hiro", "Yuki", "Kaito", "Aoi", "Ren", "Sora", "Mio",
-            "Riku", "Luna", "Kai", "Hana", "Taro", "Yui", "Ken", "Mai"
-        };
+        string[] playerNames = { "Sakura", "Hiro", "Yuki", "Kaito", "Aoi", "Ren", "Sora", "Mio", "Riku", "Luna", "Kai", "Hana", "Taro", "Yui", "Ken", "Mai" };
         
         int topRank = myRank - 1;
-        int topScoreDiff = Random.Range(1000, 5000);
         string topName = playerNames[Random.Range(0, playerNames.Length)];
-        var topPlayer = new RankingEntry(topName, cumulativeScore + topScoreDiff);
+        var topPlayer = new RankingEntry(topName, cumulativeScore + Random.Range(1000, 5000));
         
         int bottomRank = myRank + 1;
-        int bottomScoreDiff = Random.Range(1000, 5000);
         string bottomName = playerNames[Random.Range(0, playerNames.Length)];
-        while (bottomName == topName)
-            bottomName = playerNames[Random.Range(0, playerNames.Length)];
-        var bottomPlayer = new RankingEntry(bottomName, cumulativeScore - bottomScoreDiff);
+        while (bottomName == topName) bottomName = playerNames[Random.Range(0, playerNames.Length)];
+        var bottomPlayer = new RankingEntry(bottomName, cumulativeScore - Random.Range(1000, 5000));
         
         if (resultHUD != null)
         {
@@ -216,17 +160,10 @@ void ShowRanking()
         quickRanking.ShowRanking(myRank, cumulativeScore, topPlayer, bottomPlayer, topRank, bottomRank);
     }
     
-    private void OnRetry()
-    {
-        GameFlags.SkipPrologueOnce = true;
-        Time.timeScale = 1f;
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Main");
-    }
-
-
-public void ResetForNewSong()
+    public void ResetForNewSong()
     {
         fired = false;
+        _finalRank = "C";
         CancelInvoke();
         Unhook();
         Debug.Log("[ResultCaller] Reset for new song");

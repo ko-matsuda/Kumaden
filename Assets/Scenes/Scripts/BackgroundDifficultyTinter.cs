@@ -33,6 +33,11 @@ public class BackgroundDifficultyTinter : MonoBehaviour
     private Difficulty _lastDiff = (Difficulty)(-1);
 
     private Renderer   _skyRenderer;
+    [Header("空マテリアル（Inspectorに直接アサイン）")]
+    [SerializeField] private Material skyMatEasy;
+    [SerializeField] private Material skyMatDusk;
+    [SerializeField] private Material skyMatNight;
+
     private Material   _skyMatEasy;
     private Material   _skyMatDusk;
     private Material   _skyMatNight;
@@ -60,15 +65,10 @@ private void CollectRenderers()
         if (skyQuad != null)
             _skyRenderer = skyQuad.GetComponent<Renderer>();
 
-        // 空のマテリアルをロード
-        _skyMatEasy  = _skyRenderer != null ? _skyRenderer.sharedMaterial : null;
-        _skyMatDusk  = Resources.Load<Material>("../Material/Mat_SkyGrad_Dusk");
-        _skyMatNight = Resources.Load<Material>("../Material/Mat_SkyGrad_Night");
-        // Resourcesフォルダ外なのでAssetDatabaseで
-#if UNITY_EDITOR
-        if (_skyMatDusk  == null) _skyMatDusk  = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/Mat_SkyGrad_Dusk.mat");
-        if (_skyMatNight == null) _skyMatNight = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/Mat_SkyGrad_Night.mat");
-#endif
+        // 空のマテリアル（Inspectorアサイン優先、未設定時はSkyQuadのsharedMaterialをEasyとして使用）
+        _skyMatEasy  = skyMatEasy  != null ? skyMatEasy  : (_skyRenderer != null ? _skyRenderer.sharedMaterial : null);
+        _skyMatDusk  = skyMatDusk;
+        _skyMatNight = skyMatNight;
 
         foreach (var t in Resources.FindObjectsOfTypeAll<Transform>())
         {

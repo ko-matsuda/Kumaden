@@ -6589,6 +6589,9 @@ MonoBehaviour:
   tintNight: {r: 0.45, g: 0.5, b: 0.85, a: 1}
   skyColorDusk: {r: 1, g: 0.6148958, b: 0.10196078, a: 1}
   skyColorNight: {r: 0.09235309, g: 0.13432251, b: 0.4113207, a: 1}
+  skyMatEasy: {fileID: 2100000, guid: 876eb472a6bf23c469b220f07f46b7d5, type: 2}
+  skyMatDusk: {fileID: 2100000, guid: 28f8a3af6766483489936836ea7adf13, type: 2}
+  skyMatNight: {fileID: 2100000, guid: c69bb3abd674cac40b1ac217c80b5289, type: 2}
 --- !u!43 &187665240
 Mesh:
   m_ObjectHideFlags: 0

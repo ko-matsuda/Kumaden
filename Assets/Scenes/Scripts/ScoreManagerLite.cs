@@ -340,7 +340,23 @@ public int CalculateTotalScore()
         return GetSessionCount() >= MAX_SESSIONS_BEFORE_AD;
     }
     
-    public static void ResetSessionCount()
+    public void ResetPerSongCounts()
+    {
+        perfectCount = 0;
+        goodCount = 0;
+        missCount = 0;
+        combo = 0;
+        maxChain = 0;
+        flour = 0;
+        milk = 0;
+        egg = 0;
+        isHoldNotePerfect = false;
+        UpdateUI();
+        Debug.Log("[ScoreManagerLite] Per-song counts reset");
+    }
+
+    
+public static void ResetSessionCount()
     {
         sessionCount = 1;
         PlayerPrefs.SetInt(SESSION_COUNT_KEY, 1);

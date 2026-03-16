@@ -228,7 +228,13 @@ private System.Collections.IEnumerator TransitionToNextSong()
 
         yield return null;
 
-        // ここで初めてノーツをリセット＆新チャートロード
+        
+// resultVideoController.rankをリセット（曲B開始時に前回の値が残らないよう）
+        var resultVideoCtrl = FindObjectOfType<ResultVideoController>();
+        if (resultVideoCtrl != null) resultVideoCtrl.rank = "";
+
+        
+// ここで初めてノーツをリセット＆新チャートロード
         LoadChart();
 
         if (conductor != null && chartSpawner != null && chartSpawner.currentChart != null)
