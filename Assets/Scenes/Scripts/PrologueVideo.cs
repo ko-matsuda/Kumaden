@@ -46,13 +46,14 @@ public class PrologueVideo : MonoBehaviour
 
     void Start()
     {
+        bool hasSeenPrologue = PlayerPrefs.GetInt("HasSeenPrologue", 0) == 1;
         bool skipFlag = GameFlags.SkipPrologueOnce;
         
-        Debug.Log($"[PrologueVideo] Start - SkipPrologueOnce={skipFlag}");
+        Debug.Log($"[PrologueVideo] Start - hasSeenPrologue={hasSeenPrologue}, SkipPrologueOnce={skipFlag}");
         
-        if (skipFlag)
+        if (hasSeenPrologue || skipFlag)
         {
-            Debug.Log("[PrologueVideo] Skipping prologue video (SkipPrologueOnce)");
+            Debug.Log("[PrologueVideo] Skipping prologue video");
             enabled = false;
             return;
         }
